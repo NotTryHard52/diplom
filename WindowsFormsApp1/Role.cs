@@ -21,6 +21,8 @@ namespace WindowsFormsApp1
 
         private void Role_Load(object sender, EventArgs e)
         {
+            int count = CountData.GetTableCount("Roles");
+            label2.Text = $"Количество записей: {count}";
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -32,19 +34,9 @@ namespace WindowsFormsApp1
                 da.Fill(t);
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = t;
-                dataGridView1.Columns[0].HeaderText = "ID";
+                dataGridView1.Columns[0].Visible = false;
                 dataGridView1.Columns[1].HeaderText = "Наименование";
             }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            
         }
     }
 }

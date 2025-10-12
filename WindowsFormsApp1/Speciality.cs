@@ -21,6 +21,8 @@ namespace WindowsFormsApp1
 
         private void Speciality_Load(object sender, EventArgs e)
         {
+            int count = CountData.GetTableCount("Speciality");
+            label2.Text = $"Количество записей: {count}";
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -32,7 +34,7 @@ namespace WindowsFormsApp1
                 da.Fill(t);
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = t;
-                dataGridView1.Columns[0].HeaderText = "ID";
+                dataGridView1.Columns[0].Visible = false;
                 dataGridView1.Columns[1].HeaderText = "Наименование";
             }
         }
