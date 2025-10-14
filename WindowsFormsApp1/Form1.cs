@@ -12,9 +12,10 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        public Form1()
+        public Form1(string FIO)
         {
             InitializeComponent();
+            label_fio.Text = FIO;
         }
 
         private void pictureBox5_Click(object sender, EventArgs e)
@@ -41,6 +42,16 @@ namespace WindowsFormsApp1
 
             panel2.Controls.Add(childForm);
             childForm.Show();
+        }
+
+        private void pictureBox9_Click(object sender, EventArgs e)
+        {
+            panel1.Width = 193;
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

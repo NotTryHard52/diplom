@@ -87,8 +87,12 @@ namespace WindowsFormsApp1
 
         private void pictureBox9_Click(object sender, EventArgs e)
         {
-
             panel1.Width = 193;
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

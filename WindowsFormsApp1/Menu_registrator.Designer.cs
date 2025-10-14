@@ -30,30 +30,30 @@ namespace WindowsFormsApp1
         private void InitializeComponent()
         {
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label_role = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.label_fio = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label_fio = new System.Windows.Forms.Label();
-            this.label_role = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox9 = new System.Windows.Forms.PictureBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.pictureBox8 = new System.Windows.Forms.PictureBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.pictureBox7 = new System.Windows.Forms.PictureBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.panel2.SuspendLayout();
-            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).BeginInit();
@@ -76,6 +76,36 @@ namespace WindowsFormsApp1
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(910, 610);
             this.panel2.TabIndex = 9;
+            // 
+            // label_role
+            // 
+            this.label_role.AutoSize = true;
+            this.label_role.Location = new System.Drawing.Point(9, 231);
+            this.label_role.Name = "label_role";
+            this.label_role.Size = new System.Drawing.Size(106, 20);
+            this.label_role.TabIndex = 17;
+            this.label_role.Text = "Регистратор";
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox1.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.меню;
+            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.pictureBox1.Location = new System.Drawing.Point(395, 12);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(526, 586);
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
+            // 
+            // label_fio
+            // 
+            this.label_fio.AutoSize = true;
+            this.label_fio.Location = new System.Drawing.Point(9, 256);
+            this.label_fio.Name = "label_fio";
+            this.label_fio.Size = new System.Drawing.Size(47, 20);
+            this.label_fio.TabIndex = 18;
+            this.label_fio.Text = "ФИО";
             // 
             // label8
             // 
@@ -112,87 +142,6 @@ namespace WindowsFormsApp1
             this.panel1.Size = new System.Drawing.Size(193, 610);
             this.panel1.TabIndex = 8;
             // 
-            // label_fio
-            // 
-            this.label_fio.AutoSize = true;
-            this.label_fio.Location = new System.Drawing.Point(9, 256);
-            this.label_fio.Name = "label_fio";
-            this.label_fio.Size = new System.Drawing.Size(47, 20);
-            this.label_fio.TabIndex = 18;
-            this.label_fio.Text = "ФИО";
-            // 
-            // label_role
-            // 
-            this.label_role.AutoSize = true;
-            this.label_role.Location = new System.Drawing.Point(9, 231);
-            this.label_role.Name = "label_role";
-            this.label_role.Size = new System.Drawing.Size(106, 20);
-            this.label_role.TabIndex = 17;
-            this.label_role.Text = "Регистратор";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(65, 435);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(105, 20);
-            this.label7.TabIndex = 16;
-            this.label7.Text = "Учет талона";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(65, 373);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(55, 20);
-            this.label6.TabIndex = 14;
-            this.label6.Text = "Талон";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(65, 314);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(98, 20);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "Расписание";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(65, 256);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(86, 20);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Пациенты";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(65, 571);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(58, 20);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Выход";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(65, 200);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(56, 20);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "Врачи";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(65, 138);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(60, 20);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Услуги";
-            // 
             // label9
             // 
             this.label9.AutoSize = true;
@@ -201,18 +150,7 @@ namespace WindowsFormsApp1
             this.label9.Size = new System.Drawing.Size(118, 20);
             this.label9.TabIndex = 18;
             this.label9.Text = "Главное меню";
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.меню;
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Location = new System.Drawing.Point(395, 12);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(526, 586);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
+            this.label9.Click += new System.EventHandler(this.label9_Click);
             // 
             // pictureBox9
             // 
@@ -226,6 +164,15 @@ namespace WindowsFormsApp1
             this.pictureBox9.TabStop = false;
             this.pictureBox9.Click += new System.EventHandler(this.pictureBox9_Click);
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(65, 435);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(105, 20);
+            this.label7.TabIndex = 16;
+            this.label7.Text = "Учет талона";
+            // 
             // pictureBox8
             // 
             this.pictureBox8.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.учет_талона;
@@ -237,6 +184,15 @@ namespace WindowsFormsApp1
             this.pictureBox8.TabIndex = 15;
             this.pictureBox8.TabStop = false;
             this.pictureBox8.Click += new System.EventHandler(this.pictureBox8_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(65, 373);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(55, 20);
+            this.label6.TabIndex = 14;
+            this.label6.Text = "Талон";
             // 
             // pictureBox7
             // 
@@ -250,6 +206,15 @@ namespace WindowsFormsApp1
             this.pictureBox7.TabStop = false;
             this.pictureBox7.Click += new System.EventHandler(this.pictureBox7_Click);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(65, 314);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(98, 20);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Расписание";
+            // 
             // pictureBox6
             // 
             this.pictureBox6.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.расписание;
@@ -261,6 +226,15 @@ namespace WindowsFormsApp1
             this.pictureBox6.TabIndex = 11;
             this.pictureBox6.TabStop = false;
             this.pictureBox6.Click += new System.EventHandler(this.pictureBox6_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(65, 256);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(86, 20);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Пациенты";
             // 
             // pictureBox4
             // 
@@ -274,6 +248,15 @@ namespace WindowsFormsApp1
             this.pictureBox4.TabStop = false;
             this.pictureBox4.Click += new System.EventHandler(this.pictureBox4_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(65, 571);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(58, 20);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Выход";
+            // 
             // pictureBox5
             // 
             this.pictureBox5.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.выход1;
@@ -286,6 +269,15 @@ namespace WindowsFormsApp1
             this.pictureBox5.TabStop = false;
             this.pictureBox5.Click += new System.EventHandler(this.pictureBox5_Click);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(65, 200);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(56, 20);
+            this.label4.TabIndex = 4;
+            this.label4.Text = "Врачи";
+            // 
             // pictureBox3
             // 
             this.pictureBox3.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.врачи;
@@ -297,6 +289,15 @@ namespace WindowsFormsApp1
             this.pictureBox3.TabIndex = 3;
             this.pictureBox3.TabStop = false;
             this.pictureBox3.Click += new System.EventHandler(this.pictureBox3_Click);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(65, 138);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(60, 20);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "Услуги";
             // 
             // pictureBox2
             // 
@@ -326,9 +327,9 @@ namespace WindowsFormsApp1
             this.Text = "Меню";
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).EndInit();

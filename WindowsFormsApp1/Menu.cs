@@ -36,10 +36,10 @@ namespace WindowsFormsApp1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            Form1 user = new Form1();
-            this.Hide();
-            user.ShowDialog();
-            this.Show();
+            //Form1 user = new Form1();
+            //this.Hide();
+            //user.ShowDialog();
+            //this.Show();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -100,6 +100,11 @@ namespace WindowsFormsApp1
         public void ExpandPanel()
         {
             this.Width = 1120;
+        }
+
+        private void pictureBox9_Click(object sender, EventArgs e)
+        {
+            panel1.Width = 193;
         }
     }
 }

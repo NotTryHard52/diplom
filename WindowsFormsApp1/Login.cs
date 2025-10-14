@@ -89,7 +89,7 @@ namespace WindowsFormsApp1
                         }
                         if (dt.Rows[0].ItemArray.GetValue(1).ToString() == "3")
                         {
-                            Form1 glav = new Form1();
+                            Form1 glav = new Form1(FIO);
                             this.Hide();
                             glav.ShowDialog();
                             this.Close();

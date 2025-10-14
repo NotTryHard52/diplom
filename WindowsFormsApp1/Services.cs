@@ -29,7 +29,7 @@ namespace WindowsFormsApp1
             {
                 con.Open();
                 DataTable t = new DataTable();
-                MySqlCommand cmd = new MySqlCommand("SELECT * FROM Services;", con);
+                MySqlCommand cmd = new MySqlCommand("SELECT s.idServices, s.Name, s.`Base Price`, c.Name FROM Services s JOIN Category c ON s.Category = c.idCategory;", con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(t);
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
