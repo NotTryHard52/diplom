@@ -40,5 +40,24 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[3].HeaderText = "Категория";
             }
         }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Russian(sender, e);
+        }
+
+        private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Numbers(sender, e);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (textBox1.TextLength < 1 || textBox2.TextLength < 1 || comboBox1.SelectedIndex < 1)
+            {
+                MessageBox.Show("Заполните все поля!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+        }
     }
 }

@@ -51,6 +51,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddDoctor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddDoctor.Designer.cs">
+      <DependentUpon>AddDoctor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddPatient.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddPatient.Designer.cs">
+      <DependentUpon>AddPatient.cs</DependentUpon>
+    </Compile>
     <Compile Include="Connect.cs" />
     <Compile Include="CountData.cs" />
     <Compile Include="EditDoctor.cs">
@@ -65,6 +77,7 @@
     <Compile Include="EditPatient.Designer.cs">
       <DependentUpon>EditPatient.cs</DependentUpon>
     </Compile>
+    <Compile Include="InputLimit.cs" />
     <Compile Include="Patient.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -180,6 +193,12 @@
     <Compile Include="ViewPriem.Designer.cs">
       <DependentUpon>ViewPriem.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AddDoctor.resx">
+      <DependentUpon>AddDoctor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddPatient.resx">
+      <DependentUpon>AddPatient.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EditDoctor.resx">
       <DependentUpon>EditDoctor.cs</DependentUpon>
     </EmbeddedResource>

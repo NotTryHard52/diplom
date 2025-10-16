@@ -54,17 +54,21 @@ namespace WindowsFormsApp1
             // textBox1
             // 
             this.textBox1.Location = new System.Drawing.Point(12, 164);
+            this.textBox1.MaxLength = 40;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(262, 26);
             this.textBox1.TabIndex = 1;
+            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
             // textBox2
             // 
             this.textBox2.Location = new System.Drawing.Point(12, 216);
+            this.textBox2.MaxLength = 40;
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(262, 26);
             this.textBox2.TabIndex = 3;
             this.textBox2.UseSystemPasswordChar = true;
+            this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox2_KeyPress);
             // 
             // label2
             // 

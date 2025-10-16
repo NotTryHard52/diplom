@@ -112,6 +112,7 @@ namespace WindowsFormsApp1
             this.button1.TabIndex = 39;
             this.button1.Text = "Добавить";
             this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // label9
             // 
@@ -126,10 +127,12 @@ namespace WindowsFormsApp1
             // textBox5
             // 
             this.textBox5.Location = new System.Drawing.Point(12, 31);
+            this.textBox5.MaxLength = 40;
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(280, 26);
             this.textBox5.TabIndex = 35;
             this.textBox5.TextChanged += new System.EventHandler(this.textBox5_TextChanged);
+            this.textBox5.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox5_KeyPress);
             // 
             // label2
             // 

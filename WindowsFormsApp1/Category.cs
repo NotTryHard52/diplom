@@ -38,5 +38,10 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[1].HeaderText = "Наименование";
             }
         }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Russian(sender, e);
+        }
     }
 }

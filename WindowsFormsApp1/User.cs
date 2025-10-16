@@ -41,5 +41,30 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[6].HeaderText = "Роль";
             }
         }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Russian_Hyphen(sender, e);
+        }
+
+        private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.OnlyRussian(sender, e);
+        }
+
+        private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.OnlyRussian(sender, e);
+        }
+
+        private void textBox6_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.English_Symbol(sender, e);
+        }
+
+        private void textBox5_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.English_Symbol(sender, e);
+        }
     }
 }

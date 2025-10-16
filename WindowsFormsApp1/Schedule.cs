@@ -23,6 +23,7 @@ namespace WindowsFormsApp1
         private void Schedule_Load(object sender, EventArgs e)
         {
             FillStatuses();
+            InputLimit.DateOrder(dateTimePicker1);
             int count = CountData.GetTableCount("Schedule");
             comboBox2.SelectedIndex = 0;
             comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;

@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class EditDoctor : Form
+    public partial class AddDoctor : Form
     {
-        public EditDoctor()
+        public AddDoctor()
         {
             InitializeComponent();
         }

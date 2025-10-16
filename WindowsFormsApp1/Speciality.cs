@@ -48,5 +48,10 @@ namespace WindowsFormsApp1
         {
 
         }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Russian(sender, e);
+        }
     }
 }

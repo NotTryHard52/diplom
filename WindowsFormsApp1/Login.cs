@@ -28,7 +28,7 @@ namespace WindowsFormsApp1
                 connectionString = connect.ConnectDB();
                 if (textBox1.TextLength < 1 || textBox2.TextLength < 1)
                 {
-                    MessageBox.Show("Заполните все поля!");
+                    MessageBox.Show("Заполните все поля!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
                 string login = textBox1.Text;
@@ -52,7 +52,7 @@ namespace WindowsFormsApp1
                     sda.Fill(dt);
                     if (dt.Rows.Count == 0)
                     {
-                        MessageBox.Show("Пользователь не найден!");
+                        MessageBox.Show("Пользователь не найден!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         textBox1.Clear();
                         textBox2.Clear();
                         return;
@@ -97,7 +97,7 @@ namespace WindowsFormsApp1
                     }
                     else
                     {
-                        MessageBox.Show("Неверный пароль!");
+                        MessageBox.Show("Неверный пароль!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         textBox2.Clear();
                     }
                 }
@@ -151,6 +151,16 @@ namespace WindowsFormsApp1
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             textBox2.UseSystemPasswordChar = !checkBox1.Checked;
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.English_Symbol(sender, e);
+        }
+
+        private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.English_Symbol(sender, e);
         }
     }
 }

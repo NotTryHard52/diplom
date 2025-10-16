@@ -66,6 +66,7 @@ namespace WindowsFormsApp1
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(226, 26);
             this.textBox1.TabIndex = 20;
+            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
             // label1
             // 
@@ -127,6 +128,7 @@ namespace WindowsFormsApp1
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(226, 26);
             this.textBox2.TabIndex = 23;
+            this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox2_KeyPress);
             // 
             // label3
             // 
@@ -143,6 +145,7 @@ namespace WindowsFormsApp1
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(226, 26);
             this.textBox3.TabIndex = 25;
+            this.textBox3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox3_KeyPress);
             // 
             // label4
             // 
@@ -168,6 +171,7 @@ namespace WindowsFormsApp1
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(226, 26);
             this.textBox5.TabIndex = 29;
+            this.textBox5.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox5_KeyPress);
             // 
             // label6
             // 
@@ -184,6 +188,7 @@ namespace WindowsFormsApp1
             this.textBox6.Name = "textBox6";
             this.textBox6.Size = new System.Drawing.Size(226, 26);
             this.textBox6.TabIndex = 27;
+            this.textBox6.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox6_KeyPress);
             // 
             // label7
             // 
@@ -196,6 +201,7 @@ namespace WindowsFormsApp1
             // 
             // comboBox1
             // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(244, 136);
             this.comboBox1.Name = "comboBox1";

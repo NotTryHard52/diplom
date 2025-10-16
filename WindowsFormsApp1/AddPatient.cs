@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class EditDoctor : Form
+    public partial class AddPatient : Form
     {
-        public EditDoctor()
+        public AddPatient()
         {
             InitializeComponent();
         }
@@ -32,9 +32,19 @@ namespace WindowsFormsApp1
             InputLimit.OnlyRussian(sender, e);
         }
 
+        private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Numbers(sender, e);
+        }
+
+        private void AddPatient_Load(object sender, EventArgs e)
+        {
+            InputLimit.Date(dateTimePicker1);
+        }
+
         private void button6_Click(object sender, EventArgs e)
         {
-            if (textBox1.TextLength < 1 || textBox2.TextLength < 1 || textBox3.TextLength < 1 || comboBox2.SelectedIndex < 1)
+            if (textBox1.TextLength < 1 || textBox2.TextLength < 1 || textBox3.TextLength < 1 || textBox4.TextLength < 1)
             {
                 MessageBox.Show("Заполните все поля!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;

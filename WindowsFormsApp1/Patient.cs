@@ -94,5 +94,17 @@ namespace WindowsFormsApp1
         {
             ApplyFilterAndSort();
         }
+
+        private void textBox5_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Russian_Hyphen(sender, e);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            AddPatient ad = new AddPatient();
+            ad.ShowDialog();
+            this.Show();
+        }
     }
 }
