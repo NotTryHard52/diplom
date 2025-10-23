@@ -169,6 +169,12 @@
     <Compile Include="Status.Designer.cs">
       <DependentUpon>Status.cs</DependentUpon>
     </Compile>
+    <Compile Include="StatusPriem.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StatusPriem.Designer.cs">
+      <DependentUpon>StatusPriem.cs</DependentUpon>
+    </Compile>
     <Compile Include="Talon.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -251,6 +257,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Status.resx">
       <DependentUpon>Status.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StatusPriem.resx">
+      <DependentUpon>StatusPriem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Talon.resx">
       <DependentUpon>Talon.cs</DependentUpon>

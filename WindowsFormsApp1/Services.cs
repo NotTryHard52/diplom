@@ -21,10 +21,12 @@ namespace WindowsFormsApp1
 
         private void Services_Load(object sender, EventArgs e)
         {
-            int count = CountData.GetTableCount("Services");
-            label2.Text = $"Количество записей: {count}";
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
+            LoadServices();
+        }
+        private void LoadServices()
+        {
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
@@ -38,7 +40,19 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[1].HeaderText = "Наименование";
                 dataGridView1.Columns[2].HeaderText = "Цена";
                 dataGridView1.Columns[3].HeaderText = "Категория";
+                label2.Text = $"Количество записей: {t.Rows.Count}";
+
+                string categoryQuery = "SELECT idCategory, Name FROM Category;";
+                MySqlCommand roleCmd = new MySqlCommand(categoryQuery, con);
+                MySqlDataAdapter roleDa = new MySqlDataAdapter(roleCmd);
+                DataTable roleTable = new DataTable();
+                roleDa.Fill(roleTable);
+
+                comboBox1.DisplayMember = "Name";
+                comboBox1.ValueMember = "idCategory";
+                comboBox1.DataSource = roleTable;
             }
+
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
@@ -53,11 +67,63 @@ namespace WindowsFormsApp1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (textBox1.TextLength < 1 || textBox2.TextLength < 1 || comboBox1.SelectedIndex < 1)
+            if (string.IsNullOrWhiteSpace(textBox1.Text) ||
+        string.IsNullOrWhiteSpace(textBox2.Text) ||
+        comboBox1.SelectedValue == null)       
             {
-                MessageBox.Show("Заполните все поля!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            if (!decimal.TryParse(textBox2.Text.Trim(), out decimal price) || price <= 0)
+            {
+                MessageBox.Show("Введите корректную цену!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string serviceName = textBox1.Text.Trim();
+            int categoryId = Convert.ToInt32(comboBox1.SelectedValue);
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    con.Open();
+
+                    string checkQuery = "SELECT COUNT(*) FROM Services WHERE Name = @name";
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                    {
+                        checkCmd.Parameters.AddWithValue("@name", serviceName);
+                        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                        if (count > 0)
+                        {
+                            MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+
+                    string insertQuery = "INSERT INTO Services (Name, `Base Price`, Category) VALUES (@name, @price, @category)";
+                    using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, con))
+                    {
+                        insertCmd.Parameters.AddWithValue("@name", serviceName);
+                        insertCmd.Parameters.AddWithValue("@price", price);
+                        insertCmd.Parameters.AddWithValue("@category", categoryId);
+                        insertCmd.ExecuteNonQuery();
+                    }
+
+                    MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadServices();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка при добавлении услуги:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            textBox1.Clear();
+            textBox2.Clear();
+            comboBox1.SelectedIndex = -1;
         }
     }
 }

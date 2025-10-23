@@ -11,34 +11,33 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public partial class Category : Form
+    public partial class StatusPriem : Form
     {
         string connectionString;
-        public Category()
+        public StatusPriem()
         {
             InitializeComponent();
         }
 
-        private void Category_Load(object sender, EventArgs e)
+        private void StatusPriem_Load(object sender, EventArgs e)
         {
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
-            LoadCategory();
+            LoadStatusPriem();
         }
-        private void LoadCategory()
+        private void LoadStatusPriem()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
                 DataTable t = new DataTable();
-                MySqlCommand cmd = new MySqlCommand("SELECT * FROM Category;", con);
+                MySqlCommand cmd = new MySqlCommand("SELECT * FROM StatusesPriem;", con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(t);
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = t;
                 dataGridView1.Columns[0].Visible = false;
                 dataGridView1.Columns[1].HeaderText = "Наименование";
-
                 label2.Text = $"Количество записей: {t.Rows.Count}";
             }
         }
@@ -50,9 +49,9 @@ namespace WindowsFormsApp1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string categoryName = textBox1.Text.Trim();
+            string statusName = textBox1.Text.Trim();
 
-            if (string.IsNullOrEmpty(categoryName))
+            if (string.IsNullOrEmpty(statusName))
             {
                 MessageBox.Show("Поле не должно быть пустым!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -62,9 +61,9 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
-                string checkQuery = "SELECT COUNT(*) FROM Category WHERE Name = @name";
+                string checkQuery = "SELECT COUNT(*) FROM StatusesPriem WHERE Name = @name";
                 MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@name", categoryName);
+                checkCmd.Parameters.AddWithValue("@name", statusName);
 
                 int count = Convert.ToInt32(checkCmd.ExecuteScalar());
 
@@ -74,16 +73,16 @@ namespace WindowsFormsApp1
                     return;
                 }
 
-                string insertQuery = "INSERT INTO Category (Name) VALUES (@name)";
+                string insertQuery = "INSERT INTO StatusesPriem (Name) VALUES (@name)";
                 MySqlCommand insertCmd = new MySqlCommand(insertQuery, con);
-                insertCmd.Parameters.AddWithValue("@name", categoryName);
+                insertCmd.Parameters.AddWithValue("@name", statusName);
                 insertCmd.ExecuteNonQuery();
 
                 MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             textBox1.Clear();
-            LoadCategory();
+            LoadStatusPriem();
         }
     }
 }

@@ -37,5 +37,10 @@ namespace WindowsFormsApp1
         {
             DictionarySelected?.Invoke(new Speciality());
         }
+
+        private void pictureBox5_Click(object sender, EventArgs e)
+        {
+            DictionarySelected?.Invoke(new StatusPriem());
+        }
     }
 }

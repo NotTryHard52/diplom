@@ -21,10 +21,12 @@ namespace WindowsFormsApp1
 
         private void Speciality_Load(object sender, EventArgs e)
         {
-            int count = CountData.GetTableCount("Speciality");
-            label2.Text = $"Количество записей: {count}";
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
+            LoadSpeciality();
+        }
+        private void LoadSpeciality()
+        {
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
@@ -36,22 +38,51 @@ namespace WindowsFormsApp1
                 dataGridView1.DataSource = t;
                 dataGridView1.Columns[0].Visible = false;
                 dataGridView1.Columns[1].HeaderText = "Наименование";
+                label2.Text = $"Количество записей: {t.Rows.Count}";
             }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Russian(sender, e);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string specialityName = textBox1.Text.Trim();
+
+            if (string.IsNullOrEmpty(specialityName))
+            {
+                MessageBox.Show("Поле не должно быть пустым!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM Speciality WHERE SpecialityName = @name";
+                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                checkCmd.Parameters.AddWithValue("@name", specialityName);
+
+                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                if (count > 0)
+                {
+                    MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string insertQuery = "INSERT INTO Speciality (SpecialityName) VALUES (@name)";
+                MySqlCommand insertCmd = new MySqlCommand(insertQuery, con);
+                insertCmd.Parameters.AddWithValue("@name", specialityName);
+                insertCmd.ExecuteNonQuery();
+
+                MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            textBox1.Clear();
+            LoadSpeciality();
         }
     }
 }
