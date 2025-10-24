@@ -126,7 +126,6 @@ namespace WindowsFormsApp1
         {
             if (string.IsNullOrWhiteSpace(textBox1.Text) || 
         string.IsNullOrWhiteSpace(textBox2.Text) ||
-        string.IsNullOrWhiteSpace(textBox3.Text) ||
         string.IsNullOrWhiteSpace(textBox6.Text) ||
         string.IsNullOrWhiteSpace(textBox5.Text) || 
         comboBox1.SelectedValue == null)             

@@ -12,10 +12,12 @@ namespace WindowsFormsApp1
 {
     public partial class Menu_registrator : Form
     {
-        public Menu_registrator(string FIO)
+        private int currentUserId;
+        public Menu_registrator(string FIO, int userId)
         {
             InitializeComponent();
             label_fio.Text = FIO;
+            currentUserId = userId;
         }
         private void OpenChildForm(Form childForm)
         {
@@ -71,7 +73,7 @@ namespace WindowsFormsApp1
 
         private void pictureBox7_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Talon());
+            OpenChildForm(new Talon(label_fio.Text, currentUserId));
             panel1.Width = 60;
             label_fio.Visible = false;
             label_role.Visible = false;

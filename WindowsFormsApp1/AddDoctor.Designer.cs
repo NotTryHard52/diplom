@@ -192,6 +192,7 @@ namespace WindowsFormsApp1
             this.Name = "AddDoctor";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Добалвние врача";
+            this.Load += new System.EventHandler(this.AddDoctor_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

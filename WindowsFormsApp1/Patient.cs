@@ -15,6 +15,7 @@ namespace WindowsFormsApp1
     {
         string connectionString;
         DataTable patientTable;
+        public event Action<int, string> PatientSelected;
         public Patient()
         {
             InitializeComponent();
@@ -105,6 +106,25 @@ namespace WindowsFormsApp1
             AddPatient ad = new AddPatient();
             ad.ShowDialog();
             this.Show();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите пациента!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DataGridViewRow row = dataGridView1.SelectedRows[0];
+
+            int patientId = Convert.ToInt32(row.Cells["idPatients"].Value);
+            string fullName = $"{row.Cells["Surname"].Value} {row.Cells["Name"].Value} {row.Cells["Lastname"].Value}";
+
+            // Вызываем событие
+            PatientSelected?.Invoke(patientId, fullName);
+
+            this.Close();
         }
     }
 }

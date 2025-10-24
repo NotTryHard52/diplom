@@ -26,30 +26,37 @@ namespace WindowsFormsApp1
             {
                 Connect connect = new Connect();
                 connectionString = connect.ConnectDB();
-                if (textBox1.TextLength < 1 || textBox2.TextLength < 1)
+
+                if (string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
                 {
                     MessageBox.Show("Заполните все поля!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
+
                 string login = textBox1.Text;
                 string password = textBox2.Text;
-                string hash_password;
 
-                using (var sh2 = SHA256.Create())
+                // Хешируем введённый пароль
+                string hash_password;
+                using (SHA256 sha = SHA256.Create())
                 {
-                    var sh2byte = sh2.ComputeHash(Encoding.UTF8.GetBytes(password));
-                    hash_password = BitConverter.ToString(sh2byte).Replace("-", "").ToLower();
+                    byte[] hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                    hash_password = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
                 }
+
                 using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
                     con.Open();
-                    MySqlCommand cmd = new MySqlCommand("SELECT Password, Role, Surname, Name, Lastname " +
+
+                    MySqlCommand cmd = new MySqlCommand(
+                        "SELECT idUsers, Password, Role, Surname, Name, Lastname " +
                         "FROM users WHERE login = @login", con);
                     cmd.Parameters.AddWithValue("@login", login);
 
                     MySqlDataAdapter sda = new MySqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     sda.Fill(dt);
+
                     if (dt.Rows.Count == 0)
                     {
                         MessageBox.Show("Пользователь не найден!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -57,57 +64,46 @@ namespace WindowsFormsApp1
                         textBox2.Clear();
                         return;
                     }
-                    string surname = dt.Rows[0]["Surname"].ToString();
-                    string name = dt.Rows[0]["Name"].ToString();
-                    string lastname = dt.Rows[0]["Lastname"].ToString();
-                    string FIO = $"{surname} {name} {lastname}";
-                    using (var sh2 = SHA256.Create())
-                    {
-                        var sh2byte = sh2.ComputeHash(Encoding.UTF8.GetBytes(password));
-                        hash_password = BitConverter.ToString(sh2byte).Replace("-", "").ToLower();
-                    }
-                    string hashpassword = dt.Rows[0].ItemArray.GetValue(0).ToString();
-                    if (hash_password == hashpassword)
-                    {
-                        if (dt.Rows[0].ItemArray.GetValue(1).ToString() == "1")
-                        {
-                            Menu admin = new Menu(FIO);
-                            this.Hide();
-                            admin.ShowDialog();
-                            MySqlConnection con3 = new MySqlConnection(connectionString);
-                            con.Close();
-                            textBox1.Text = "";
-                            textBox2.Text = "";
-                            this.Close();
-                        }
-                        if (dt.Rows[0].ItemArray.GetValue(1).ToString() == "2")
-                        {
-                            Menu_registrator reg = new Menu_registrator(FIO);
-                            this.Hide();
-                            reg.ShowDialog();
-                            this.Close();
-                        }
-                        if (dt.Rows[0].ItemArray.GetValue(1).ToString() == "3")
-                        {
-                            Form1 glav = new Form1(FIO);
-                            this.Hide();
-                            glav.ShowDialog();
-                            this.Close();
-                        }
-                    }
-                    else
+
+                    DataRow userRow = dt.Rows[0];
+
+                    int userId = Convert.ToInt32(userRow["idUsers"]);
+                    string dbPasswordHash = userRow["Password"].ToString();
+                    string role = userRow["Role"].ToString();
+                    string FIO = $"{userRow["Surname"]} {userRow["Name"]} {userRow["Lastname"]}";
+
+                    // Сравниваем хеши пароля
+                    if (hash_password != dbPasswordHash)
                     {
                         MessageBox.Show("Неверный пароль!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         textBox2.Clear();
+                        return;
                     }
+
+                    // Успешный вход
+                    this.Hide();
+                    if (role == "1")
+                    {
+                        Menu admin = new Menu(FIO);
+                        admin.ShowDialog();
+                    }
+                    else if (role == "2")
+                    {
+                        Menu_registrator reg = new Menu_registrator(FIO, userId);
+                        reg.ShowDialog();
+                    }
+                    else if (role == "3")
+                    {
+                        Form1 glav = new Form1(FIO);
+                        glav.ShowDialog();
+                    }
+                    this.Close();
                 }
             }
             catch (MySqlException ex)
             {
-                MessageBox.Show(ex.ToString());
-                return;
+                MessageBox.Show(ex.Message, "Ошибка базы данных", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            textBox1.Clear();
         }
 
         private void button2_Click(object sender, EventArgs e)
