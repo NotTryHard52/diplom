@@ -14,6 +14,7 @@ namespace WindowsFormsApp1
     public partial class Speciality : Form
     {
         string connectionString;
+        int selectedId = -1;
         public Speciality()
         {
             InitializeComponent();
@@ -82,6 +83,68 @@ namespace WindowsFormsApp1
             }
 
             textBox1.Clear();
+            LoadSpeciality();
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+                selectedId = Convert.ToInt32(row.Cells[0].Value);
+                textBox1.Text = row.Cells[1].Value.ToString();
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (selectedId == -1)
+            {
+                MessageBox.Show("Выберите запись для редактирования!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string newName = textBox1.Text.Trim();
+            if (string.IsNullOrEmpty(newName))
+            {
+                MessageBox.Show("Поле не должно быть пустым!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string currentName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
+            if (newName == currentName)
+            {
+                MessageBox.Show("Вы не внесли изменений!", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM Speciality WHERE SpecialityName = @name AND IdSpeciality != @id";
+                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                checkCmd.Parameters.AddWithValue("@name", newName);
+                checkCmd.Parameters.AddWithValue("@id", selectedId);
+
+                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string updateQuery = "UPDATE Speciality SET SpecialityName = @name WHERE IdSpeciality = @id";
+                MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
+                updateCmd.Parameters.AddWithValue("@name", newName);
+                updateCmd.Parameters.AddWithValue("@id", selectedId);
+                updateCmd.ExecuteNonQuery();
+
+                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            textBox1.Clear();
+            selectedId = -1;
             LoadSpeciality();
         }
     }

@@ -1,12 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -16,8 +10,6 @@ namespace WindowsFormsApp1
         private int orderId;
         string connectionString;
         decimal totalSum = 0;
-        decimal discount = 0;
-        decimal finalSum = 0;
 
         public ViewPriem(int orderId)
         {
@@ -71,21 +63,19 @@ namespace WindowsFormsApp1
                 // 2️⃣ Загрузка услуг
                 string serviceQuery = @"
                     SELECT 
-                        s.name AS 'Услуга',
-                        os.count AS 'Количество',
-                        s.`Base price` AS 'Цена за единицу',
-                        (os.count * s.`Base price`) AS 'Сумма'
-                    FROM orderservices AS os
-                    INNER JOIN services AS s ON os.servicesId = s.idServices
-                    WHERE os.orderid = @orderId;
+                        s.Name AS 'Услуга',
+                        s.`Base Price` AS 'Цена',
+                        s.`Base Price` AS 'Сумма'
+                    FROM OrderServices os
+                    INNER JOIN Services s ON os.ServicesId = s.idServices
+                    WHERE os.OrderId = @orderId;
                 ";
 
                 using (MySqlCommand cmd2 = new MySqlCommand(serviceQuery, con))
                 {
                     cmd2.Parameters.AddWithValue("@orderId", orderId);
-                    MySqlDataAdapter da = new MySqlDataAdapter(cmd2);
                     DataTable dt = new DataTable();
-                    da.Fill(dt);
+                    new MySqlDataAdapter(cmd2).Fill(dt);
                     dataGridView1.DataSource = dt;
                     dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 }
@@ -119,27 +109,7 @@ namespace WindowsFormsApp1
                 }
             }
 
-            discount = totalSum > 1000 ? totalSum * 0.05m : 0;
-            finalSum = totalSum - discount;
-
-            label_total.Text = $"Общая сумма: {totalSum:F2} ₽";
-            label_discount.Text = $"Скидка: {discount:F2} ₽";
-            label_final.Text = $"Итог к оплате: {finalSum:F2} ₽";
-        }
-
-        // 🔄 Пересчет при редактировании количества в DataGrid
-        private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-            if (dataGridView1.Columns[e.ColumnIndex].HeaderText == "Количество")
-            {
-                var row = dataGridView1.Rows[e.RowIndex];
-                if (decimal.TryParse(row.Cells["Количество"].Value?.ToString(), out decimal count) &&
-                    decimal.TryParse(row.Cells["Цена за единицу"].Value?.ToString(), out decimal price))
-                {
-                    row.Cells["Сумма"].Value = count * price;
-                }
-                CalculateTotal();
-            }
+            label_total.Text = $"Итого: {totalSum:F2} ₽";
         }
 
         private void button3_Click(object sender, EventArgs e)

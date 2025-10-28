@@ -136,74 +136,75 @@ namespace WindowsFormsApp1
         // Сохранение талона в базу
         private void button7_Click(object sender, EventArgs e)
         {
-            if (dataGridView2.Rows.Count == 0)
+            if (selectedPatientId == 0 || selectedScheduleId == 0 || dataGridView2.Rows.Count == 0)
             {
-                MessageBox.Show("Добавьте хотя бы одну услугу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите пациента, расписание и добавьте хотя бы одну услугу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            if (selectedScheduleId == 0 || selectedPatientId == 0)
+
+            decimal total = 0;
+            foreach (DataGridViewRow row in dataGridView2.Rows)
             {
-                MessageBox.Show("Выберите расписание и пациента!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                total += Convert.ToDecimal(row.Cells["Price"].Value);
             }
 
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
-                MySqlTransaction transaction = con.BeginTransaction();
-
-                try
+                using (MySqlTransaction transaction = con.BeginTransaction())
                 {
-                    // Сумма
-                    decimal total = 0;
-                    foreach (DataGridViewRow row in dataGridView2.Rows)
+                    try
                     {
-                        total += Convert.ToDecimal(row.Cells["Price"].Value);
+                        int orderId; // объявляем здесь, чтобы была доступна дальше
+
+                        // Вставляем запись в Order
+                        string insertOrder = @"
+                    INSERT INTO `Order` (sum, schedule, Patients_idPatients, Status, User)
+                    VALUES (@sum, @schedule, @patientId, @status, @userId);
+                    SELECT LAST_INSERT_ID();";
+
+                        using (MySqlCommand cmd = new MySqlCommand(insertOrder, con, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@sum", total);
+                            cmd.Parameters.AddWithValue("@schedule", selectedScheduleId);
+                            cmd.Parameters.AddWithValue("@patientId", selectedPatientId);
+                            cmd.Parameters.AddWithValue("@status", 3); // 3 = Создан
+                            cmd.Parameters.AddWithValue("@userId", currentUserId);
+                            orderId = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+
+                        // Вставляем услуги в OrderServices
+                        string insertService = @"
+                    INSERT INTO OrderServices (OrderId, ServicesId)
+                    VALUES (@orderId, @serviceId)";
+                        foreach (DataGridViewRow row in dataGridView2.Rows)
+                        {
+                            int serviceId = Convert.ToInt32(row.Cells["ServiceId"].Value);
+                            using (MySqlCommand cmd = new MySqlCommand(insertService, con, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("@orderId", orderId);
+                                cmd.Parameters.AddWithValue("@serviceId", serviceId);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        transaction.Commit();
+                        MessageBox.Show("Талон успешно оформлен!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        // Очистка формы
+                        dataGridView2.Rows.Clear();
+                        label6.Text = "Итого: 0 руб.";
+                        label1.Text = "Врач: ";
+                        label7.Text = "Дата приема: ";
+                        label8.Text = "Время приема: ";
+
+                        selectedPatientId = selectedScheduleId = 0;
                     }
-
-                    // Вставка в Order
-                    string insertOrderQuery = @"
-                        INSERT INTO `Order` (sum, schedule, user, Patients_idPatients, Status)
-                        VALUES (@sum, @schedule, @user, @patient, 'Создан')";
-                    MySqlCommand cmdOrder = new MySqlCommand(insertOrderQuery, con, transaction);
-                    cmdOrder.Parameters.AddWithValue("@sum", total);
-                    cmdOrder.Parameters.AddWithValue("@schedule", selectedScheduleId);
-                    cmdOrder.Parameters.AddWithValue("@user", currentUserId);
-                    cmdOrder.Parameters.AddWithValue("@patient", selectedPatientId);
-                    cmdOrder.ExecuteNonQuery();
-
-                    long orderId = cmdOrder.LastInsertedId;
-
-                    // Вставка в OrderServices
-                    string insertServiceQuery = "INSERT INTO OrderServices (OrderId, ServicesId) VALUES (@orderId, @serviceId)";
-                    MySqlCommand cmdService = new MySqlCommand(insertServiceQuery, con, transaction);
-
-                    foreach (DataGridViewRow row in dataGridView2.Rows)
+                    catch (Exception ex)
                     {
-                        int serviceId = Convert.ToInt32(row.Cells["ServiceId"].Value);
-                        cmdService.Parameters.Clear();
-                        cmdService.Parameters.AddWithValue("@orderId", orderId);
-                        cmdService.Parameters.AddWithValue("@serviceId", serviceId);
-                        cmdService.ExecuteNonQuery();
+                        transaction.Rollback();
+                        MessageBox.Show("Ошибка при сохранении: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-
-                    transaction.Commit();
-                    MessageBox.Show("Талон успешно сохранён!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    // Очистка формы
-                    dataGridView2.Rows.Clear();
-                    UpdateTotal();
-                    label1.Text = "Врач:";
-                    label7.Text = "Дата приема:";
-                    label8.Text = "Время приема:";
-                    label9.Text = "Пациент:";
-                    selectedScheduleId = 0;
-                    selectedPatientId = 0;
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    MessageBox.Show("Ошибка при сохранении талона:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
