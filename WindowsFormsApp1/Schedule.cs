@@ -205,5 +205,10 @@ namespace WindowsFormsApp1
 
             this.Close();
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            comboBox2.SelectedIndex = 0;
+        }
     }
 }

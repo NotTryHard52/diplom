@@ -139,5 +139,12 @@ namespace WindowsFormsApp1
         {
             InputLimit.Russian_Hyphen(sender, e);
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            comboBox2.SelectedIndex = 0;
+            comboBox1.SelectedIndex = 0;
+            textBox5.Text = "";
+        }
     }
 }

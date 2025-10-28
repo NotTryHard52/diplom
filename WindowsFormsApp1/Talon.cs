@@ -155,7 +155,7 @@ namespace WindowsFormsApp1
                 {
                     try
                     {
-                        int orderId; // объявляем здесь, чтобы была доступна дальше
+                        int orderId;
 
                         // Вставляем запись в Order
                         string insertOrder = @"
@@ -170,6 +170,7 @@ namespace WindowsFormsApp1
                             cmd.Parameters.AddWithValue("@patientId", selectedPatientId);
                             cmd.Parameters.AddWithValue("@status", 3); // 3 = Создан
                             cmd.Parameters.AddWithValue("@userId", currentUserId);
+
                             orderId = Convert.ToInt32(cmd.ExecuteScalar());
                         }
 
@@ -188,6 +189,14 @@ namespace WindowsFormsApp1
                             }
                         }
 
+                        // Обновляем статус расписания на "занято" (например, Status = 2)
+                        string updateSchedule = "UPDATE Schedule SET Status = 2 WHERE idSchedule = @scheduleId";
+                        using (MySqlCommand cmd = new MySqlCommand(updateSchedule, con, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@scheduleId", selectedScheduleId);
+                            cmd.ExecuteNonQuery();
+                        }
+
                         transaction.Commit();
                         MessageBox.Show("Талон успешно оформлен!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -197,6 +206,7 @@ namespace WindowsFormsApp1
                         label1.Text = "Врач: ";
                         label7.Text = "Дата приема: ";
                         label8.Text = "Время приема: ";
+                        label9.Text = "Пациент: ";
 
                         selectedPatientId = selectedScheduleId = 0;
                     }
@@ -206,6 +216,37 @@ namespace WindowsFormsApp1
                         MessageBox.Show("Ошибка при сохранении: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (dataGridView2.Rows.Count == 0)
+            {
+                MessageBox.Show("Нет услуг для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (dataGridView2.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите услугу для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult result = MessageBox.Show(
+                "Вы действительно хотите удалить выбранную услугу из талона?",
+                "Подтверждение",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                foreach (DataGridViewRow row in dataGridView2.SelectedRows)
+                {
+                    dataGridView2.Rows.Remove(row);
+                }
+
+                UpdateTotal();
             }
         }
     }

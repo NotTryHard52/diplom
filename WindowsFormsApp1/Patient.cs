@@ -98,7 +98,7 @@ namespace WindowsFormsApp1
 
         private void textBox5_KeyPress(object sender, KeyPressEventArgs e)
         {
-            InputLimit.Russian_Hyphen(sender, e);
+            InputLimit.Numbers(sender, e);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -125,6 +125,12 @@ namespace WindowsFormsApp1
             PatientSelected?.Invoke(patientId, fullName);
 
             this.Close();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            comboBox2.SelectedIndex = 0;
+            textBox5.Text = "";
         }
     }
 }
