@@ -191,7 +191,7 @@ namespace WindowsFormsApp1
             this.MinimizeBox = false;
             this.Name = "Patient";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Patient";
+            this.Text = "Пациенты";
             this.Load += new System.EventHandler(this.Patient_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);

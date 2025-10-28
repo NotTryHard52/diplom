@@ -18,27 +18,28 @@ namespace WindowsFormsApp1
             InitializeComponent();
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+
+        private void button1_Click(object sender, EventArgs e)
         {
             DictionarySelected?.Invoke(new Role());
         }
 
-        private void pictureBox2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
             DictionarySelected?.Invoke(new Status());
         }
 
-        private void pictureBox3_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)
         {
             DictionarySelected?.Invoke(new Category());
         }
 
-        private void pictureBox4_Click(object sender, EventArgs e)
+        private void button4_Click(object sender, EventArgs e)
         {
             DictionarySelected?.Invoke(new Speciality());
         }
 
-        private void pictureBox5_Click(object sender, EventArgs e)
+        private void button5_Click(object sender, EventArgs e)
         {
             DictionarySelected?.Invoke(new StatusPriem());
         }
