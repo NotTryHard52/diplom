@@ -15,6 +15,7 @@ namespace WindowsFormsApp1
     {
         string connectionString;
         DataTable scheduleTable;
+        int selectedScheduleId = -1;
         public event Action<int, string, string, string> ScheduleSelected;
         public Schedule()
         {
@@ -209,6 +210,93 @@ namespace WindowsFormsApp1
         private void button5_Click(object sender, EventArgs e)
         {
             comboBox2.SelectedIndex = 0;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (selectedScheduleId == -1)
+            {
+                MessageBox.Show("Выберите запись для редактирования!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (comboBox1.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите врача!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int doctorId = Convert.ToInt32(comboBox1.SelectedValue);
+            DateTime date = dateTimePicker1.Value.Date;
+            TimeSpan time = dateTimePicker2.Value.TimeOfDay;
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string checkQuery = @"
+                    SELECT COUNT(*) FROM Schedule
+                    WHERE idDoctor = @idDoctor AND date = @date AND time = @time 
+                          AND idSchedule <> @idSchedule";
+                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                {
+                    checkCmd.Parameters.AddWithValue("@idDoctor", doctorId);
+                    checkCmd.Parameters.AddWithValue("@date", date);
+                    checkCmd.Parameters.AddWithValue("@time", time);
+                    checkCmd.Parameters.AddWithValue("@idSchedule", selectedScheduleId);
+
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        MessageBox.Show("У этого врача уже есть запись на указанное время!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+
+                string updateQuery = @"
+                    UPDATE Schedule
+                    SET idDoctor = @doctorId, date = @date, time = @time
+                    WHERE idSchedule = @idSchedule";
+                using (MySqlCommand updateCmd = new MySqlCommand(updateQuery, con))
+                {
+                    updateCmd.Parameters.AddWithValue("@doctorId", doctorId);
+                    updateCmd.Parameters.AddWithValue("@date", date);
+                    updateCmd.Parameters.AddWithValue("@time", time);
+                    updateCmd.Parameters.AddWithValue("@idSchedule", selectedScheduleId);
+                    updateCmd.ExecuteNonQuery();
+                }
+
+                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            selectedScheduleId = -1;
+            LoadSchedule();
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+            selectedScheduleId = Convert.ToInt32(row.Cells["idSchedule"].Value);
+
+            string doctorFullName = row.Cells["Врач"].Value.ToString();
+            string status = row.Cells["Статус"].Value.ToString();
+
+            if (status != "Свободно")
+            {
+                MessageBox.Show("Редактирование невозможно — расписание уже занято!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                selectedScheduleId = -1;
+                return;
+            }
+
+            comboBox1.SelectedIndex = comboBox1.FindStringExact(doctorFullName);
+
+            if (DateTime.TryParse(row.Cells["Дата приема"].Value.ToString(), out DateTime date))
+                dateTimePicker1.Value = date;
+
+            if (TimeSpan.TryParse(row.Cells["Время приема"].Value.ToString(), out TimeSpan time))
+                dateTimePicker2.Value = DateTime.Today.Add(time);
         }
     }
 }

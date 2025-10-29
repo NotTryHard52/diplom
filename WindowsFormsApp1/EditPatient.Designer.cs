@@ -29,7 +29,6 @@ namespace WindowsFormsApp1
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox4 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             this.maskedTextBox2 = new System.Windows.Forms.MaskedTextBox();
@@ -42,16 +41,8 @@ namespace WindowsFormsApp1
             this.label2 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
             this.SuspendLayout();
-            // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(14, 298);
-            this.textBox4.MaxLength = 10;
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(266, 26);
-            this.textBox4.TabIndex = 86;
-            this.textBox4.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox4_KeyPress);
             // 
             // label5
             // 
@@ -89,9 +80,9 @@ namespace WindowsFormsApp1
             // button6
             // 
             this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button6.Location = new System.Drawing.Point(18, 387);
+            this.button6.Location = new System.Drawing.Point(12, 387);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(262, 37);
+            this.button6.Size = new System.Drawing.Size(266, 37);
             this.button6.TabIndex = 81;
             this.button6.Text = "Редактировать";
             this.button6.UseVisualStyleBackColor = false;
@@ -160,12 +151,21 @@ namespace WindowsFormsApp1
             this.label1.TabIndex = 74;
             this.label1.Text = "Фамилия:";
             // 
+            // maskedTextBox1
+            // 
+            this.maskedTextBox1.Location = new System.Drawing.Point(14, 298);
+            this.maskedTextBox1.Mask = "0000000000000000";
+            this.maskedTextBox1.Name = "maskedTextBox1";
+            this.maskedTextBox1.Size = new System.Drawing.Size(266, 26);
+            this.maskedTextBox1.TabIndex = 87;
+            this.maskedTextBox1.ValidatingType = typeof(int);
+            // 
             // EditPatient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(290, 436);
-            this.Controls.Add(this.textBox4);
+            this.Controls.Add(this.maskedTextBox1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.dateTimePicker1);
             this.Controls.Add(this.maskedTextBox2);
@@ -193,8 +193,6 @@ namespace WindowsFormsApp1
         }
 
         #endregion
-
-        private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.DateTimePicker dateTimePicker1;
         private System.Windows.Forms.MaskedTextBox maskedTextBox2;
@@ -207,5 +205,6 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.MaskedTextBox maskedTextBox1;
     }
 }

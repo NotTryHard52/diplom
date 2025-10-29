@@ -48,8 +48,8 @@ namespace WindowsFormsApp1
         {
             if (string.IsNullOrWhiteSpace(textBox1.Text) || 
                 string.IsNullOrWhiteSpace(textBox2.Text) ||     
-                !maskedTextBox2.MaskFull ||                  
-                string.IsNullOrWhiteSpace(textBox4.Text))  
+                !maskedTextBox2.MaskFull ||
+                !maskedTextBox1.MaskFull)  
             {
                 MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -58,14 +58,8 @@ namespace WindowsFormsApp1
             string name = textBox2.Text.Trim();
             string lastname = textBox3.Text.Trim();
             string phone_number = maskedTextBox2.Text.Trim();
-            string policy = textBox4.Text.Trim();
+            string policy = maskedTextBox1.Text.Trim();
             DateTime birthDate = dateTimePicker1.Value.Date;
-
-            if (policy.Length != 10)
-            {
-                MessageBox.Show("Полис должен содержать ровно 10 символов!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
 
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
@@ -88,7 +82,7 @@ namespace WindowsFormsApp1
                 }
 
                 string insertQuery = @"
-            INSERT INTO Patients (Surname, Name, Lastname, `Date of birth`, Phone_number, Number_policy)
+            INSERT INTO Patients (Surname, Name, Lastname, Date_birth, Phone_number, Number_policy)
             VALUES (@surname, @name, @lastname, @birthDate, @phone_number, @policy)";
 
                 using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, con))
@@ -110,7 +104,7 @@ namespace WindowsFormsApp1
             textBox2.Clear();
             textBox3.Clear();
             maskedTextBox2.Clear();
-            textBox4.Clear();
+            maskedTextBox1.Clear();
         }
     }
 }

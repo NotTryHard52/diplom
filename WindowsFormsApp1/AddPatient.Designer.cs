@@ -40,8 +40,8 @@ namespace WindowsFormsApp1
             this.maskedTextBox2 = new System.Windows.Forms.MaskedTextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
-            this.textBox4 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
             this.SuspendLayout();
             // 
             // button6
@@ -142,15 +142,6 @@ namespace WindowsFormsApp1
             this.dateTimePicker1.Size = new System.Drawing.Size(266, 26);
             this.dateTimePicker1.TabIndex = 71;
             // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(12, 298);
-            this.textBox4.MaxLength = 10;
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(266, 26);
-            this.textBox4.TabIndex = 73;
-            this.textBox4.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox4_KeyPress);
-            // 
             // label5
             // 
             this.label5.AutoSize = true;
@@ -160,12 +151,20 @@ namespace WindowsFormsApp1
             this.label5.TabIndex = 72;
             this.label5.Text = "Номер полиса:";
             // 
+            // maskedTextBox1
+            // 
+            this.maskedTextBox1.Location = new System.Drawing.Point(12, 298);
+            this.maskedTextBox1.Mask = "0000000000000000";
+            this.maskedTextBox1.Name = "maskedTextBox1";
+            this.maskedTextBox1.Size = new System.Drawing.Size(266, 26);
+            this.maskedTextBox1.TabIndex = 73;
+            // 
             // AddPatient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(290, 436);
-            this.Controls.Add(this.textBox4);
+            this.Controls.Add(this.maskedTextBox1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.dateTimePicker1);
             this.Controls.Add(this.maskedTextBox2);
@@ -204,7 +203,7 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.MaskedTextBox maskedTextBox2;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.DateTimePicker dateTimePicker1;
-        private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.MaskedTextBox maskedTextBox1;
     }
 }

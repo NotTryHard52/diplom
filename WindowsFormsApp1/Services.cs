@@ -14,6 +14,10 @@ namespace WindowsFormsApp1
     public partial class Services : Form
     {
         string connectionString;
+        int selectedId;
+        public int SelectedServiceId { get; private set; }
+        public string SelectedServiceName { get; private set; }
+        public decimal SelectedServicePrice { get; private set; }
         public Services()
         {
             InitializeComponent();
@@ -31,7 +35,7 @@ namespace WindowsFormsApp1
             {
                 con.Open();
                 DataTable t = new DataTable();
-                MySqlCommand cmd = new MySqlCommand("SELECT s.idServices, s.Name, s.`Base Price`, c.Name FROM Services s JOIN Category c ON s.Category = c.idCategory;", con);
+                MySqlCommand cmd = new MySqlCommand("SELECT s.idServices, s.Name, s.Price, c.Name AS Category FROM Services s JOIN Category c ON s.Category = c.idCategory;", con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(t);
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -43,14 +47,14 @@ namespace WindowsFormsApp1
                 label2.Text = $"Количество записей: {t.Rows.Count}";
 
                 string categoryQuery = "SELECT idCategory, Name FROM Category;";
-                MySqlCommand roleCmd = new MySqlCommand(categoryQuery, con);
-                MySqlDataAdapter roleDa = new MySqlDataAdapter(roleCmd);
-                DataTable roleTable = new DataTable();
-                roleDa.Fill(roleTable);
+                MySqlCommand categoryCmd = new MySqlCommand(categoryQuery, con);
+                MySqlDataAdapter categoryDa = new MySqlDataAdapter(categoryCmd);
+                DataTable categoryTable = new DataTable();
+                categoryDa.Fill(categoryTable);
 
                 comboBox1.DisplayMember = "Name";
                 comboBox1.ValueMember = "idCategory";
-                comboBox1.DataSource = roleTable;
+                comboBox1.DataSource = categoryTable;
             }
 
         }
@@ -103,7 +107,7 @@ namespace WindowsFormsApp1
                         }
                     }
 
-                    string insertQuery = "INSERT INTO Services (Name, `Base Price`, Category) VALUES (@name, @price, @category)";
+                    string insertQuery = "INSERT INTO Services (Name, Price, Category) VALUES (@name, @price, @category)";
                     using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, con))
                     {
                         insertCmd.Parameters.AddWithValue("@name", serviceName);
@@ -124,6 +128,119 @@ namespace WindowsFormsApp1
             textBox1.Clear();
             textBox2.Clear();
             comboBox1.SelectedIndex = -1;
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+
+                selectedId = Convert.ToInt32(row.Cells["idServices"].Value);
+                textBox1.Text = row.Cells["Name"].Value.ToString();
+                textBox2.Text = row.Cells["Price"].Value.ToString();
+                string categoryName = row.Cells["Category"].Value.ToString();
+                comboBox1.SelectedIndex = comboBox1.FindStringExact(categoryName);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (selectedId == -1)
+            {
+                MessageBox.Show("Выберите запись для редактирования!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string name = textBox1.Text.Trim();
+            string priceText = textBox2.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(priceText) || comboBox1.SelectedValue == null)
+            {
+                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!decimal.TryParse(priceText, out decimal price) || price <= 0)
+            {
+                MessageBox.Show("Введите корректную цену!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int categoryId = Convert.ToInt32(comboBox1.SelectedValue);
+
+            DataGridViewRow currentRow = dataGridView1.SelectedRows.Count > 0 ? dataGridView1.SelectedRows[0] : null;
+            if (currentRow != null)
+            {
+                string currentName = currentRow.Cells["Name"].Value.ToString();
+                string currentPrice = currentRow.Cells["Price"].Value.ToString();
+                string currentCategory = currentRow.Cells["Category"].Value.ToString();
+                string newCategory = comboBox1.Text;
+
+                bool changed = name != currentName || priceText != currentPrice || newCategory != currentCategory;
+
+                if (!changed)
+                {
+                    MessageBox.Show("Вы не внесли никаких изменений!", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+            }
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM Services WHERE Name = @name AND idServices <> @id";
+                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                {
+                    checkCmd.Parameters.AddWithValue("@name", name);
+                    checkCmd.Parameters.AddWithValue("@id", selectedId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+
+                string updateQuery = @"UPDATE Services 
+                                           SET Name = @name, Price = @price, Category = @category 
+                                           WHERE idServices = @id";
+                using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@price", price);
+                    cmd.Parameters.AddWithValue("@category", categoryId);
+                    cmd.Parameters.AddWithValue("@id", selectedId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadServices();
+
+                selectedId = -1;
+                textBox1.Clear();
+                textBox2.Clear();
+                comboBox1.SelectedIndex = -1;
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите услугу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var row = dataGridView1.SelectedRows[0];
+            SelectedServiceId = Convert.ToInt32(row.Cells["idServices"].Value);
+            SelectedServiceName = row.Cells["Name"].Value.ToString();
+            SelectedServicePrice = Convert.ToDecimal(row.Cells["Price"].Value);
+
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
     }
 }

@@ -49,9 +49,18 @@ namespace WindowsFormsApp1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            EditPatient ed = new EditPatient();
+            if (dataGridView1.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите запись для редактирования!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int id = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["idPatients"].Value);
+
+            EditPatient ed = new EditPatient(id);
             ed.ShowDialog();
-            this.Show();
+
+            Patient_Load(sender, e);
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)

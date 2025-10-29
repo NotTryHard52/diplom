@@ -29,7 +29,7 @@ namespace WindowsFormsApp1
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.label_number = new System.Windows.Forms.Label();
             this.label_patient = new System.Windows.Forms.Label();
@@ -44,8 +44,6 @@ namespace WindowsFormsApp1
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.label_total = new System.Windows.Forms.Label();
-            this.label_discount = new System.Windows.Forms.Label();
-            this.label_final = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -58,14 +56,14 @@ namespace WindowsFormsApp1
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle6;
             this.dataGridView1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.dataGridView1.Location = new System.Drawing.Point(12, 72);
             this.dataGridView1.MultiSelect = false;
@@ -131,6 +129,7 @@ namespace WindowsFormsApp1
             // 
             // comboBox1
             // 
+            this.comboBox1.Enabled = false;
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(579, 38);
             this.comboBox1.Name = "comboBox1";
@@ -147,6 +146,7 @@ namespace WindowsFormsApp1
             this.button1.TabIndex = 57;
             this.button1.Text = "Добавить";
             this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
@@ -158,6 +158,7 @@ namespace WindowsFormsApp1
             this.button2.TabIndex = 58;
             this.button2.Text = "Удалить";
             this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
@@ -180,6 +181,7 @@ namespace WindowsFormsApp1
             this.button4.TabIndex = 60;
             this.button4.Text = "Закрыть прием";
             this.button4.UseVisualStyleBackColor = false;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button5
             // 
@@ -198,33 +200,13 @@ namespace WindowsFormsApp1
             this.label_total.Name = "label_total";
             this.label_total.Size = new System.Drawing.Size(58, 20);
             this.label_total.TabIndex = 62;
-            this.label_total.Text = "Сумма";
-            // 
-            // label_discount
-            // 
-            this.label_discount.AutoSize = true;
-            this.label_discount.Location = new System.Drawing.Point(746, 177);
-            this.label_discount.Name = "label_discount";
-            this.label_discount.Size = new System.Drawing.Size(65, 20);
-            this.label_discount.TabIndex = 63;
-            this.label_discount.Text = "Скидка";
-            // 
-            // label_final
-            // 
-            this.label_final.AutoSize = true;
-            this.label_final.Location = new System.Drawing.Point(746, 197);
-            this.label_final.Name = "label_final";
-            this.label_final.Size = new System.Drawing.Size(45, 20);
-            this.label_final.TabIndex = 64;
-            this.label_final.Text = "Итог";
+            this.label_total.Text = "Итого:";
             // 
             // ViewPriem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(922, 571);
-            this.Controls.Add(this.label_final);
-            this.Controls.Add(this.label_discount);
             this.Controls.Add(this.label_total);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
@@ -269,7 +251,5 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Label label_total;
-        private System.Windows.Forms.Label label_discount;
-        private System.Windows.Forms.Label label_final;
     }
 }

@@ -50,7 +50,7 @@ namespace WindowsFormsApp1
                 MySqlCommand cmd = new MySqlCommand(@"
                     SELECT s.idServices AS ServiceId,
                            s.Name AS ServiceName,
-                           s.`Base Price` AS Price,
+                           s.Price,
                            c.Name AS CategoryName
                     FROM Services s
                     JOIN Category c ON s.Category = c.idCategory;", con);
