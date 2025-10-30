@@ -21,12 +21,22 @@ namespace WindowsFormsApp1
         {
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
-
-
             LoadOrderData();
             LoadServices();
             LoadStatuses();
             CalculateTotal();
+            if (comboBox1.Text == "Завершен" || comboBox1.Text == "Отменен")
+            {
+                DisableEditing();
+            }
+        }
+        private void DisableEditing()
+        {
+            dataGridView1.Enabled = false;
+            button1.Enabled = false;
+            button2.Enabled = false;
+            button4.Enabled = false;
+            comboBox1.Enabled = false;
         }
 
         private void LoadOrderData()
@@ -115,8 +125,7 @@ namespace WindowsFormsApp1
             label_total.Text = $"Итого: {totalSum:F2} ₽";
         }
 
-        // Закрытие приёма
-        private void button3_Click(object sender, EventArgs e)
+        private void button4_Click(object sender, EventArgs e)
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
@@ -134,7 +143,6 @@ namespace WindowsFormsApp1
 
                 comboBox1.Text = "Завершен";
 
-                // Заблокировать редактирование услуг
                 dataGridView1.Enabled = false;
                 button1.Enabled = false;
                 button2.Enabled = false;
@@ -143,7 +151,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        // Добавить услугу
         private void button1_Click(object sender, EventArgs e)
         {
             AddServiceToOrder(orderId);
@@ -151,7 +158,6 @@ namespace WindowsFormsApp1
             CalculateTotal();
         }
 
-        // Удалить услугу
         private void button2_Click(object sender, EventArgs e)
         {
             RemoveSelectedService(orderId);
@@ -168,20 +174,22 @@ namespace WindowsFormsApp1
                 string serviceName = servicesForm.SelectedServiceName;
                 decimal servicePrice = servicesForm.SelectedServicePrice;
 
-                // Проверка на дубликат
-                foreach (DataGridViewRow row in dataGridView1.Rows)
+                DataTable dt = (DataTable)dataGridView1.DataSource;
+
+                foreach (DataRow existingRow in dt.Rows)
                 {
-                    if (row.Cells["Услуга"].Value.ToString() == serviceName)
+                    if (existingRow["Услуга"].ToString() == serviceName)
                     {
                         MessageBox.Show("Эта услуга уже добавлена!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
                 }
 
-                // Добавляем в DataGridView
-                dataGridView1.Rows.Add(serviceName, servicePrice);
+                DataRow newRow = dt.NewRow();
+                newRow["Услуга"] = serviceName;
+                newRow["Цена"] = servicePrice;
+                dt.Rows.Add(newRow);
 
-                // Добавляем в базу
                 using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
                     con.Open();
@@ -206,16 +214,19 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            DataGridViewRow row = dataGridView1.SelectedRows[0];
-            string serviceName = row.Cells["Услуга"].Value.ToString();
+            string serviceName = dataGridView1.SelectedRows[0].Cells["Услуга"].Value.ToString();
 
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                // Просто удаляем по названию
                 string deleteQuery = @"
-                    DELETE os FROM OrderServices os
-                    INNER JOIN Services s ON os.ServicesId = s.idServices
-                    WHERE os.OrderId=@orderId AND s.Name=@serviceName LIMIT 1;";
+            DELETE FROM OrderServices 
+            WHERE OrderId = @orderId 
+              AND ServicesId = (SELECT idServices FROM Services WHERE Name = @serviceName LIMIT 1)
+            LIMIT 1;";
+
                 using (MySqlCommand cmd = new MySqlCommand(deleteQuery, con))
                 {
                     cmd.Parameters.AddWithValue("@orderId", orderId);
@@ -223,9 +234,15 @@ namespace WindowsFormsApp1
                     cmd.ExecuteNonQuery();
                 }
             }
+
+            // Обновляем таблицу и сумму
+            LoadServices();
+            CalculateTotal();
+
+            MessageBox.Show("Услуга удалена.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)
         {
             this.Close();
         }

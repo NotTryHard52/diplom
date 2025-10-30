@@ -11,8 +11,18 @@ namespace WindowsFormsApp1
     {
         public static void English_Symbol(object sender, KeyPressEventArgs e)
         {
+            TextBox textBox = sender as TextBox;
+            if (textBox == null)
+                return;
+
             if (char.IsControl(e.KeyChar))
                 return;
+
+            if (textBox.Text.Length >= textBox.MaxLength)
+            {
+                e.Handled = true;
+                return;
+            }
 
             if ((e.KeyChar >= 'А' && e.KeyChar <= 'я') || e.KeyChar == 'Ё' || e.KeyChar == 'ё')
             {
@@ -25,7 +35,11 @@ namespace WindowsFormsApp1
             var textBox = sender as TextBox;
             if (textBox == null)
                 return;
-
+            if (textBox.Text.Length >= textBox.MaxLength)
+            {
+                e.Handled = true;
+                return;
+            }
             if (char.IsControl(e.KeyChar))
                 return;
 
@@ -61,6 +75,11 @@ namespace WindowsFormsApp1
             var textBox = sender as TextBox;
             if (textBox == null)
                 return;
+            if (textBox.Text.Length >= textBox.MaxLength)
+            {
+                e.Handled = true;
+                return;
+            }
 
             if (char.IsControl(e.KeyChar))
                 return;
@@ -90,6 +109,11 @@ namespace WindowsFormsApp1
 
             if (char.IsControl(e.KeyChar))
                 return;
+            if (textBox.Text.Length >= textBox.MaxLength)
+            {
+                e.Handled = true;
+                return;
+            }
 
             if ((e.KeyChar >= 'А' && e.KeyChar <= 'я') || e.KeyChar == 'Ё' || e.KeyChar == 'ё')
             {
