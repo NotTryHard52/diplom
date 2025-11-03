@@ -148,5 +148,37 @@ namespace WindowsFormsApp1
             selectedId = -1;
             LoadCategory();
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (selectedId == -1)
+            {
+                MessageBox.Show("Выберите запись для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string CategoryName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
+
+            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{CategoryName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.No)
+                return;
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string deleteQuery = "DELETE FROM Category WHERE idCategory = @id";
+                MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
+                deleteCmd.Parameters.AddWithValue("@id", selectedId);
+                deleteCmd.ExecuteNonQuery();
+
+                MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            textBox1.Clear();
+            selectedId = -1;
+            LoadCategory();
+        }
     }
 }

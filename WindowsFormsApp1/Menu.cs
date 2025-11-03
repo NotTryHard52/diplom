@@ -12,10 +12,12 @@ namespace WindowsFormsApp1
 {
     public partial class Menu : Form
     {
-        public Menu(string FIO)
+        private int currentUserId;
+        public Menu(string FIO, int userId)
         {
             InitializeComponent();
             label_fio.Text = FIO;
+            currentUserId = userId;
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -68,12 +70,11 @@ namespace WindowsFormsApp1
 
         private void pictureBox3_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new User());
+            OpenChildForm(new User(currentUserId));
             panel1.Width = 60; // свернуть меню после открытия 193
         }
         private void OpenChildForm(Form childForm)
         {
-            // Закрыть предыдущую форму, если нужно
             panel2.Controls.Clear();
 
             childForm.TopLevel = false;

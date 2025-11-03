@@ -242,5 +242,39 @@ namespace WindowsFormsApp1
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (selectedId == -1)
+            {
+                MessageBox.Show("Выберите запись для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string ServicesName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
+
+            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{ServicesName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.No)
+                return;
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string deleteQuery = "DELETE FROM Services WHERE idServices = @id";
+                MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
+                deleteCmd.Parameters.AddWithValue("@id", selectedId);
+                deleteCmd.ExecuteNonQuery();
+
+                MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            textBox1.Clear();
+            textBox2.Clear();
+            comboBox1.SelectedIndex = -1;
+            selectedId = -1;
+            LoadServices();
+        }
     }
 }

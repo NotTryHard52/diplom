@@ -72,7 +72,6 @@ namespace WindowsFormsApp1
                     string role = userRow["Role"].ToString();
                     string FIO = $"{userRow["Surname"]} {userRow["Name"]} {userRow["Lastname"]}";
 
-                    // Сравниваем хеши пароля
                     if (hash_password != dbPasswordHash)
                     {
                         MessageBox.Show("Неверный пароль!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -80,11 +79,10 @@ namespace WindowsFormsApp1
                         return;
                     }
 
-                    // Успешный вход
                     this.Hide();
                     if (role == "1")
                     {
-                        Menu admin = new Menu(FIO);
+                        Menu admin = new Menu(FIO, userId);
                         admin.ShowDialog();
                     }
                     else if (role == "2")

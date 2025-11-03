@@ -21,7 +21,6 @@ namespace WindowsFormsApp1
         }
         private void OpenChildForm(Form childForm)
         {
-            // Закрыть предыдущую форму, если нужно
             panel2.Controls.Clear();
 
             childForm.TopLevel = false;

@@ -16,9 +16,11 @@ namespace WindowsFormsApp1
     {
         string connectionString;
         int selectedId = -1;
-        public User()
+        private int currentUserId;
+        public User(int userId)
         {
             InitializeComponent();
+            currentUserId = userId;
         }
 
         private void User_Load(object sender, EventArgs e)
@@ -327,6 +329,60 @@ namespace WindowsFormsApp1
             textBox5.Clear();
             textBox6.Clear();
             comboBox1.SelectedIndex = -1;
+            LoadUser();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (selectedId == -1)
+            {
+                MessageBox.Show("Выберите запись для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (selectedId == currentUserId)
+            {
+                MessageBox.Show("Нельзя удалить пользователя, под которым выполнен вход!","Отказано", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string userLogin = dataGridView1.SelectedRows[0].Cells["Login"].Value.ToString();
+
+            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить пользователя \"{userLogin}\"?","Подтверждение удаления",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+
+            if (result == DialogResult.No)
+                return;
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string deleteQuery = "DELETE FROM Users WHERE idUsers = @id";
+                using (MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con))
+                {
+                    deleteCmd.Parameters.AddWithValue("@id", selectedId);
+
+                    try
+                    {
+                        deleteCmd.ExecuteNonQuery();
+                        MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (MySqlException ex)
+                    {
+                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+            }
+
+            selectedId = -1;
+            textBox1.Clear();
+            textBox2.Clear();
+            textBox3.Clear();
+            textBox5.Clear();
+            textBox6.Clear();
+            comboBox1.SelectedIndex = -1;
+
             LoadUser();
         }
     }

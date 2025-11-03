@@ -153,5 +153,10 @@ namespace WindowsFormsApp1
             comboBox1.SelectedIndex = 0;
             textBox5.Text = "";
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
