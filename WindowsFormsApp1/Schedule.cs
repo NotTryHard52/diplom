@@ -17,6 +17,7 @@ namespace WindowsFormsApp1
         DataTable scheduleTable;
         int selectedScheduleId = -1;
         public event Action<int, string, string, string> ScheduleSelected;
+        string status;
         public Schedule()
         {
             InitializeComponent();
@@ -214,6 +215,13 @@ namespace WindowsFormsApp1
 
         private void button2_Click(object sender, EventArgs e)
         {
+            if (status != "Свободно")
+            {
+                MessageBox.Show("Редактирование невозможно — расписание уже занято!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                selectedScheduleId = -1;
+                return;
+            }
+
             if (selectedScheduleId == -1)
             {
                 MessageBox.Show("Выберите запись для редактирования!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -281,14 +289,8 @@ namespace WindowsFormsApp1
             selectedScheduleId = Convert.ToInt32(row.Cells["idSchedule"].Value);
 
             string doctorFullName = row.Cells["Врач"].Value.ToString();
-            string status = row.Cells["Статус"].Value.ToString();
+            status = row.Cells["Статус"].Value.ToString();
 
-            if (status != "Свободно")
-            {
-                MessageBox.Show("Редактирование невозможно — расписание уже занято!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                selectedScheduleId = -1;
-                return;
-            }
 
             comboBox1.SelectedIndex = comboBox1.FindStringExact(doctorFullName);
 
@@ -297,6 +299,42 @@ namespace WindowsFormsApp1
 
             if (TimeSpan.TryParse(row.Cells["Время приема"].Value.ToString(), out TimeSpan time))
                 dateTimePicker2.Value = DateTime.Today.Add(time);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (selectedScheduleId == -1)
+            {
+                MessageBox.Show("Выберите запись для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (status != "Свободно")
+            {
+                MessageBox.Show("Нельзя удалить занятую запись расписания!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult result = MessageBox.Show("Вы уверены, что хотите удалить выбранную запись расписания?","Подтверждение удаления",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+
+            if (result == DialogResult.No)
+                return;
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string deleteQuery = "DELETE FROM Schedule WHERE idSchedule = @id";
+                using (MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con))
+                {
+                    deleteCmd.Parameters.AddWithValue("@id", selectedScheduleId);
+                    deleteCmd.ExecuteNonQuery();
+                    MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+
+            selectedScheduleId = -1;
+            LoadSchedule();
         }
     }
 }

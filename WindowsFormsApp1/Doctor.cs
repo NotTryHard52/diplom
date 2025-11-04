@@ -15,6 +15,7 @@ namespace WindowsFormsApp1
     {
         string connectionString;
         DataTable doctorsTable;
+        int selectedId = -1;
 
         public Doctor()
         {
@@ -30,6 +31,10 @@ namespace WindowsFormsApp1
             comboBox1.SelectedIndex = 0;
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             textBox5.TextChanged += textBox5_TextChanged;
+            LoadDoctor();
+        }
+        private void LoadDoctor()
+        {
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -82,7 +87,7 @@ namespace WindowsFormsApp1
             int doctorId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["idDoctors"].Value);
             EditDoctor editForm = new EditDoctor(doctorId);
             editForm.ShowDialog();
-            Doctor_Load(sender, e);
+            LoadDoctor();
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
@@ -139,7 +144,8 @@ namespace WindowsFormsApp1
         {
             AddDoctor ad = new AddDoctor();
             ad.ShowDialog();
-            this.Show();
+
+            LoadDoctor();
         }
 
         private void textBox5_KeyPress(object sender, KeyPressEventArgs e)
@@ -156,7 +162,41 @@ namespace WindowsFormsApp1
 
         private void button3_Click(object sender, EventArgs e)
         {
+            if (selectedId == -1)
+            {
+                MessageBox.Show("Выберите запись для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
+            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.No)
+                return;
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string deleteQuery = "DELETE FROM Doctors WHERE idDoctors = @id";
+                using (MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con))
+                {
+                    deleteCmd.Parameters.AddWithValue("@id", selectedId);
+                    deleteCmd.ExecuteNonQuery();
+                    MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            selectedId = -1;
+
+            LoadDoctor();
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+                selectedId = Convert.ToInt32(row.Cells["idDoctors"].Value);
+            }
         }
     }
 }
