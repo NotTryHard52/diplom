@@ -291,14 +291,25 @@ namespace WindowsFormsApp1
             string doctorFullName = row.Cells["Врач"].Value.ToString();
             status = row.Cells["Статус"].Value.ToString();
 
-
             comboBox1.SelectedIndex = comboBox1.FindStringExact(doctorFullName);
 
-            if (DateTime.TryParse(row.Cells["Дата приема"].Value.ToString(), out DateTime date))
-                dateTimePicker1.Value = date;
+            if (DateTime.TryParse(row.Cells["Дата приема"].Value.ToString(), out DateTime dateFromDB))
+            {
+                if (dateFromDB < DateTime.Today)
+                    dateTimePicker1.Value = DateTime.Today;
+                else
+                    dateTimePicker1.Value = dateFromDB;
+            }
 
-            if (TimeSpan.TryParse(row.Cells["Время приема"].Value.ToString(), out TimeSpan time))
-                dateTimePicker2.Value = DateTime.Today.Add(time);
+            if (TimeSpan.TryParse(row.Cells["Время приема"].Value.ToString(), out TimeSpan timeFromDB))
+            {
+                DateTime combinedDateTime = dateTimePicker1.Value.Date + timeFromDB;
+
+                if (combinedDateTime < DateTime.Now)
+                    dateTimePicker2.Value = DateTime.Now;
+                else
+                    dateTimePicker2.Value = DateTime.Today.Add(timeFromDB);
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)

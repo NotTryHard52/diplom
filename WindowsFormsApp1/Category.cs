@@ -157,16 +157,32 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            string CategoryName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
-
-            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{CategoryName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (result == DialogResult.No)
-                return;
+            string categoryName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM Services WHERE Category = @categoryId";
+                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                checkCmd.Parameters.AddWithValue("@categoryId", selectedId);
+
+                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    MessageBox.Show("Нельзя удалить эту категорию, так как она используется в других записях!",
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                DialogResult result = MessageBox.Show(
+                    $"Вы уверены, что хотите удалить запись: \"{categoryName}\"?",
+                    "Подтверждение удаления",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.No)
+                    return;
 
                 string deleteQuery = "DELETE FROM Category WHERE idCategory = @id";
                 MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);

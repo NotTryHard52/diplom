@@ -156,16 +156,32 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            string StatusName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
-
-            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{StatusName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (result == DialogResult.No)
-                return;
+            string statusName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM `Order` WHERE Status = @statusId";
+                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                checkCmd.Parameters.AddWithValue("@statusId", selectedId);
+
+                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    MessageBox.Show("Нельзя удалить этот статус, так как он используется в расписании приёмов!",
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                DialogResult result = MessageBox.Show(
+                    $"Вы уверены, что хотите удалить запись: \"{statusName}\"?",
+                    "Подтверждение удаления",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.No)
+                    return;
 
                 string deleteQuery = "DELETE FROM StatusesPriem WHERE idStatusesPriem = @id";
                 MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);

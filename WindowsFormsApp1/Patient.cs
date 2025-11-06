@@ -155,14 +155,31 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (result == DialogResult.No)
-                return;
-
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM `Order` WHERE Patients_idPatients = @patientId";
+                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                {
+                    checkCmd.Parameters.AddWithValue("@patientId", selectedId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Нельзя удалить этого пациента, так как он используется в приемах!",
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+
+                DialogResult result = MessageBox.Show(
+                    "Вы уверены, что хотите удалить запись?",
+                    "Подтверждение удаления",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.No)
+                    return;
 
                 string deleteQuery = "DELETE FROM Patients WHERE idPatients = @id";
                 using (MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con))
@@ -172,8 +189,8 @@ namespace WindowsFormsApp1
                     MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
-            selectedId = -1;
 
+            selectedId = -1;
             LoadPatient();
         }
 

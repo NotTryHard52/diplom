@@ -161,14 +161,25 @@ namespace WindowsFormsApp1
 
             string roleName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
-            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{roleName}\"?","Подтверждение удаления",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
-
-            if (result == DialogResult.No)
-                return;
-
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM Users WHERE Role = @roleId";
+                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                checkCmd.Parameters.AddWithValue("@roleId", selectedRoleId);
+
+                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    MessageBox.Show("Нельзя удалить эту роль, так как она используется в других записях!","Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{roleName}\"?","Подтверждение удаления",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+
+                if (result == DialogResult.No)
+                    return;
 
                 string deleteQuery = "DELETE FROM Roles WHERE idRoles = @id";
                 MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);

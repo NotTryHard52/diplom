@@ -342,20 +342,37 @@ namespace WindowsFormsApp1
 
             if (selectedId == currentUserId)
             {
-                MessageBox.Show("Нельзя удалить пользователя, под которым выполнен вход!","Отказано", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Нельзя удалить пользователя, под которым выполнен вход!", "Отказано", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             string userLogin = dataGridView1.SelectedRows[0].Cells["Login"].Value.ToString();
 
-            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить пользователя \"{userLogin}\"?","Подтверждение удаления",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
-
-            if (result == DialogResult.No)
-                return;
-
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM `Order` WHERE User = @userId";
+                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                {
+                    checkCmd.Parameters.AddWithValue("@userId", selectedId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Нельзя удалить этого пользователя, так как он используется в других записях!",
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+
+                DialogResult result = MessageBox.Show(
+                    $"Вы уверены, что хотите удалить пользователя \"{userLogin}\"?",
+                    "Подтверждение удаления",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.No)
+                    return;
 
                 string deleteQuery = "DELETE FROM Users WHERE idUsers = @id";
                 using (MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con))

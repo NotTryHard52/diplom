@@ -158,14 +158,30 @@ namespace WindowsFormsApp1
 
             string SpecName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
-            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{SpecName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (result == DialogResult.No)
-                return;
-
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM Doctors WHERE Speciality = @specialityId";
+                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                checkCmd.Parameters.AddWithValue("@specialityId", selectedId);
+
+                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    MessageBox.Show("Нельзя удалить эту специальность, так как она используется в других записях!",
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                DialogResult result = MessageBox.Show(
+                    $"Вы уверены, что хотите удалить запись: \"{SpecName}\"?",
+                    "Подтверждение удаления",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.No)
+                    return;
 
                 string deleteQuery = "DELETE FROM Speciality WHERE idSpeciality = @id";
                 MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
