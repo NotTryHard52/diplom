@@ -28,7 +28,7 @@ namespace WindowsFormsApp1
 
         private void pictureBox2_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new UchetTalona());
+            OpenChildForm(new UchetTalona_GL());
             panel1.Width = 60;
         }
         private void OpenChildForm(Form childForm)

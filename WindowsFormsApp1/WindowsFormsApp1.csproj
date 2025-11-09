@@ -126,6 +126,12 @@
       <DependentUpon>EditPatient.cs</DependentUpon>
     </Compile>
     <Compile Include="InputLimit.cs" />
+    <Compile Include="OtchetExcel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OtchetExcel.Designer.cs">
+      <DependentUpon>OtchetExcel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Patient.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -235,6 +241,12 @@
     <Compile Include="UchetTalona.Designer.cs">
       <DependentUpon>UchetTalona.cs</DependentUpon>
     </Compile>
+    <Compile Include="UchetTalona_GL.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UchetTalona_GL.Designer.cs">
+      <DependentUpon>UchetTalona_GL.cs</DependentUpon>
+    </Compile>
     <Compile Include="User.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -258,6 +270,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditPatient.resx">
       <DependentUpon>EditPatient.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OtchetExcel.resx">
+      <DependentUpon>OtchetExcel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Patient.resx">
       <DependentUpon>Patient.cs</DependentUpon>
@@ -314,6 +329,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UchetTalona.resx">
       <DependentUpon>UchetTalona.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UchetTalona_GL.resx">
+      <DependentUpon>UchetTalona_GL.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="User.resx">
       <DependentUpon>User.cs</DependentUpon>

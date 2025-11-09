@@ -95,5 +95,10 @@ namespace WindowsFormsApp1
         {
 
         }
+
+        private void Menu_registrator_Load(object sender, EventArgs e)
+        {
+            
+        }
     }
 }
