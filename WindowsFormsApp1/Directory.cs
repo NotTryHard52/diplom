@@ -43,5 +43,10 @@ namespace WindowsFormsApp1
         {
             DictionarySelected?.Invoke(new StatusPriem());
         }
+
+        internal static object GetParent(string startupPath)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

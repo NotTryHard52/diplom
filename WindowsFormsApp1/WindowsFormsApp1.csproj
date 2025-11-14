@@ -425,5 +425,10 @@
   <ItemGroup>
     <None Include="Resources\справочники2.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="photo\not-image.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,10 +21,16 @@ namespace WindowsFormsApp1
         string oldLastname;
         string oldPhone;
         int oldSpecialityId;
-        public EditDoctor(int doctorId)
+        private Image doctorPhoto;
+        private string oldPhotoFileName;
+        string selectedPhotoFileName;
+        string photoFolder;
+        string selectedPhotoFullPath;
+        public EditDoctor(int doctorId, Image photo)
         {
             InitializeComponent();
             selectedDoctorId = doctorId;
+            doctorPhoto = photo;
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
@@ -62,12 +69,42 @@ namespace WindowsFormsApp1
                            newName != oldName ||
                            newLastname != oldLastname ||
                            newPhone != oldPhone ||
-                           newSpecialityId != oldSpecialityId;
+                           newSpecialityId != oldSpecialityId || !string.IsNullOrEmpty(selectedPhotoFileName);
 
             if (!changed)
             {
                 MessageBox.Show("Вы не внесли никаких изменений!", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
+            }
+
+            string photoFileToSave = oldPhotoFileName;
+
+            if (!string.IsNullOrEmpty(selectedPhotoFileName) && !string.IsNullOrEmpty(selectedPhotoFullPath))
+            {
+                try
+                {
+                    if (!System.IO.Directory.Exists(photoFolder))
+                        System.IO.Directory.CreateDirectory(photoFolder);
+
+                    string destPath = Path.Combine(photoFolder, selectedPhotoFileName);
+
+                    if (File.Exists(destPath))
+                    {
+                        string name = Path.GetFileNameWithoutExtension(selectedPhotoFileName);
+                        string ext = Path.GetExtension(selectedPhotoFileName);
+                        string uniqueName = $"{name}_{DateTime.Now:yyyyMMdd_HHmmss}{ext}";
+                        destPath = Path.Combine(photoFolder, uniqueName);
+                        selectedPhotoFileName = uniqueName;
+                    }
+
+                    File.Copy(selectedPhotoFullPath, destPath, true);
+                    photoFileToSave = selectedPhotoFileName;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при сохранении фото: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
 
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -99,13 +136,14 @@ namespace WindowsFormsApp1
                 }
 
                 string query = @"
-                    UPDATE Doctors
-                    SET Surname = @surname,
-                        Name = @name,
-                        Lastname = @lastname,
-                        Phone_number = @phone,
-                        Speciality = @speciality
-                    WHERE idDoctors = @id;";
+                        UPDATE Doctors
+                        SET Surname = @surname,
+                            Name = @name,
+                            Lastname = @lastname,
+                            Phone_number = @phone,
+                            Speciality = @speciality,
+                            Photo = @photo
+                        WHERE idDoctors = @id;";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
@@ -115,6 +153,7 @@ namespace WindowsFormsApp1
                     cmd.Parameters.AddWithValue("@phone", newPhone);
                     cmd.Parameters.AddWithValue("@speciality", newSpecialityId);
                     cmd.Parameters.AddWithValue("@id", selectedDoctorId);
+                    cmd.Parameters.AddWithValue("@photo", string.IsNullOrEmpty(photoFileToSave) ? (object)DBNull.Value : photoFileToSave);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -129,6 +168,13 @@ namespace WindowsFormsApp1
             connectionString = connect.ConnectDB();
             LoadSpecialities();
             LoadDoctorData();
+
+            photoFolder = System.IO.Path.Combine(Application.StartupPath, "photo");
+            if (doctorPhoto != null)
+            {
+                pictureBox1.Image = new Bitmap(doctorPhoto);
+            }
+            label6.Text = $"Фото: {(string.IsNullOrEmpty(oldPhotoFileName) ? "нет" : oldPhotoFileName)}";
         }
         private void LoadSpecialities()
         {
@@ -152,7 +198,7 @@ namespace WindowsFormsApp1
             {
                 con.Open();
                 string query = @"
-                    SELECT d.Surname, d.Name, d.Lastname, d.Phone_number, s.idSpeciality
+                    SELECT d.Surname, d.Name, d.Lastname, d.Phone_number, s.idSpeciality, d.Photo
                     FROM Doctors d
                     JOIN Speciality s ON d.Speciality = s.idSpeciality
                     WHERE d.idDoctors = @id;";
@@ -168,6 +214,7 @@ namespace WindowsFormsApp1
                         oldLastname = reader["Lastname"].ToString();
                         oldPhone = reader["Phone_number"].ToString();
                         oldSpecialityId = Convert.ToInt32(reader["idSpeciality"]);
+                        oldPhotoFileName = reader["Photo"] == DBNull.Value ? "" : reader["Photo"].ToString();
 
                         textBox1.Text = oldSurname;
                         textBox2.Text = oldName;
@@ -178,5 +225,31 @@ namespace WindowsFormsApp1
                 }
             }
         }
-    }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "Изображения (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png";
+                ofd.Title = "Выберите новое фото";
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        Image newImage = Image.FromFile(ofd.FileName);
+                        pictureBox1.Image = new Bitmap(newImage);
+
+                        selectedPhotoFullPath = ofd.FileName;
+                        selectedPhotoFileName = Path.GetFileName(ofd.FileName);
+                        label6.Text = $"Фото: {selectedPhotoFileName}";
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}","Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+    } 
 }

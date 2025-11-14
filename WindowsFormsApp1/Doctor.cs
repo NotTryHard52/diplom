@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,18 +42,66 @@ namespace WindowsFormsApp1
             {
                 con.Open();
                 doctorsTable = new DataTable();
-                MySqlCommand cmd = new MySqlCommand("SELECT d.idDoctors, d.Surname, d.Name, d.Lastname, d.Phone_number, d.Photo, s.SpecialityName FROM Doctors d JOIN Speciality s ON d.Speciality = s.idSpeciality;", con);
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT d.idDoctors, d.Surname, d.Name, d.Lastname, d.Phone_number, d.Photo, s.SpecialityName " +
+                    "FROM Doctors d JOIN Speciality s ON d.Speciality = s.idSpeciality;", con);
+
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(doctorsTable);
-                dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-                dataGridView1.DataSource = doctorsTable;
-                dataGridView1.Columns[0].Visible = false;
-                dataGridView1.Columns[1].HeaderText = "Фамилия";
-                dataGridView1.Columns[2].HeaderText = "Имя";
-                dataGridView1.Columns[3].HeaderText = "Отчество";
-                dataGridView1.Columns[4].HeaderText = "Номер телефона";
-                dataGridView1.Columns[5].HeaderText = "Фото";
-                dataGridView1.Columns[6].HeaderText = "Специальность";
+
+            }
+            LoadDoctorPhotos(doctorsTable);
+            dataGridView1.DataSource = doctorsTable;
+
+            dataGridView1.Columns["idDoctors"].Visible = false;
+            dataGridView1.Columns["Surname"].HeaderText = "Фамилия";
+            dataGridView1.Columns["Name"].HeaderText = "Имя";
+            dataGridView1.Columns["Lastname"].HeaderText = "Отчество";
+            dataGridView1.Columns["Phone_number"].HeaderText = "Телефон";
+            dataGridView1.Columns["SpecialityName"].HeaderText = "Специальность";
+            dataGridView1.Columns["Photo"].Visible = false;
+
+            DataGridViewImageColumn imgCol = (DataGridViewImageColumn)dataGridView1.Columns["Фото"];
+            imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
+
+            dataGridView1.RowTemplate.Height = 100;
+            dataGridView1.Refresh();
+        }
+
+        private void LoadDoctorPhotos(DataTable table)
+        {
+            if (table == null) return;
+
+            if (!table.Columns.Contains("Фото"))
+                table.Columns.Add("Фото", typeof(Image));
+
+            string photoFolder = Path.Combine(Application.StartupPath, "photo");
+
+            foreach (DataRow row in table.Rows)
+            {
+                string fileName = "not-image.png";
+
+                if (row["Photo"] != DBNull.Value && !string.IsNullOrEmpty(row["Photo"].ToString()))
+                    fileName = row["Photo"].ToString();
+
+                string photoPath = Path.Combine(photoFolder, fileName);
+                if (!File.Exists(photoPath))
+                    photoPath = Path.Combine(photoFolder, "not-image.png");
+
+                try
+                {
+                    using (FileStream fs = new FileStream(photoPath, FileMode.Open, FileAccess.Read))
+                    {
+                        using (var tempImg = Image.FromStream(fs))
+                        {
+                            row["Фото"] = new Bitmap(tempImg);
+                        }
+                    }
+                }
+                catch
+                {
+                    row["Фото"] = new Bitmap(100, 100);
+                }
             }
         }
         private void FillSpecialties()
@@ -84,9 +133,21 @@ namespace WindowsFormsApp1
                 return;
             }
 
+            // Получаем ID врача
             int doctorId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["idDoctors"].Value);
-            EditDoctor editForm = new EditDoctor(doctorId);
+
+            // Получаем фото из таблицы (колонка "Фото")
+            Image photo = null;
+            if (dataGridView1.SelectedRows[0].Cells["Фото"].Value is Image img)
+            {
+                photo = new Bitmap(img); // копия, чтобы не блокировать ресурс
+            }
+
+            // Открываем форму редактирования и передаем фото
+            EditDoctor editForm = new EditDoctor(doctorId, photo);
             editForm.ShowDialog();
+
+            // После закрытия формы — обновляем таблицу
             LoadDoctor();
         }
 

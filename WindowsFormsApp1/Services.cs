@@ -55,6 +55,7 @@ namespace WindowsFormsApp1
                 comboBox1.DisplayMember = "Name";
                 comboBox1.ValueMember = "idCategory";
                 comboBox1.DataSource = categoryTable;
+                comboBox1.SelectedIndex = -1;
             }
 
         }
