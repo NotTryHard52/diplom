@@ -135,7 +135,6 @@ namespace WindowsFormsApp1
 
         private void AddDoctor_Load(object sender, EventArgs e)
         {
-
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
             photoFolder = Path.Combine(Application.StartupPath, "photo");

@@ -12,10 +12,12 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        public Form1(string FIO)
+        private int currentUserId;
+        public Form1(string FIO, int userId)
         {
             InitializeComponent();
             label_fio.Text = FIO;
+            currentUserId = userId;
         }
 
         private void pictureBox5_Click(object sender, EventArgs e)

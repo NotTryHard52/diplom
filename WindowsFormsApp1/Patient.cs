@@ -17,9 +17,14 @@ namespace WindowsFormsApp1
         DataTable patientTable;
         public event Action<int, string> PatientSelected;
         int selectedId = -1;
-        public Patient()
+        private bool openedFromTalon = false;
+        public Patient(bool fromTalon = false)
         {
             InitializeComponent();
+
+            openedFromTalon = fromTalon;
+
+            button4.Visible = openedFromTalon;
         }
 
         private void Patient_Load(object sender, EventArgs e)

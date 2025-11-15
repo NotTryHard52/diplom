@@ -92,7 +92,7 @@ namespace WindowsFormsApp1
                     }
                     else if (role == "3")
                     {
-                        Form1 glav = new Form1(FIO);
+                        Form1 glav = new Form1(FIO, userId);
                         glav.ShowDialog();
                     }
                     this.Close();

@@ -83,8 +83,7 @@ namespace WindowsFormsApp1
             {
                 try
                 {
-                    if (!System.IO.Directory.Exists(photoFolder))
-                        System.IO.Directory.CreateDirectory(photoFolder);
+                    if (!System.IO.Directory.Exists(photoFolder)) System.IO.Directory.CreateDirectory(photoFolder);
 
                     string destPath = Path.Combine(photoFolder, selectedPhotoFileName);
 
@@ -237,6 +236,14 @@ namespace WindowsFormsApp1
                 {
                     try
                     {
+                        FileInfo fileInfo = new FileInfo(ofd.FileName);
+
+                        if (fileInfo.Length > 2 * 1024 * 1024)
+                        {
+                            MessageBox.Show("Размер изображения не должен превышать 2 МБ!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
                         Image newImage = Image.FromFile(ofd.FileName);
                         pictureBox1.Image = new Bitmap(newImage);
 

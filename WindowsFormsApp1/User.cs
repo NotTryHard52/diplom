@@ -210,6 +210,7 @@ namespace WindowsFormsApp1
                 textBox5.Text = "";
                 string roleName = row.Cells["Role"].Value.ToString();
                 comboBox1.SelectedIndex = comboBox1.FindStringExact(roleName);
+                comboBox1.Enabled = selectedId != currentUserId;
             }
         }
 

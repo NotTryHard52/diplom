@@ -69,7 +69,7 @@ namespace WindowsFormsApp1
         // Выбор расписания
         private void button4_Click(object sender, EventArgs e)
         {
-            Schedule scheduleForm = new Schedule();
+            Schedule scheduleForm = new Schedule(true);
             scheduleForm.ScheduleSelected += (scheduleId, doctorName, date, time) =>
             {
                 selectedScheduleId = scheduleId;
@@ -83,7 +83,7 @@ namespace WindowsFormsApp1
         // Выбор пациента
         private void button5_Click(object sender, EventArgs e)
         {
-            Patient patientForm = new Patient();
+            Patient patientForm = new Patient(true);
             patientForm.PatientSelected += (patientId, fullName) =>
             {
                 selectedPatientId = patientId;

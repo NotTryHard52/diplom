@@ -39,7 +39,6 @@ namespace WindowsFormsApp1
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.button4 = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.label2 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
@@ -148,17 +147,6 @@ namespace WindowsFormsApp1
             this.comboBox2.TabIndex = 31;
             this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
             // 
-            // button4
-            // 
-            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button4.Location = new System.Drawing.Point(441, 521);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(146, 38);
-            this.button4.TabIndex = 33;
-            this.button4.Text = "Занести в талон";
-            this.button4.UseVisualStyleBackColor = false;
-            // 
             // dataGridView1
             // 
             this.dataGridView1.AllowUserToAddRows = false;
@@ -218,7 +206,6 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.button5);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dataGridView1);
-            this.Controls.Add(this.button4);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.button3);
@@ -250,7 +237,6 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox comboBox2;
-        private System.Windows.Forms.Button button4;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button5;

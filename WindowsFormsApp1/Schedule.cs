@@ -18,9 +18,13 @@ namespace WindowsFormsApp1
         int selectedScheduleId = -1;
         public event Action<int, string, string, string> ScheduleSelected;
         string status;
-        public Schedule()
+        private bool openedFromTalon = false;
+        public Schedule(bool fromTalon = false)
         {
             InitializeComponent();
+            openedFromTalon = fromTalon;
+
+            button4.Visible = openedFromTalon;
         }
 
         private void Schedule_Load(object sender, EventArgs e)
@@ -57,6 +61,7 @@ namespace WindowsFormsApp1
                 comboBox1.DisplayMember = "DoctorName";
                 comboBox1.ValueMember = "idDoctors";
                 comboBox1.DataSource = docTable;
+                comboBox1.SelectedIndex = -1;
             }
         }
         private void FillStatuses()
