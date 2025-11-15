@@ -126,6 +126,12 @@
       <DependentUpon>EditPatient.cs</DependentUpon>
     </Compile>
     <Compile Include="InputLimit.cs" />
+    <Compile Include="Main_menu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main_menu.Designer.cs">
+      <DependentUpon>Main_menu.cs</DependentUpon>
+    </Compile>
     <Compile Include="OtchetExcel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -270,6 +276,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditPatient.resx">
       <DependentUpon>EditPatient.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main_menu.resx">
+      <DependentUpon>Main_menu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="OtchetExcel.resx">
       <DependentUpon>OtchetExcel.cs</DependentUpon>
