@@ -1,7 +1,10 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Windows.Forms;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace WindowsFormsApp1
 {
@@ -45,19 +48,22 @@ namespace WindowsFormsApp1
             {
                 con.Open();
                 string query = @"
-                    SELECT 
-                        o.idOrder,
-                        CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS patient_name,
-                        CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS doctor_name,
-                        DATE_FORMAT(sc.date, '%d.%m.%Y') AS date,
-                        sc.time,
-                        st.name AS status
-                    FROM `Order` o
-                    JOIN Schedule sc ON o.Schedule = sc.idSchedule
-                    JOIN Doctors d ON sc.idDoctor = d.idDoctors
-                    JOIN Patients p ON o.Patients_idPatients = p.idPatients
-                    JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
-                    WHERE o.idOrder = @orderId;";
+                        SELECT 
+                            o.idOrder,
+                            o.sum,
+                            o.Discount,
+                            o.TotalSum,
+                            CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS patient_name,
+                            CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS doctor_name,
+                            DATE_FORMAT(sc.date, '%d.%m.%Y') AS date,
+                            sc.time,
+                            st.name AS status
+                        FROM `Order` o
+                        JOIN Schedule sc ON o.Schedule = sc.idSchedule
+                        JOIN Doctors d ON sc.idDoctor = d.idDoctors
+                        JOIN Patients p ON o.Patients_idPatients = p.idPatients
+                        JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
+                        WHERE o.idOrder = @orderId;";
                 using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@orderId", orderId);
@@ -72,8 +78,16 @@ namespace WindowsFormsApp1
                             label_time.Text = "Время: " + reader["time"].ToString();
                             comboBox1.Text = reader["status"].ToString();
                         }
+                        decimal sum = reader.GetDecimal("sum");
+                        decimal discount = reader.GetDecimal("Discount");
+                        decimal total = reader.GetDecimal("TotalSum");
+
+                        label_total.Text = $"Итого: {total:N2} руб.";
+                        label5.Text = $"Скидка: {discount:N2} руб.";
+                        label10.Text = $"К оплате: {total:N2} руб.";
                     }
                 }
+
             }
         }
 
@@ -167,7 +181,7 @@ namespace WindowsFormsApp1
 
         private void AddServiceToOrder(int orderId)
         {
-            Services servicesForm = new Services();
+            Services servicesForm = new Services(true);
             if (servicesForm.ShowDialog() == DialogResult.OK)
             {
                 int serviceId = servicesForm.SelectedServiceId;
@@ -203,6 +217,7 @@ namespace WindowsFormsApp1
                 }
 
                 CalculateTotal();
+                UpdateOrderTotalsInDatabase();
             }
         }
 
@@ -220,7 +235,6 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
-                // Просто удаляем по названию
                 string deleteQuery = @"
             DELETE FROM OrderServices 
             WHERE OrderId = @orderId 
@@ -235,9 +249,9 @@ namespace WindowsFormsApp1
                 }
             }
 
-            // Обновляем таблицу и сумму
             LoadServices();
             CalculateTotal();
+            UpdateOrderTotalsInDatabase();
 
             MessageBox.Show("Услуга удалена.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -245,6 +259,124 @@ namespace WindowsFormsApp1
         private void button3_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+        private void UpdateOrderTotalsInDatabase()
+        {
+            decimal sum = 0;
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.Cells["Цена"]?.Value != null && decimal.TryParse(row.Cells["Цена"].Value.ToString(), out decimal value))
+                    sum += value;
+            }
+
+            decimal discount = 0;
+            if (sum > 1000) discount = sum * 0.05m;
+
+            decimal total = sum - discount;
+
+            label_total.Text = $"Итого: {total:N2} руб.";
+            label5.Text = $"Скидка: {discount:N2} руб.";
+            label10.Text = $"К оплате: {total:N2} руб.";
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+                string updateQuery = @"
+            UPDATE `Order` 
+            SET sum=@sum, Discount=@discount, TotalSum=@total 
+            WHERE idOrder=@orderId";
+                using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@sum", sum);
+                    cmd.Parameters.AddWithValue("@discount", discount);
+                    cmd.Parameters.AddWithValue("@total", total);
+                    cmd.Parameters.AddWithValue("@orderId", orderId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.Rows.Count == 0)
+            {
+                MessageBox.Show("Нет услуг для печати чека!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                Word.Application wordApp = new Word.Application();
+                Word.Document doc = wordApp.Documents.Add();
+                wordApp.Visible = true;
+
+                string tempLogoPath = Path.Combine(Path.GetTempPath(), "temp_logo.png");
+                Properties.Resources.logo.Save(tempLogoPath, ImageFormat.Png);
+                Word.Paragraph logoParagraph = doc.Content.Paragraphs.Add();
+                var shape = logoParagraph.Range.InlineShapes.AddPicture(tempLogoPath, LinkToFile: false, SaveWithDocument: true);
+                shape.Width = 110;
+                shape.Height = 118;
+                logoParagraph.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                logoParagraph.Range.InsertParagraphAfter();
+
+                Word.Paragraph title = doc.Content.Paragraphs.Add();
+                title.Range.Text = "Чек на приём";
+                title.Range.Font.Size = 16;
+                title.Range.Font.Bold = 1;
+                title.Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                title.Range.InsertParagraphAfter();
+
+                string orderNumber = label_number.Text.Replace("Номер талона: ", "");
+                string patientName = label_patient.Text.Replace("Пациент: ", "");
+                string doctorName = label_doctor.Text.Replace("Врач: ", "");
+                string date = label_data.Text.Replace("Дата: ", "");
+                string time = label_time.Text.Replace("Время: ", "");
+
+                Word.Paragraph info = doc.Content.Paragraphs.Add();
+                info.Range.Text = $"Номер талона: {orderNumber}\n" +
+                                  $"Пациент: {patientName}\n" +
+                                  $"Врач: {doctorName}\n" +
+                                  $"Дата: {date}\n" +
+                                  $"Время: {time}";
+                info.Range.Font.Size = 12;
+                info.Range.Font.Bold = 0;
+                info.Range.InsertParagraphAfter();
+
+                Word.Range range = doc.Content;
+                range.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                int rows = dataGridView1.Rows.Count + 1;
+                int cols = 2;
+                Word.Table table = doc.Tables.Add(range, rows, cols);
+                table.Borders.Enable = 1;
+
+                table.Cell(1, 1).Range.Text = "Услуга";
+                table.Cell(1, 2).Range.Text = "Цена";
+                table.Rows[1].Range.Font.Bold = 1;
+
+                for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                {
+                    table.Cell(i + 2, 1).Range.Text = dataGridView1.Rows[i].Cells["Услуга"].Value.ToString();
+                    table.Cell(i + 2, 2).Range.Text = dataGridView1.Rows[i].Cells["Цена"].Value.ToString();
+                }
+                table.Range.InsertParagraphAfter();
+
+                Word.Paragraph totals = doc.Content.Paragraphs.Add();
+                totals.Range.Text = $"{label_total.Text}\n{label5.Text}\n{label10.Text}";
+                totals.Range.Font.Size = 12;
+                totals.Range.Font.Bold = 1;
+                totals.Range.InsertParagraphAfter();
+
+                MessageBox.Show("Чек подготовлен для печати!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                if (File.Exists(tempLogoPath))
+                    File.Delete(tempLogoPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при создании чека: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

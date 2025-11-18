@@ -29,24 +29,21 @@ namespace WindowsFormsApp1
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.panel2 = new System.Windows.Forms.Panel();
             this.label_fio = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label_role = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button6 = new System.Windows.Forms.Button();
+            this.button7 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.pictureBox9 = new System.Windows.Forms.PictureBox();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).BeginInit();
             this.SuspendLayout();
             // 
             // panel2
@@ -57,9 +54,9 @@ namespace WindowsFormsApp1
             this.panel2.Controls.Add(this.label_role);
             this.panel2.Controls.Add(this.pictureBox1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(193, 0);
+            this.panel2.Location = new System.Drawing.Point(174, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(910, 610);
+            this.panel2.Size = new System.Drawing.Size(1029, 610);
             this.panel2.TabIndex = 9;
             // 
             // label_fio
@@ -96,7 +93,7 @@ namespace WindowsFormsApp1
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.меню;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Location = new System.Drawing.Point(398, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(517, 12);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(503, 586);
             this.pictureBox1.TabIndex = 22;
@@ -105,17 +102,42 @@ namespace WindowsFormsApp1
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.panel1.Controls.Add(this.label9);
-            this.panel1.Controls.Add(this.pictureBox9);
+            this.panel1.Controls.Add(this.button6);
+            this.panel1.Controls.Add(this.button7);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.pictureBox5);
-            this.panel1.Controls.Add(this.label3);
-            this.panel1.Controls.Add(this.pictureBox2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(193, 610);
+            this.panel1.Size = new System.Drawing.Size(174, 610);
             this.panel1.TabIndex = 8;
+            // 
+            // button6
+            // 
+            this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button6.Image = ((System.Drawing.Image)(resources.GetObject("button6.Image")));
+            this.button6.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.button6.Location = new System.Drawing.Point(0, 122);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(174, 53);
+            this.button6.TabIndex = 27;
+            this.button6.Text = "Учет талона";
+            this.button6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // button7
+            // 
+            this.button7.Image = ((System.Drawing.Image)(resources.GetObject("button7.Image")));
+            this.button7.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.button7.Location = new System.Drawing.Point(0, 63);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(174, 53);
+            this.button7.TabIndex = 26;
+            this.button7.Text = "Главное меню";
+            this.button7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // label1
             // 
@@ -138,54 +160,11 @@ namespace WindowsFormsApp1
             this.pictureBox5.TabStop = false;
             this.pictureBox5.Click += new System.EventHandler(this.pictureBox5_Click);
             // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(65, 138);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(105, 20);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Учет талона";
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.учет_талона;
-            this.pictureBox2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox2.Location = new System.Drawing.Point(3, 122);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(56, 53);
-            this.pictureBox2.TabIndex = 1;
-            this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(65, 82);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(118, 20);
-            this.label9.TabIndex = 20;
-            this.label9.Text = "Главное меню";
-            this.label9.Click += new System.EventHandler(this.label9_Click);
-            // 
-            // pictureBox9
-            // 
-            this.pictureBox9.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.меню2;
-            this.pictureBox9.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox9.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox9.Location = new System.Drawing.Point(3, 63);
-            this.pictureBox9.Name = "pictureBox9";
-            this.pictureBox9.Size = new System.Drawing.Size(56, 53);
-            this.pictureBox9.TabIndex = 19;
-            this.pictureBox9.TabStop = false;
-            this.pictureBox9.Click += new System.EventHandler(this.pictureBox9_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1103, 610);
+            this.ClientSize = new System.Drawing.Size(1203, 610);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -195,14 +174,13 @@ namespace WindowsFormsApp1
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Меню";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -213,14 +191,12 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox5;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label label_fio;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label_role;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.PictureBox pictureBox9;
+        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button button6;
     }
 }
 

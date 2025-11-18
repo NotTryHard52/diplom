@@ -87,12 +87,12 @@ namespace WindowsFormsApp1
                     }
                     else if (role == "2")
                     {
-                        Menu_registrator reg = new Menu_registrator(FIO, userId);
+                        Menu_registrator reg = new Menu_registrator(FIO, userId, role);
                         reg.ShowDialog();
                     }
                     else if (role == "3")
                     {
-                        Form1 glav = new Form1(FIO, userId);
+                        Form1 glav = new Form1(FIO, userId, role);
                         glav.ShowDialog();
                     }
                     this.Close();

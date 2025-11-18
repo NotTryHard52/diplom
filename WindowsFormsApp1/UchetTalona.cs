@@ -27,35 +27,7 @@ namespace WindowsFormsApp1
             comboBox2.SelectedIndex = 0;
             int count = CountData.GetTableCount("Order");
             label9.Text = $"Количество записей: {count}";
-            Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
-            using (MySqlConnection con = new MySqlConnection(connectionString))
-            {
-                con.Open();
-                orderTable = new DataTable();
-                string query = @"
-                        SELECT 
-                            o.idOrder AS 'Номер талона',
-                            o.sum AS 'Сумма',
-                            CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
-                            DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
-                            sc.time AS 'Время',
-                            CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
-                            CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
-                            st.name AS 'Статус'
-                        FROM `Order` o
-                        JOIN Schedule sc ON o.Schedule = sc.idSchedule
-                        JOIN Doctors d ON sc.idDoctor = d.idDoctors
-                        JOIN `Users` r ON o.User = r.idUsers
-                        JOIN Patients p ON o.Patients_idPatients = p.idPatients
-                        JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
-                    ";
-                MySqlCommand cmd = new MySqlCommand(query, con);
-                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                da.Fill(orderTable);
-                dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-                dataGridView1.DataSource = orderTable;
-            }
+            ReloadOrderTable();
         }
         private void FillStatus()
         {
@@ -135,11 +107,50 @@ namespace WindowsFormsApp1
             {
                 int orderId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["Номер талона"].Value);
                 ViewPriem v = new ViewPriem(orderId);
-                v.ShowDialog();
+                var result = v.ShowDialog();
+
+                ReloadOrderTable();
             }
             else
             {
                 MessageBox.Show("Пожалуйста, выберите талон.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+        private void ReloadOrderTable()
+        {
+            Connect connect = new Connect();
+            connectionString = connect.ConnectDB();
+
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+                orderTable = new DataTable();
+                string query = @"
+            SELECT 
+                o.idOrder AS 'Номер талона',
+                o.sum AS 'Сумма',
+                o.Discount AS 'Скидка',
+                o.TotalSum AS 'К оплате',
+                CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
+                DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
+                sc.time AS 'Время',
+                CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
+                CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
+                st.name AS 'Статус'
+            FROM `Order` o
+            JOIN Schedule sc ON o.Schedule = sc.idSchedule
+            JOIN Doctors d ON sc.idDoctor = d.idDoctors
+            JOIN `Users` r ON o.User = r.idUsers
+            JOIN Patients p ON o.Patients_idPatients = p.idPatients
+            JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
+        ";
+
+                MySqlCommand cmd = new MySqlCommand(query, con);
+                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                da.Fill(orderTable);
+
+                dataGridView1.DataSource = orderTable;
+                ApplyFilterAndSort();
             }
         }
 
@@ -148,6 +159,31 @@ namespace WindowsFormsApp1
             comboBox2.SelectedIndex = 0;
             comboBox1.SelectedIndex = 0;
             textBox5.Text = "";
+        }
+
+        private void dataGridView1_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
+        {
+            if (dataGridView1.Rows[e.RowIndex].Cells["Статус"].Value == null)
+                return;
+
+            string status = dataGridView1.Rows[e.RowIndex].Cells["Статус"].Value.ToString().ToLower();
+
+            if (status.Contains("заверш"))
+            {
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+            }
+            else if (status.Contains("отмен"))
+            {
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightCoral;
+            }
+            else if (status.Contains("создан"))
+            {
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightYellow;
+            }
+            else
+            {
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+            }
         }
     }
 }

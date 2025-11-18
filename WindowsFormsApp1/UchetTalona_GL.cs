@@ -63,15 +63,21 @@ namespace WindowsFormsApp1
             if (dataGridView1.DataSource == null) return;
 
             decimal total = 0;
+
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
-                if (row.Cells["Сумма"].Value != DBNull.Value && row.Cells["Сумма"].Value != null)
+                if (row.Cells["Сумма"].Value == null || row.Cells["Сумма"].Value == DBNull.Value)
+                    continue;
+
+                string status = row.Cells["Статус"].Value?.ToString()?.ToLower();
+
+                if (status != null && (status.Contains("отмен") || status.Contains("создан")))
+                    continue;
+
+                decimal value;
+                if (decimal.TryParse(row.Cells["Сумма"].Value.ToString(), out value))
                 {
-                    decimal value;
-                    if (decimal.TryParse(row.Cells["Сумма"].Value.ToString(), out value))
-                    {
-                        total += value;
-                    }
+                    total += value;
                 }
             }
 
@@ -174,6 +180,31 @@ namespace WindowsFormsApp1
         {
             OtchetExcel v = new OtchetExcel();
             v.ShowDialog();
+        }
+
+        private void dataGridView1_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
+        {
+            if (dataGridView1.Rows[e.RowIndex].Cells["Статус"].Value == null)
+                return;
+
+            string status = dataGridView1.Rows[e.RowIndex].Cells["Статус"].Value.ToString().ToLower();
+
+            if (status.Contains("заверш"))
+            {
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+            }
+            else if (status.Contains("отмен"))
+            {
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightCoral;
+            }
+            else if (status.Contains("создан"))
+            {
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightYellow;
+            }
+            else
+            {
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+            }
         }
     }
 }

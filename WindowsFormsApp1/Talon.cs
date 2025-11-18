@@ -2,6 +2,7 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace WindowsFormsApp1
 {
@@ -125,12 +126,26 @@ namespace WindowsFormsApp1
         private void UpdateTotal()
         {
             decimal total = 0;
+
             foreach (DataGridViewRow row in dataGridView2.Rows)
             {
                 if (decimal.TryParse(row.Cells["Price"].Value.ToString(), out decimal price))
                     total += price;
             }
-            label6.Text = $"Итого: {total} руб.";
+
+            decimal discount = 0;
+
+            if (total > 1000)
+            {
+                discount = total * 0.05m;
+            }
+
+            decimal finalTotal = total - discount;
+
+            // Отображаем итоги
+            label6.Text = $"Итого: {total:N2} руб.";
+            label5.Text = $"Скидка: {discount:N2} руб.";
+            label10.Text = $"К оплате: {finalTotal:N2} руб.";
         }
 
         // Сохранение талона в базу
@@ -148,6 +163,14 @@ namespace WindowsFormsApp1
                 total += Convert.ToDecimal(row.Cells["Price"].Value);
             }
 
+            decimal discount = 0;
+            if (total > 1000)
+            {
+                discount = total * 0.05m; // 5% скидка
+            }
+
+            decimal finalTotal = total - discount;
+
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
@@ -157,15 +180,17 @@ namespace WindowsFormsApp1
                     {
                         int orderId;
 
-                        // Вставляем запись в Order
+                        // Вставляем запись в Order с учетом Discount и TotalSum
                         string insertOrder = @"
-                    INSERT INTO `Order` (sum, schedule, Patients_idPatients, Status, User)
-                    VALUES (@sum, @schedule, @patientId, @status, @userId);
+                    INSERT INTO `Order` (sum, Discount, TotalSum, schedule, Patients_idPatients, Status, User)
+                    VALUES (@sum, @discount, @totalSum, @schedule, @patientId, @status, @userId);
                     SELECT LAST_INSERT_ID();";
 
                         using (MySqlCommand cmd = new MySqlCommand(insertOrder, con, transaction))
                         {
                             cmd.Parameters.AddWithValue("@sum", total);
+                            cmd.Parameters.AddWithValue("@discount", discount);
+                            cmd.Parameters.AddWithValue("@totalSum", finalTotal);
                             cmd.Parameters.AddWithValue("@schedule", selectedScheduleId);
                             cmd.Parameters.AddWithValue("@patientId", selectedPatientId);
                             cmd.Parameters.AddWithValue("@status", 3); // 3 = Создан
@@ -189,7 +214,7 @@ namespace WindowsFormsApp1
                             }
                         }
 
-                        // Обновляем статус расписания на "занято" (например, Status = 2)
+                        // Обновляем статус расписания на "занято" (Status = 2)
                         string updateSchedule = "UPDATE Schedule SET Status = 2 WHERE idSchedule = @scheduleId";
                         using (MySqlCommand cmd = new MySqlCommand(updateSchedule, con, transaction))
                         {
@@ -203,6 +228,8 @@ namespace WindowsFormsApp1
                         // Очистка формы
                         dataGridView2.Rows.Clear();
                         label6.Text = "Итого: 0 руб.";
+                        label5.Text = "Скидка: 0 руб.";
+                        label10.Text = "К оплате: 0 руб.";
                         label1.Text = "Врач: ";
                         label7.Text = "Дата приема: ";
                         label8.Text = "Время приема: ";
@@ -247,6 +274,77 @@ namespace WindowsFormsApp1
                 }
 
                 UpdateTotal();
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (selectedPatientId == 0 || selectedScheduleId == 0)
+            {
+                MessageBox.Show("Невозможно распечатать. Выберите пациента и расписание.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                Word.Application wordApp = new Word.Application();
+                Word.Document doc = wordApp.Documents.Add();
+                wordApp.Visible = true;
+
+                // Заголовок
+                Word.Paragraph para = doc.Content.Paragraphs.Add();
+                para.Range.Text = "ПРИГЛАШЕНИЕ НА ПРИЁМ";
+                para.Range.Font.Size = 18;
+                para.Range.Font.Bold = 1;
+                para.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                para.Range.InsertParagraphAfter();
+
+                // Форматируем дату и время
+                string dateStr = DateTime.Parse(label7.Text.Replace("Дата приема: ", "")).ToString("dd.MM.yyyy");
+                string timeStr = TimeSpan.Parse(label8.Text.Replace("Время приема: ", "")).ToString(@"hh\:mm");
+
+                // Информация о пациенте и приёме
+                Word.Paragraph infoPara = doc.Content.Paragraphs.Add();
+                infoPara.Range.Text = $"Пациент: {label9.Text.Replace("Пациент: ", "")}\n" +
+                                      $"Врач: {label1.Text.Replace("Врач: ", "")}\n" +
+                                      $"Дата приёма: {dateStr}\n" +
+                                      $"Время приёма: {timeStr}";
+                infoPara.Range.Font.Size = 12;
+                infoPara.Range.Font.Bold = 0;
+                infoPara.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                infoPara.Range.InsertParagraphAfter();
+
+                if (dataGridView2.Rows.Count > 0)
+                {
+                    int rows = dataGridView2.Rows.Count + 1; // +1 для заголовка
+                    int cols = 2; // Наименование и Категория
+                    Word.Range tableRange = doc.Content.Paragraphs.Add().Range;
+                    Word.Table table = doc.Tables.Add(tableRange, rows, cols);
+                    table.Borders.Enable = 1;
+
+                    // Заголовки таблицы
+                    table.Cell(1, 1).Range.Text = "Наименование услуги";
+                    table.Cell(1, 2).Range.Text = "Категория";
+                    table.Rows[1].Range.Font.Bold = 1;
+                    table.Rows[1].Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+
+                    // Заполнение таблицы
+                    for (int i = 0; i < dataGridView2.Rows.Count; i++)
+                    {
+                        table.Cell(i + 2, 1).Range.Text = dataGridView2.Rows[i].Cells["ServiceName"].Value.ToString();
+                        table.Cell(i + 2, 2).Range.Text = dataGridView2.Rows[i].Cells["CategoryName"].Value.ToString();
+
+                        // Выравнивание текста в ячейках
+                        table.Cell(i + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                        table.Cell(i + 2, 2).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                    }
+                }
+
+                MessageBox.Show("Талон подготовлен в Word.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при создании документа Word: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

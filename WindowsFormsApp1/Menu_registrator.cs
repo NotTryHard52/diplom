@@ -13,12 +13,15 @@ namespace WindowsFormsApp1
     public partial class Menu_registrator : Form
     {
         private int currentUserId;
+        private string currentRole;
         private Form activeForm = null;
-        public Menu_registrator(string FIO, int userId)
+
+        public Menu_registrator(string FIO, int userId, string role)
         {
             InitializeComponent();
             label_fio.Text = FIO;
             currentUserId = userId;
+            currentRole = role;
         }
         private void OpenChildForm(Form childForm)
         {
@@ -56,12 +59,12 @@ namespace WindowsFormsApp1
 
         private void Menu_registrator_Load(object sender, EventArgs e)
         {
-            OpenChildForm(new Main_menu(label_fio.Text));
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole));
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Services());
+            OpenChildForm(new Services(false));
             //panel1.Width = 60;
             label_fio.Visible = false;
             label_role.Visible = false;
@@ -104,7 +107,7 @@ namespace WindowsFormsApp1
 
         private void button7_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Main_menu(label_fio.Text));
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole));
         }
 
         private void button8_Click(object sender, EventArgs e)

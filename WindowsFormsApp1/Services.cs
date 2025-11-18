@@ -18,9 +18,13 @@ namespace WindowsFormsApp1
         public int SelectedServiceId { get; private set; }
         public string SelectedServiceName { get; private set; }
         public decimal SelectedServicePrice { get; private set; }
-        public Services()
+        private bool openedFromTalon = false;
+        public Services(bool fromTalon = false)
         {
             InitializeComponent();
+            openedFromTalon = fromTalon;
+
+            button4.Visible = openedFromTalon;
         }
 
         private void Services_Load(object sender, EventArgs e)
@@ -227,22 +231,22 @@ namespace WindowsFormsApp1
             }
         }
 
-        //private void button4_Click(object sender, EventArgs e)
-        //{
-        //    if (dataGridView1.SelectedRows.Count == 0)
-        //    {
-        //        MessageBox.Show("Выберите услугу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        //        return;
-        //    }
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите услугу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-        //    var row = dataGridView1.SelectedRows[0];
-        //    SelectedServiceId = Convert.ToInt32(row.Cells["idServices"].Value);
-        //    SelectedServiceName = row.Cells["Name"].Value.ToString();
-        //    SelectedServicePrice = Convert.ToDecimal(row.Cells["Price"].Value);
+            var row = dataGridView1.SelectedRows[0];
+            SelectedServiceId = Convert.ToInt32(row.Cells["idServices"].Value);
+            SelectedServiceName = row.Cells["Name"].Value.ToString();
+            SelectedServicePrice = Convert.ToDecimal(row.Cells["Price"].Value);
 
-        //    this.DialogResult = DialogResult.OK;
-        //    this.Close();
-        //}
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
 
         private void button3_Click(object sender, EventArgs e)
         {

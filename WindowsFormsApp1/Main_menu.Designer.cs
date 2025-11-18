@@ -41,9 +41,9 @@ namespace WindowsFormsApp1
             this.label_role.AutoSize = true;
             this.label_role.Location = new System.Drawing.Point(4, 211);
             this.label_role.Name = "label_role";
-            this.label_role.Size = new System.Drawing.Size(106, 20);
+            this.label_role.Size = new System.Drawing.Size(47, 20);
             this.label_role.TabIndex = 20;
-            this.label_role.Text = "Регистратор";
+            this.label_role.Text = "Роль";
             // 
             // pictureBox1
             // 

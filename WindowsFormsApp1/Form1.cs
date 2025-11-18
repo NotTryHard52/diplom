@@ -13,11 +13,15 @@ namespace WindowsFormsApp1
     public partial class Form1 : Form
     {
         private int currentUserId;
-        public Form1(string FIO, int userId)
+        private string currentRole;
+        private Form activeForm = null;
+        
+        public Form1(string FIO, int userId, string role)
         {
             InitializeComponent();
             label_fio.Text = FIO;
             currentUserId = userId;
+            currentRole = role;
         }
 
         private void pictureBox5_Click(object sender, EventArgs e)
@@ -35,7 +39,11 @@ namespace WindowsFormsApp1
         }
         private void OpenChildForm(Form childForm)
         {
-            // Закрыть предыдущую форму, если нужно
+            if (activeForm != null && activeForm.GetType() == childForm.GetType())
+            {
+                return;
+            }
+
             panel2.Controls.Clear();
 
             childForm.TopLevel = false;
@@ -44,16 +52,23 @@ namespace WindowsFormsApp1
 
             panel2.Controls.Add(childForm);
             childForm.Show();
+
+            activeForm = childForm;
         }
 
-        private void pictureBox9_Click(object sender, EventArgs e)
+        private void button6_Click(object sender, EventArgs e)
         {
-            panel1.Width = 193;
+            OpenChildForm(new UchetTalona_GL());
         }
 
-        private void label9_Click(object sender, EventArgs e)
+        private void button7_Click(object sender, EventArgs e)
         {
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole));
+        }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole));
         }
     }
 }
