@@ -13,11 +13,13 @@ namespace WindowsFormsApp1
         private int orderId;
         string connectionString;
         decimal totalSum = 0;
+        private bool isGlav;
 
-        public ViewPriem(int orderId)
+        public ViewPriem(int orderId, bool isGlav = false)
         {
             InitializeComponent();
             this.orderId = orderId;
+            this.isGlav = isGlav;
         }
 
         private void ViewPriem_Load(object sender, EventArgs e)
@@ -28,10 +30,26 @@ namespace WindowsFormsApp1
             LoadServices();
             LoadStatuses();
             CalculateTotal();
+            if (isGlav) { DisableForGlav(); }
             if (comboBox1.Text == "Завершен" || comboBox1.Text == "Отменен")
             {
                 DisableEditing();
             }
+            if (comboBox1.Text == "Создан" || comboBox1.Text == "Отменен")
+            {
+                button5.Enabled = false;
+            }
+        }
+        private void DisableForGlav()
+        {
+            button1.Visible = false; 
+            button2.Visible = false; 
+            button4.Visible = false; 
+            button6.Visible = false;
+            button5.Visible = false; 
+
+            comboBox1.Enabled = false;
+            dataGridView1.Enabled = false;
         }
         private void DisableEditing()
         {
@@ -39,6 +57,7 @@ namespace WindowsFormsApp1
             button1.Enabled = false;
             button2.Enabled = false;
             button4.Enabled = false;
+            button6.Enabled = false;
             comboBox1.Enabled = false;
         }
 
@@ -141,6 +160,11 @@ namespace WindowsFormsApp1
 
         private void button4_Click(object sender, EventArgs e)
         {
+            if (dataGridView1.Rows.Count == 0)
+            {
+                MessageBox.Show("Нельзя закрыть приём без оказанных услуг!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
@@ -160,6 +184,9 @@ namespace WindowsFormsApp1
                 dataGridView1.Enabled = false;
                 button1.Enabled = false;
                 button2.Enabled = false;
+                button4.Enabled = false;
+                button5.Enabled = true;
+                button6.Enabled = false;
 
                 MessageBox.Show("Приём завершён!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -228,32 +255,41 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Выберите услугу для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+            DialogResult result = MessageBox.Show(
+                "Вы действительно хотите удалить выбранную услугу из талона?",
+                "Подтверждение",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
-            string serviceName = dataGridView1.SelectedRows[0].Cells["Услуга"].Value.ToString();
-
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            if (result == DialogResult.Yes)
             {
-                con.Open();
 
-                string deleteQuery = @"
-            DELETE FROM OrderServices 
-            WHERE OrderId = @orderId 
-              AND ServicesId = (SELECT idServices FROM Services WHERE Name = @serviceName LIMIT 1)
-            LIMIT 1;";
+                string serviceName = dataGridView1.SelectedRows[0].Cells["Услуга"].Value.ToString();
 
-                using (MySqlCommand cmd = new MySqlCommand(deleteQuery, con))
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    cmd.Parameters.AddWithValue("@orderId", orderId);
-                    cmd.Parameters.AddWithValue("@serviceName", serviceName);
-                    cmd.ExecuteNonQuery();
+                    con.Open();
+
+                    string deleteQuery = @"
+                        DELETE FROM OrderServices 
+                        WHERE OrderId = @orderId 
+                          AND ServicesId = (SELECT idServices FROM Services WHERE Name = @serviceName LIMIT 1)
+                        LIMIT 1;";
+
+                    using (MySqlCommand cmd = new MySqlCommand(deleteQuery, con))
+                    {
+                        cmd.Parameters.AddWithValue("@orderId", orderId);
+                        cmd.Parameters.AddWithValue("@serviceName", serviceName);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
+
+                LoadServices();
+                CalculateTotal();
+                UpdateOrderTotalsInDatabase();
+
+                MessageBox.Show("Услуга удалена.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
-            LoadServices();
-            CalculateTotal();
-            UpdateOrderTotalsInDatabase();
-
-            MessageBox.Show("Услуга удалена.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -309,23 +345,35 @@ namespace WindowsFormsApp1
             {
                 Word.Application wordApp = new Word.Application();
                 Word.Document doc = wordApp.Documents.Add();
-                wordApp.Visible = true;
+
+                doc.PageSetup.PageWidth = wordApp.CentimetersToPoints(8);  
+                doc.PageSetup.PageHeight = wordApp.CentimetersToPoints(15); 
+                doc.PageSetup.TopMargin = wordApp.CentimetersToPoints(0.5f);
+                doc.PageSetup.BottomMargin = wordApp.CentimetersToPoints(0.5f);
+                doc.PageSetup.LeftMargin = wordApp.CentimetersToPoints(0.5f);
+                doc.PageSetup.RightMargin = wordApp.CentimetersToPoints(0.5f);
 
                 string tempLogoPath = Path.Combine(Path.GetTempPath(), "temp_logo.png");
                 Properties.Resources.logo.Save(tempLogoPath, ImageFormat.Png);
-                Word.Paragraph logoParagraph = doc.Content.Paragraphs.Add();
-                var shape = logoParagraph.Range.InlineShapes.AddPicture(tempLogoPath, LinkToFile: false, SaveWithDocument: true);
-                shape.Width = 110;
-                shape.Height = 118;
-                logoParagraph.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                logoParagraph.Range.InsertParagraphAfter();
 
-                Word.Paragraph title = doc.Content.Paragraphs.Add();
-                title.Range.Text = "Чек на приём";
-                title.Range.Font.Size = 16;
+                Word.Range r = doc.Content;
+                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+
+                Word.Paragraph logoParagraph = doc.Paragraphs.Add(r);
+                var shape = logoParagraph.Range.InlineShapes.AddPicture(tempLogoPath, false, true);
+                shape.Width = 60;
+                shape.Height = 60;
+                logoParagraph.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                logoParagraph.SpaceAfter = 6;
+
+                r = doc.Content;
+                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                Word.Paragraph title = doc.Paragraphs.Add(r);
+                title.Range.Text = "ЧЕК ПРИЁМА";
+                title.Range.Font.Size = 14;
                 title.Range.Font.Bold = 1;
-                title.Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                title.Range.InsertParagraphAfter();
+                title.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                title.SpaceAfter = 6;
 
                 string orderNumber = label_number.Text.Replace("Номер талона: ", "");
                 string patientName = label_patient.Text.Replace("Пациент: ", "");
@@ -333,23 +381,26 @@ namespace WindowsFormsApp1
                 string date = label_data.Text.Replace("Дата: ", "");
                 string time = label_time.Text.Replace("Время: ", "");
 
-                Word.Paragraph info = doc.Content.Paragraphs.Add();
-                info.Range.Text = $"Номер талона: {orderNumber}\n" +
-                                  $"Пациент: {patientName}\n" +
-                                  $"Врач: {doctorName}\n" +
-                                  $"Дата: {date}\n" +
-                                  $"Время: {time}";
-                info.Range.Font.Size = 12;
-                info.Range.Font.Bold = 0;
-                info.Range.InsertParagraphAfter();
+                r = doc.Content;
+                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                Word.Paragraph info = doc.Paragraphs.Add(r);
+                info.Range.Text =
+                    $"Талон №: {orderNumber}\n" +
+                    $"Пациент: {patientName}\n" +
+                    $"Врач: {doctorName}\n" +
+                    $"Дата: {date}  Время: {time}";
+                info.Range.Font.Size = 10;
+                info.SpaceAfter = 4;
 
-                Word.Range range = doc.Content;
-                range.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                r = doc.Content;
+                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
                 int rows = dataGridView1.Rows.Count + 1;
-                int cols = 2;
-                Word.Table table = doc.Tables.Add(range, rows, cols);
+                Word.Table table = doc.Tables.Add(r, rows, 2);
                 table.Borders.Enable = 1;
+
+                table.Columns[1].Width = wordApp.CentimetersToPoints(5);
+                table.Columns[2].Width = wordApp.CentimetersToPoints(2);
 
                 table.Cell(1, 1).Range.Text = "Услуга";
                 table.Cell(1, 2).Range.Text = "Цена";
@@ -357,16 +408,26 @@ namespace WindowsFormsApp1
 
                 for (int i = 0; i < dataGridView1.Rows.Count; i++)
                 {
-                    table.Cell(i + 2, 1).Range.Text = dataGridView1.Rows[i].Cells["Услуга"].Value.ToString();
-                    table.Cell(i + 2, 2).Range.Text = dataGridView1.Rows[i].Cells["Цена"].Value.ToString();
-                }
-                table.Range.InsertParagraphAfter();
+                    table.Cell(i + 2, 1).Range.Text =
+                        dataGridView1.Rows[i].Cells["Услуга"].Value.ToString();
 
-                Word.Paragraph totals = doc.Content.Paragraphs.Add();
-                totals.Range.Text = $"{label_total.Text}\n{label5.Text}\n{label10.Text}";
+                    table.Cell(i + 2, 2).Range.Text =
+                        dataGridView1.Rows[i].Cells["Цена"].Value.ToString();
+                }
+
+                table.Range.ParagraphFormat.SpaceAfter = 6;
+
+                r = doc.Content;
+                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                Word.Paragraph totals = doc.Paragraphs.Add(r);
+                totals.Range.Text =
+                    $"{label_total.Text}\n" +
+                    $"{label5.Text}\n" +
+                    $"{label10.Text}";
                 totals.Range.Font.Size = 12;
                 totals.Range.Font.Bold = 1;
-                totals.Range.InsertParagraphAfter();
+                totals.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                wordApp.Visible = true;
 
                 MessageBox.Show("Чек подготовлен для печати!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -376,6 +437,34 @@ namespace WindowsFormsApp1
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка при создании чека: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+                string statusQuery = "SELECT idStatusesPriem FROM StatusesPriem WHERE name='Отменен' LIMIT 1;";
+                int statusId = Convert.ToInt32(new MySqlCommand(statusQuery, con).ExecuteScalar());
+
+                string updateQuery = "UPDATE `Order` SET Status=@status WHERE idOrder=@orderId;";
+                using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@status", statusId);
+                    cmd.Parameters.AddWithValue("@orderId", orderId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                comboBox1.Text = "Отменен";
+
+                dataGridView1.Enabled = false;
+                button1.Enabled = false;
+                button2.Enabled = false;
+                button4.Enabled = false;
+                button6.Enabled = false;
+
+                MessageBox.Show("Приём отменен!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }

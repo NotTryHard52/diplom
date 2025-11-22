@@ -160,7 +160,7 @@ namespace WindowsFormsApp1
             if (dataGridView1.SelectedRows.Count > 0)
             {
                 int orderId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["Номер талона"].Value);
-                ViewPriem v = new ViewPriem(orderId);
+                ViewPriem v = new ViewPriem(orderId, true);
                 v.ShowDialog();
             }
             else

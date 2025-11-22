@@ -1,6 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Windows.Forms;
 using Word = Microsoft.Office.Interop.Word;
 
@@ -75,8 +77,8 @@ namespace WindowsFormsApp1
             {
                 selectedScheduleId = scheduleId;
                 label1.Text = "Врач: " + doctorName;
-                label7.Text = "Дата приема: " + date;
-                label8.Text = "Время приема: " + time;
+                label7.Text = "Дата приема: " + DateTime.Parse(date).ToString("dd.MM.yyyy");
+                label8.Text = "Время приема: " + TimeSpan.Parse(time).ToString(@"hh\:mm");
             };
             scheduleForm.ShowDialog();
         }
@@ -151,9 +153,9 @@ namespace WindowsFormsApp1
         // Сохранение талона в базу
         private void button7_Click(object sender, EventArgs e)
         {
-            if (selectedPatientId == 0 || selectedScheduleId == 0 || dataGridView2.Rows.Count == 0)
+            if (selectedPatientId == 0 || selectedScheduleId == 0)
             {
-                MessageBox.Show("Выберите пациента, расписание и добавьте хотя бы одну услугу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите пациента и расписание!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -214,7 +216,6 @@ namespace WindowsFormsApp1
                             }
                         }
 
-                        // Обновляем статус расписания на "занято" (Status = 2)
                         string updateSchedule = "UPDATE Schedule SET Status = 2 WHERE idSchedule = @scheduleId";
                         using (MySqlCommand cmd = new MySqlCommand(updateSchedule, con, transaction))
                         {
@@ -224,8 +225,71 @@ namespace WindowsFormsApp1
 
                         transaction.Commit();
                         MessageBox.Show("Талон успешно оформлен!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        DialogResult printResult = MessageBox.Show(
+                            "Хотите распечатать талон?",
+                            "Печать талона",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question);
 
-                        // Очистка формы
+                        if (printResult == DialogResult.Yes)
+                        {
+                            if (selectedPatientId == 0 || selectedScheduleId == 0)
+                            {
+                                MessageBox.Show("Невозможно распечатать. Выберите пациента и расписание.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            try
+                            {
+                                Word.Application wordApp = new Word.Application();
+                                Word.Document doc = wordApp.Documents.Add();
+                                
+
+                                string tempLogoPath = Path.Combine(Path.GetTempPath(), "temp_logo.png");
+                                Properties.Resources.logo.Save(tempLogoPath, ImageFormat.Png);
+                                Word.Paragraph logoParagraph = doc.Content.Paragraphs.Add();
+                                var shape = logoParagraph.Range.InlineShapes.AddPicture(tempLogoPath, LinkToFile: false, SaveWithDocument: true);
+                                shape.Width = 60;
+                                shape.Height = 60;
+                                logoParagraph.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+
+                                doc.PageSetup.PageWidth = wordApp.CentimetersToPoints(8);  
+                                doc.PageSetup.PageHeight = wordApp.CentimetersToPoints(8);
+                                doc.PageSetup.TopMargin = wordApp.CentimetersToPoints(0.5f);
+                                doc.PageSetup.BottomMargin = wordApp.CentimetersToPoints(0.5f);
+                                doc.PageSetup.LeftMargin = wordApp.CentimetersToPoints(0.5f);
+                                doc.PageSetup.RightMargin = wordApp.CentimetersToPoints(0.5f);
+
+                                Word.Paragraph para = doc.Content.Paragraphs.Add();
+                                para.Range.Text = "ЗАПИСЬ НА ПРИЁМ";
+                                para.Range.Font.Size = 12;
+                                para.Range.Font.Bold = 1;
+                                para.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                                para.Range.InsertParagraphAfter();
+
+                                string patStr = label9.Text.Replace("Пациент: ", "");
+                                string docStr = label1.Text.Replace("Врач: ", "");
+                                string dateStr = DateTime.Parse(label7.Text.Replace("Дата приема: ", "")).ToString("dd.MM.yyyy");
+                                string timeStr = label8.Text.Replace("Время приема: ", "").Trim();
+
+                                Word.Paragraph infoPara = doc.Content.Paragraphs.Add();
+                                infoPara.Range.Text = $"Пациент: {patStr}\n" +
+                                                      $"Врач: {docStr}\n" +
+                                                      $"Дата: {dateStr}  Время: {timeStr}";
+                                infoPara.Range.Font.Size = 12;
+                                infoPara.Range.Font.Bold = 1;
+                                infoPara.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                                infoPara.Range.InsertParagraphAfter();
+                                wordApp.Visible = true;
+
+                                MessageBox.Show("Талон подготовлен в Word.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Ошибка при создании документа Word: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+
                         dataGridView2.Rows.Clear();
                         label6.Text = "Итого: 0 руб.";
                         label5.Text = "Скидка: 0 руб.";
@@ -274,77 +338,6 @@ namespace WindowsFormsApp1
                 }
 
                 UpdateTotal();
-            }
-        }
-
-        private void button6_Click(object sender, EventArgs e)
-        {
-            if (selectedPatientId == 0 || selectedScheduleId == 0)
-            {
-                MessageBox.Show("Невозможно распечатать. Выберите пациента и расписание.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                Word.Application wordApp = new Word.Application();
-                Word.Document doc = wordApp.Documents.Add();
-                wordApp.Visible = true;
-
-                // Заголовок
-                Word.Paragraph para = doc.Content.Paragraphs.Add();
-                para.Range.Text = "ПРИГЛАШЕНИЕ НА ПРИЁМ";
-                para.Range.Font.Size = 18;
-                para.Range.Font.Bold = 1;
-                para.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                para.Range.InsertParagraphAfter();
-
-                // Форматируем дату и время
-                string dateStr = DateTime.Parse(label7.Text.Replace("Дата приема: ", "")).ToString("dd.MM.yyyy");
-                string timeStr = TimeSpan.Parse(label8.Text.Replace("Время приема: ", "")).ToString(@"hh\:mm");
-
-                // Информация о пациенте и приёме
-                Word.Paragraph infoPara = doc.Content.Paragraphs.Add();
-                infoPara.Range.Text = $"Пациент: {label9.Text.Replace("Пациент: ", "")}\n" +
-                                      $"Врач: {label1.Text.Replace("Врач: ", "")}\n" +
-                                      $"Дата приёма: {dateStr}\n" +
-                                      $"Время приёма: {timeStr}";
-                infoPara.Range.Font.Size = 12;
-                infoPara.Range.Font.Bold = 0;
-                infoPara.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                infoPara.Range.InsertParagraphAfter();
-
-                if (dataGridView2.Rows.Count > 0)
-                {
-                    int rows = dataGridView2.Rows.Count + 1; // +1 для заголовка
-                    int cols = 2; // Наименование и Категория
-                    Word.Range tableRange = doc.Content.Paragraphs.Add().Range;
-                    Word.Table table = doc.Tables.Add(tableRange, rows, cols);
-                    table.Borders.Enable = 1;
-
-                    // Заголовки таблицы
-                    table.Cell(1, 1).Range.Text = "Наименование услуги";
-                    table.Cell(1, 2).Range.Text = "Категория";
-                    table.Rows[1].Range.Font.Bold = 1;
-                    table.Rows[1].Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-
-                    // Заполнение таблицы
-                    for (int i = 0; i < dataGridView2.Rows.Count; i++)
-                    {
-                        table.Cell(i + 2, 1).Range.Text = dataGridView2.Rows[i].Cells["ServiceName"].Value.ToString();
-                        table.Cell(i + 2, 2).Range.Text = dataGridView2.Rows[i].Cells["CategoryName"].Value.ToString();
-
-                        // Выравнивание текста в ячейках
-                        table.Cell(i + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                        table.Cell(i + 2, 2).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                    }
-                }
-
-                MessageBox.Show("Талон подготовлен в Word.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при создании документа Word: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

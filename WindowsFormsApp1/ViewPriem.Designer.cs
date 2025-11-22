@@ -29,7 +29,7 @@ namespace WindowsFormsApp1
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.label_number = new System.Windows.Forms.Label();
             this.label_patient = new System.Windows.Forms.Label();
@@ -46,6 +46,7 @@ namespace WindowsFormsApp1
             this.label_total = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.button6 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -58,14 +59,14 @@ namespace WindowsFormsApp1
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridView1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.dataGridView1.Location = new System.Drawing.Point(12, 72);
             this.dataGridView1.MultiSelect = false;
@@ -142,7 +143,7 @@ namespace WindowsFormsApp1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button1.Location = new System.Drawing.Point(16, 515);
+            this.button1.Location = new System.Drawing.Point(12, 515);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(137, 38);
             this.button1.TabIndex = 57;
@@ -154,7 +155,7 @@ namespace WindowsFormsApp1
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button2.Location = new System.Drawing.Point(159, 515);
+            this.button2.Location = new System.Drawing.Point(155, 515);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(137, 38);
             this.button2.TabIndex = 58;
@@ -166,7 +167,7 @@ namespace WindowsFormsApp1
             // 
             this.button3.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button3.Location = new System.Drawing.Point(564, 515);
+            this.button3.Location = new System.Drawing.Point(573, 515);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(167, 38);
             this.button3.TabIndex = 59;
@@ -177,9 +178,9 @@ namespace WindowsFormsApp1
             // button4
             // 
             this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button4.Location = new System.Drawing.Point(747, 72);
+            this.button4.Location = new System.Drawing.Point(746, 109);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(167, 38);
+            this.button4.Size = new System.Drawing.Size(202, 38);
             this.button4.TabIndex = 60;
             this.button4.Text = "Закрыть прием";
             this.button4.UseVisualStyleBackColor = false;
@@ -188,9 +189,9 @@ namespace WindowsFormsApp1
             // button5
             // 
             this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button5.Location = new System.Drawing.Point(747, 116);
+            this.button5.Location = new System.Drawing.Point(746, 153);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(167, 38);
+            this.button5.Size = new System.Drawing.Size(202, 38);
             this.button5.TabIndex = 61;
             this.button5.Text = "Печать чека";
             this.button5.UseVisualStyleBackColor = false;
@@ -199,7 +200,7 @@ namespace WindowsFormsApp1
             // label_total
             // 
             this.label_total.AutoSize = true;
-            this.label_total.Location = new System.Drawing.Point(746, 157);
+            this.label_total.Location = new System.Drawing.Point(745, 194);
             this.label_total.Name = "label_total";
             this.label_total.Size = new System.Drawing.Size(58, 20);
             this.label_total.TabIndex = 62;
@@ -209,7 +210,7 @@ namespace WindowsFormsApp1
             // 
             this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(746, 197);
+            this.label10.Location = new System.Drawing.Point(746, 234);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(82, 20);
             this.label10.TabIndex = 65;
@@ -219,17 +220,29 @@ namespace WindowsFormsApp1
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(746, 177);
+            this.label5.Location = new System.Drawing.Point(746, 214);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(69, 20);
             this.label5.TabIndex = 64;
             this.label5.Text = "Скидка:";
             // 
+            // button6
+            // 
+            this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.button6.Location = new System.Drawing.Point(746, 65);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(202, 38);
+            this.button6.TabIndex = 66;
+            this.button6.Text = "Отменить прием";
+            this.button6.UseVisualStyleBackColor = false;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // ViewPriem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(922, 571);
+            this.ClientSize = new System.Drawing.Size(960, 571);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label_total);
@@ -278,5 +291,6 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Label label_total;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button button6;
     }
 }

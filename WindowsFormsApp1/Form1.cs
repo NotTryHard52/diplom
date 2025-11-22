@@ -70,5 +70,13 @@ namespace WindowsFormsApp1
         {
             OpenChildForm(new Main_menu(label_fio.Text, currentRole));
         }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            Login login = new Login();
+            this.Hide();
+            login.ShowDialog();
+            this.Show();
+        }
     }
 }
