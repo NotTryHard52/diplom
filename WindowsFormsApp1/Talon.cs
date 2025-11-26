@@ -42,6 +42,8 @@ namespace WindowsFormsApp1
             dataGridView2.Columns.Add("ServiceId", "ServiceId");
             dataGridView2.Columns["ServiceId"].Visible = false;
             dataGridView2.AllowUserToAddRows = false;
+            var hoverEffect = new HoverDataGridView(dataGridView1);
+            var hoverEffect2 = new HoverDataGridView(dataGridView2);
         }
 
         private void LoadServices()

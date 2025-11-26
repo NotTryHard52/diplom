@@ -125,6 +125,7 @@
     <Compile Include="EditPatient.Designer.cs">
       <DependentUpon>EditPatient.cs</DependentUpon>
     </Compile>
+    <Compile Include="HoverDataGridView.cs" />
     <Compile Include="InputLimit.cs" />
     <Compile Include="Main_menu.cs">
       <SubType>Form</SubType>

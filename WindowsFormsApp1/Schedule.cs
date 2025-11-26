@@ -33,6 +33,7 @@ namespace WindowsFormsApp1
             LoadSchedule();
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
+            var hoverEffect = new HoverDataGridView(dataGridView1);
         }
         private void LoadSchedule()
         {

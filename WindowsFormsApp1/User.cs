@@ -29,6 +29,7 @@ namespace WindowsFormsApp1
             connectionString = connect.ConnectDB();
             LoadUser();
             dataGridView1.CellClick += dataGridView1_CellClick;
+            var hoverEffect = new HoverDataGridView(dataGridView1);
         }
         private void LoadUser()
         {
@@ -74,6 +75,7 @@ namespace WindowsFormsApp1
                 comboBox1.DisplayMember = "RoleName";
                 comboBox1.ValueMember = "idRoles";
                 comboBox1.DataSource = roleTable;
+                comboBox1.SelectedIndex = -1;
             }
         }
 

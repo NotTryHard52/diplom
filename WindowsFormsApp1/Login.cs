@@ -82,7 +82,7 @@ namespace WindowsFormsApp1
                     this.Hide();
                     if (role == "1")
                     {
-                        Menu admin = new Menu(FIO, userId);
+                        Menu admin = new Menu(FIO, userId, role);
                         admin.ShowDialog();
                     }
                     else if (role == "2")

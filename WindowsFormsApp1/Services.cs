@@ -32,6 +32,7 @@ namespace WindowsFormsApp1
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
             LoadServices();
+            var hoverEffect = new HoverDataGridView(dataGridView1);
         }
         private void LoadServices()
         {

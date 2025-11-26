@@ -33,6 +33,7 @@ namespace WindowsFormsApp1
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             textBox5.TextChanged += textBox5_TextChanged;
             LoadDoctor();
+            var hoverEffect = new HoverDataGridView(dataGridView1);
         }
         private void LoadDoctor()
         {

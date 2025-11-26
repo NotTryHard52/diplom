@@ -39,6 +39,7 @@ namespace WindowsFormsApp1
             {
                 button5.Enabled = false;
             }
+            var hoverEffect = new HoverDataGridView(dataGridView1);
         }
         private void DisableForGlav()
         {

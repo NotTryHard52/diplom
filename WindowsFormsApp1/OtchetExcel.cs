@@ -78,6 +78,7 @@ namespace WindowsFormsApp1
                 }
             }
             ApplyFilterAndSort();
+            var hoverEffect = new HoverDataGridView(dataGridView1);
         }
 
         private void button1_Click(object sender, EventArgs e)

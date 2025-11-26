@@ -33,6 +33,7 @@ namespace WindowsFormsApp1
             label9.Text = $"Количество записей: {count}";
             comboBox2.SelectedIndex = 0;
             LoadPatient();
+            var hoverEffect = new HoverDataGridView(dataGridView1);
         }
         private void LoadPatient()
         {
