@@ -130,10 +130,20 @@ namespace WindowsFormsApp1
 
         private void button8_Click(object sender, EventArgs e)
         {
-            Login login = new Login();
-            this.Hide();
-            login.ShowDialog();
-            this.Show();
+            DialogResult result = MessageBox.Show(
+        "Вы действительно хотите выйти?",
+        "Подтверждение выхода",
+        MessageBoxButtons.YesNo,
+        MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                Login login = new Login();
+                this.Hide();
+                login.ShowDialog();
+                this.Show();
+            }
         }
 
         private void button1_Click_1(object sender, EventArgs e)
