@@ -53,7 +53,7 @@ namespace WindowsFormsApp1
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(762, 520);
+            this.label2.Location = new System.Drawing.Point(787, 520);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(169, 20);
             this.label2.TabIndex = 21;
@@ -108,7 +108,7 @@ namespace WindowsFormsApp1
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(654, 5);
+            this.label3.Location = new System.Drawing.Point(679, 5);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(193, 20);
             this.label3.TabIndex = 34;
@@ -119,7 +119,7 @@ namespace WindowsFormsApp1
             this.comboBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(658, 28);
+            this.comboBox2.Location = new System.Drawing.Point(683, 28);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(193, 28);
             this.comboBox2.TabIndex = 33;
@@ -194,7 +194,7 @@ namespace WindowsFormsApp1
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.Size = new System.Drawing.Size(989, 445);
+            this.dataGridView1.Size = new System.Drawing.Size(1014, 445);
             this.dataGridView1.TabIndex = 48;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             // 
@@ -214,7 +214,7 @@ namespace WindowsFormsApp1
             // 
             this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button5.Location = new System.Drawing.Point(857, 22);
+            this.button5.Location = new System.Drawing.Point(882, 22);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(146, 38);
             this.button5.TabIndex = 50;
@@ -226,7 +226,7 @@ namespace WindowsFormsApp1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1013, 571);
+            this.ClientSize = new System.Drawing.Size(1038, 571);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.dataGridView1);
