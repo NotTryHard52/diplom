@@ -112,7 +112,6 @@
       <DependentUpon>AddPatient.cs</DependentUpon>
     </Compile>
     <Compile Include="Connect.cs" />
-    <Compile Include="CountData.cs" />
     <Compile Include="EditDoctor.cs">
       <SubType>Form</SubType>
     </Compile>

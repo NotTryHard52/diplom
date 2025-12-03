@@ -26,8 +26,6 @@ namespace WindowsFormsApp1
         private void Doctor_Load(object sender, EventArgs e)
         {
             FillSpecialties();
-            int count = CountData.GetTableCount("doctors");
-            label9.Text = $"Количество записей: {count}";
             comboBox2.SelectedIndex = 0;
             comboBox1.SelectedIndex = 0;
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
@@ -61,6 +59,7 @@ namespace WindowsFormsApp1
             dataGridView1.Columns["Phone_number"].HeaderText = "Телефон";
             dataGridView1.Columns["SpecialityName"].HeaderText = "Специальность";
             dataGridView1.Columns["Photo"].Visible = false;
+            label9.Text = $"Количество записей: {doctorsTable.Rows.Count}";
 
             DataGridViewImageColumn imgCol = (DataGridViewImageColumn)dataGridView1.Columns["Фото"];
             imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;

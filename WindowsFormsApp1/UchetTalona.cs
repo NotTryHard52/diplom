@@ -25,8 +25,6 @@ namespace WindowsFormsApp1
             FillStatus();
             comboBox1.SelectedIndex = 0;
             comboBox2.SelectedIndex = 0;
-            int count = CountData.GetTableCount("Order");
-            label9.Text = $"Количество записей: {count}";
             ReloadOrderTable();
         }
         private void FillStatus()
@@ -151,6 +149,7 @@ namespace WindowsFormsApp1
 
                 dataGridView1.DataSource = orderTable;
                 ApplyFilterAndSort();
+                label9.Text = $"Количество записей: {orderTable.Rows.Count}";
             }
         }
 

@@ -38,7 +38,6 @@ namespace WindowsFormsApp1
         private void LoadSchedule()
         {
             InputLimit.DateOrder(dateTimePicker1);
-            int count = CountData.GetTableCount("Schedule");
             comboBox2.SelectedIndex = 0;
             comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -119,7 +118,7 @@ namespace WindowsFormsApp1
                 if (drv["Статус"].ToString() == "Свободно")
                     normalRow.DefaultCellStyle.BackColor = Color.LightGreen;
                 else
-                    normalRow.DefaultCellStyle.BackColor = Color.MistyRose;
+                    normalRow.DefaultCellStyle.BackColor = Color.LightCoral;
             }
         }
         private void FillStatuses()

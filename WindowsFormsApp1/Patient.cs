@@ -29,8 +29,6 @@ namespace WindowsFormsApp1
 
         private void Patient_Load(object sender, EventArgs e)
         {
-            int count = CountData.GetTableCount("patients");
-            label9.Text = $"Количество записей: {count}";
             comboBox2.SelectedIndex = 0;
             LoadPatient();
             var hoverEffect = new HoverDataGridView(dataGridView1);
@@ -55,6 +53,7 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[4].HeaderText = "Дата рождения";
                 dataGridView1.Columns[5].HeaderText = "Номер телефона";
                 dataGridView1.Columns[6].HeaderText = "Номер полиса";
+                label9.Text = $"Количество записей: {patientTable.Rows.Count}";
             }
         }
 

@@ -25,8 +25,6 @@ namespace WindowsFormsApp1
             FillStatus();
             comboBox1.SelectedIndex = 0;
             comboBox2.SelectedIndex = 0;
-            int count = CountData.GetTableCount("Order");
-            label9.Text = $"Количество записей: {count}";
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -55,6 +53,7 @@ namespace WindowsFormsApp1
                 da.Fill(orderTable);
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = orderTable;
+                label9.Text = $"Количество записей: {orderTable.Rows.Count}";
             }
             UpdateRevenueSum();
         }
