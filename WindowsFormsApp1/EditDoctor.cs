@@ -26,6 +26,8 @@ namespace WindowsFormsApp1
         string selectedPhotoFileName;
         string photoFolder;
         string selectedPhotoFullPath;
+        bool photoDeleted = false;
+        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "not-image.png");
         public EditDoctor(int doctorId, Image photo)
         {
             InitializeComponent();
@@ -51,9 +53,9 @@ namespace WindowsFormsApp1
         private void button6_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(textBox1.Text) ||
-                string.IsNullOrWhiteSpace(textBox2.Text) ||
-                !maskedTextBox1.MaskFull ||
-                comboBox2.SelectedValue == null)
+        string.IsNullOrWhiteSpace(textBox2.Text) ||
+        !maskedTextBox1.MaskFull ||
+        comboBox2.SelectedValue == null)
             {
                 MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -65,11 +67,15 @@ namespace WindowsFormsApp1
             string newPhone = maskedTextBox1.Text.Trim();
             int newSpecialityId = Convert.ToInt32(comboBox2.SelectedValue);
 
-            bool changed = newSurname != oldSurname ||
-                           newName != oldName ||
-                           newLastname != oldLastname ||
-                           newPhone != oldPhone ||
-                           newSpecialityId != oldSpecialityId || !string.IsNullOrEmpty(selectedPhotoFileName);
+            bool photoChanged = selectedPhotoFileName != null || photoDeleted;
+
+            bool changed =
+                newSurname != oldSurname ||
+                newName != oldName ||
+                newLastname != oldLastname ||
+                newPhone != oldPhone ||
+                newSpecialityId != oldSpecialityId ||
+                photoChanged;
 
             if (!changed)
             {
@@ -79,25 +85,52 @@ namespace WindowsFormsApp1
 
             string photoFileToSave = oldPhotoFileName;
 
-            if (!string.IsNullOrEmpty(selectedPhotoFileName) && !string.IsNullOrEmpty(selectedPhotoFullPath))
+            if (photoDeleted)
+            {
+                if (!string.IsNullOrEmpty(oldPhotoFileName))
+                {
+                    string fullPath = Path.Combine(photoFolder, oldPhotoFileName);
+                    if (File.Exists(fullPath))
+                    {
+                        try { File.Delete(fullPath); } catch { }
+                    }
+                }
+
+                photoFileToSave = null;
+            }
+            else if (!string.IsNullOrEmpty(selectedPhotoFileName) &&
+                     !string.IsNullOrEmpty(selectedPhotoFullPath))
             {
                 try
                 {
-                    if (!System.IO.Directory.Exists(photoFolder)) System.IO.Directory.CreateDirectory(photoFolder);
+                    if (!System.IO.Directory.Exists(photoFolder))
+                        System.IO.Directory.CreateDirectory(photoFolder);
 
                     string destPath = Path.Combine(photoFolder, selectedPhotoFileName);
 
-                    if (File.Exists(destPath))
-                    {
-                        string name = Path.GetFileNameWithoutExtension(selectedPhotoFileName);
-                        string ext = Path.GetExtension(selectedPhotoFileName);
-                        string uniqueName = $"{name}_{DateTime.Now:yyyyMMdd_HHmmss}{ext}";
-                        destPath = Path.Combine(photoFolder, uniqueName);
-                        selectedPhotoFileName = uniqueName;
-                    }
+                    bool isSameFolder =
+                        string.Equals(Path.GetDirectoryName(selectedPhotoFullPath)?.TrimEnd('\\'),
+                                      photoFolder.TrimEnd('\\'),
+                                      StringComparison.OrdinalIgnoreCase);
 
-                    File.Copy(selectedPhotoFullPath, destPath, true);
-                    photoFileToSave = selectedPhotoFileName;
+                    if (isSameFolder)
+                    {
+                        photoFileToSave = selectedPhotoFileName;
+                    }
+                    else
+                    {
+                        if (File.Exists(destPath))
+                        {
+                            string name = Path.GetFileNameWithoutExtension(selectedPhotoFileName);
+                            string ext = Path.GetExtension(selectedPhotoFileName);
+                            string uniqueName = $"{name}_{DateTime.Now:yyyyMMdd_HHmmss}{ext}";
+                            destPath = Path.Combine(photoFolder, uniqueName);
+                            selectedPhotoFileName = uniqueName;
+                        }
+
+                        File.Copy(selectedPhotoFullPath, destPath, true);
+                        photoFileToSave = selectedPhotoFileName;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -111,12 +144,12 @@ namespace WindowsFormsApp1
                 con.Open();
 
                 string checkQuery = @"
-                    SELECT COUNT(*) FROM Doctors 
-                    WHERE Surname = @surname 
-                      AND Name = @name 
-                      AND Lastname = @lastname 
-                      AND Phone_number = @phone
-                      AND idDoctors <> @id;";
+            SELECT COUNT(*) FROM Doctors 
+            WHERE Surname = @surname 
+              AND Name = @name 
+              AND Lastname = @lastname 
+              AND Phone_number = @phone
+              AND idDoctors <> @id;";
 
                 using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                 {
@@ -126,8 +159,7 @@ namespace WindowsFormsApp1
                     checkCmd.Parameters.AddWithValue("@phone", newPhone);
                     checkCmd.Parameters.AddWithValue("@id", selectedDoctorId);
 
-                    int duplicateCount = Convert.ToInt32(checkCmd.ExecuteScalar());
-                    if (duplicateCount > 0)
+                    if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
                     {
                         MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
@@ -135,14 +167,14 @@ namespace WindowsFormsApp1
                 }
 
                 string query = @"
-                        UPDATE Doctors
-                        SET Surname = @surname,
-                            Name = @name,
-                            Lastname = @lastname,
-                            Phone_number = @phone,
-                            Speciality = @speciality,
-                            Photo = @photo
-                        WHERE idDoctors = @id;";
+            UPDATE Doctors
+            SET Surname = @surname,
+                Name = @name,
+                Lastname = @lastname,
+                Phone_number = @phone,
+                Speciality = @speciality,
+                Photo = @photo
+            WHERE idDoctors = @id;";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
@@ -152,11 +184,14 @@ namespace WindowsFormsApp1
                     cmd.Parameters.AddWithValue("@phone", newPhone);
                     cmd.Parameters.AddWithValue("@speciality", newSpecialityId);
                     cmd.Parameters.AddWithValue("@id", selectedDoctorId);
-                    cmd.Parameters.AddWithValue("@photo", string.IsNullOrEmpty(photoFileToSave) ? (object)DBNull.Value : photoFileToSave);
+                    cmd.Parameters.AddWithValue("@photo", string.IsNullOrEmpty(photoFileToSave)
+                        ? (object)DBNull.Value
+                        : photoFileToSave);
 
                     cmd.ExecuteNonQuery();
                 }
             }
+
             MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
         }
@@ -257,6 +292,28 @@ namespace WindowsFormsApp1
                     }
                 }
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(oldPhotoFileName))
+            {
+                MessageBox.Show("У врача нет сохранённого фото.", "Информация",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (MessageBox.Show("Удалить фото?", "Подтверждение",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            pictureBox1.Image = Image.FromFile(placeholderPath);
+            selectedPhotoFileName = null;
+            selectedPhotoFullPath = null;
+            photoDeleted = true;
+
+            MessageBox.Show("Фото будет удалено после сохранения.", "OK",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     } 
 }

@@ -435,6 +435,18 @@
     <None Include="Resources\справочники2.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="photo\doc1.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\doc2.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\doc3.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\doc4.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="photo\not-image.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
