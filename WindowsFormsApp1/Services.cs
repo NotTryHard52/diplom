@@ -144,7 +144,7 @@ namespace WindowsFormsApp1
 
                 selectedId = Convert.ToInt32(row.Cells["idServices"].Value);
                 textBox1.Text = row.Cells["Name"].Value.ToString();
-                textBox2.Text = row.Cells["Price"].Value.ToString();
+                textBox2.Text = Convert.ToInt32(row.Cells["Price"].Value).ToString();
                 string categoryName = row.Cells["Category"].Value.ToString();
                 comboBox1.SelectedIndex = comboBox1.FindStringExact(categoryName);
             }
@@ -259,7 +259,12 @@ namespace WindowsFormsApp1
 
             string ServicesName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
-            DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{ServicesName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = MessageBox.Show(
+                $"Вы уверены, что хотите удалить запись: \"{ServicesName}\"?",
+                "Подтверждение удаления",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
 
             if (result == DialogResult.No)
                 return;
@@ -268,9 +273,27 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                string checkQuery = "SELECT COUNT(*) FROM OrderServices WHERE ServicesId = @id";
+                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                checkCmd.Parameters.AddWithValue("@id", selectedId);
+
+                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                if (count > 0)
+                {
+                    MessageBox.Show(
+                        "Невозможно удалить запись, так как существуют связанные данные в таблице талонов!",
+                        "Ошибка удаления",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return;
+                }
+
                 string deleteQuery = "DELETE FROM Services WHERE idServices = @id";
                 MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
                 deleteCmd.Parameters.AddWithValue("@id", selectedId);
+
                 deleteCmd.ExecuteNonQuery();
 
                 MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);

@@ -62,7 +62,7 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[2].HeaderText = "Имя";
                 dataGridView1.Columns[3].HeaderText = "Отчество";
                 dataGridView1.Columns[4].HeaderText = "Логин";
-                dataGridView1.Columns[5].HeaderText = "Пароль";
+                dataGridView1.Columns[5].Visible = false;
                 dataGridView1.Columns[6].HeaderText = "Роль";
                 label2.Text = $"Количество записей: {userTable.Rows.Count}";
 

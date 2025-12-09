@@ -43,11 +43,11 @@ namespace WindowsFormsApp1
         }
         private void DisableForGlav()
         {
-            button1.Visible = false; 
-            button2.Visible = false; 
-            button4.Visible = false; 
+            button1.Visible = false;
+            button2.Visible = false;
+            button4.Visible = false;
             button6.Visible = false;
-            button5.Visible = false; 
+            button5.Visible = false;
 
             comboBox1.Enabled = false;
             dataGridView1.Enabled = false;
@@ -347,8 +347,8 @@ namespace WindowsFormsApp1
                 Word.Application wordApp = new Word.Application();
                 Word.Document doc = wordApp.Documents.Add();
 
-                doc.PageSetup.PageWidth = wordApp.CentimetersToPoints(8);  
-                doc.PageSetup.PageHeight = wordApp.CentimetersToPoints(15); 
+                doc.PageSetup.PageWidth = wordApp.CentimetersToPoints(8);
+                doc.PageSetup.PageHeight = wordApp.CentimetersToPoints(15);
                 doc.PageSetup.TopMargin = wordApp.CentimetersToPoints(0.5f);
                 doc.PageSetup.BottomMargin = wordApp.CentimetersToPoints(0.5f);
                 doc.PageSetup.LeftMargin = wordApp.CentimetersToPoints(0.5f);
@@ -446,16 +446,40 @@ namespace WindowsFormsApp1
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
-                string statusQuery = "SELECT idStatusesPriem FROM StatusesPriem WHERE name='Отменен' LIMIT 1;";
-                int statusId = Convert.ToInt32(new MySqlCommand(statusQuery, con).ExecuteScalar());
 
-                string updateQuery = "UPDATE `Order` SET Status=@status WHERE idOrder=@orderId;";
-                using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
+                // id статуса "Отменен" для Order
+                int orderStatusId = Convert.ToInt32(new MySqlCommand(
+                    "SELECT idStatusesPriem FROM StatusesPriem WHERE Name='Отменен' LIMIT 1;", con).ExecuteScalar());
+
+                // ScheduleId для текущего Order
+                MySqlCommand scheduleCmd = new MySqlCommand(
+                    "SELECT Schedule FROM `Order` WHERE idOrder=@orderId LIMIT 1;", con);
+                scheduleCmd.Parameters.AddWithValue("@orderId", orderId);
+                int scheduleId = Convert.ToInt32(scheduleCmd.ExecuteScalar());
+
+                // id статуса "Свободно" для Schedule
+                int freeScheduleStatusId = Convert.ToInt32(new MySqlCommand(
+                    "SELECT idStatuses FROM Statuses WHERE StatusName='Свободно' LIMIT 1;", con).ExecuteScalar());
+
+                if (orderStatusId == 0 || scheduleId == 0 || freeScheduleStatusId == 0)
                 {
-                    cmd.Parameters.AddWithValue("@status", statusId);
-                    cmd.Parameters.AddWithValue("@orderId", orderId);
-                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Ошибка: не найден нужный статус или расписание.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
+
+                // Обновляем Schedule
+                MySqlCommand updateScheduleCmd = new MySqlCommand(
+                    "UPDATE Schedule SET Status=@scheduleStatusId WHERE idSchedule=@scheduleId;", con);
+                updateScheduleCmd.Parameters.AddWithValue("@scheduleStatusId", freeScheduleStatusId);
+                updateScheduleCmd.Parameters.AddWithValue("@scheduleId", scheduleId);
+                updateScheduleCmd.ExecuteNonQuery();
+
+                // Обновляем Order
+                MySqlCommand updateOrderCmd = new MySqlCommand(
+                    "UPDATE `Order` SET Status=@orderStatusId WHERE idOrder=@orderId;", con);
+                updateOrderCmd.Parameters.AddWithValue("@orderStatusId", orderStatusId);
+                updateOrderCmd.Parameters.AddWithValue("@orderId", orderId);
+                updateOrderCmd.ExecuteNonQuery();
 
                 comboBox1.Text = "Отменен";
 

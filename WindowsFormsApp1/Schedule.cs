@@ -40,22 +40,89 @@ namespace WindowsFormsApp1
             InputLimit.DateOrder(dateTimePicker1);
             comboBox2.SelectedIndex = 0;
             comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
+
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                // Загружаем расписание с idDoctor
+                string query = @"
+            SELECT 
+                s.idSchedule, 
+                s.idDoctor, 
+                CONCAT(d.Surname, ' ', d.Name, ' ', d.Lastname) AS Врач,
+                s.date AS `Дата приема`, 
+                s.time AS `Время приема`, 
+                st.statusname AS `Статус`
+            FROM Schedule s
+            JOIN Doctors d ON s.idDoctor = d.idDoctors
+            JOIN Statuses st ON s.Status = st.idStatuses
+            ORDER BY d.Surname, s.date, s.time;";
+
                 scheduleTable = new DataTable();
-                MySqlCommand cmd = new MySqlCommand("SELECT s.idSchedule, CONCAT(d.Surname, ' ', d.Name, ' ', d.Lastname) AS Врач, s.date AS `Дата приема`, s.time AS `Время приема`, st.statusname AS `Статус` FROM Schedule s JOIN Doctors d ON s.idDoctor = d.idDoctors JOIN Statuses st ON s.Status = st.idStatuses;", con);
-                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                MySqlDataAdapter da = new MySqlDataAdapter(query, con);
                 da.Fill(scheduleTable);
-                dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-                BuildGroupedGrid();
-                dataGridView1.Columns[0].Visible = false;
-                dataGridView1.Columns["Дата приема"].DefaultCellStyle.Format = "dd.MM.yyyy";
+
+                dataGridView1.DataSource = null;
+                dataGridView1.Rows.Clear();
+                dataGridView1.Columns.Clear();
+
+                // Добавляем колонки вручную
+                foreach (DataColumn col in scheduleTable.Columns)
+                {
+                    dataGridView1.Columns.Add(col.ColumnName, col.ColumnName);
+                }
+
+                dataGridView1.Columns["idSchedule"].Visible = false;
+                dataGridView1.Columns["idDoctor"].Visible = false; // скрытая колонка для ComboBox
+                foreach (DataGridViewColumn col in dataGridView1.Columns)
+                    col.SortMode = DataGridViewColumnSortMode.NotSortable;
+
+                // Группировка по врачу
+                string currentDoctor = "";
+                int groupRowIndex = -1;
+                collapsedGroups.Clear();
+
+                foreach (DataRow row in scheduleTable.Rows)
+                {
+                    string doctor = row["Врач"].ToString();
+
+                    if (doctor != currentDoctor)
+                    {
+                        currentDoctor = doctor;
+                        groupRowIndex = dataGridView1.Rows.Add("", "", doctor, "", "", "");
+                        var groupRow = dataGridView1.Rows[groupRowIndex];
+                        groupRow.DefaultCellStyle.BackColor = Color.LightGray;
+                        groupRow.DefaultCellStyle.Font = new Font(dataGridView1.Font, FontStyle.Bold);
+                        groupRow.Tag = "GROUP";
+                        groupRow.Cells[2].Value = "▼ " + doctor;
+                    }
+
+                    int rowIndex = dataGridView1.Rows.Add(
+                        row["idSchedule"],
+                        row["idDoctor"],
+                        "   " + row["Врач"],
+                        ((DateTime)row["Дата приема"]).ToString("dd.MM.yyyy"),
+                        ((TimeSpan)row["Время приема"]).ToString(@"hh\:mm"),
+                        row["Статус"]
+                    );
+
+                    var normalRow = dataGridView1.Rows[rowIndex];
+                    if (row["Статус"].ToString() == "Свободно")
+                        normalRow.DefaultCellStyle.BackColor = Color.LightGreen;
+                    else
+                        normalRow.DefaultCellStyle.BackColor = Color.LightCoral;
+
+                    // Скрываем, если группа свернута
+                    if (collapsedGroups.Contains(groupRowIndex))
+                        normalRow.Visible = false;
+                }
+
                 label2.Text = $"Количество записей: {scheduleTable.Rows.Count}";
 
+                // Заполняем ComboBox врачей
                 string docQuery = "SELECT idDoctors, CONCAT(Surname, ' ', Name, ' ', Lastname) AS DoctorName FROM Doctors;";
-                MySqlCommand docCmd = new MySqlCommand(docQuery, con);
-                MySqlDataAdapter docDa = new MySqlDataAdapter(docCmd);
+                MySqlDataAdapter docDa = new MySqlDataAdapter(docQuery, con);
                 DataTable docTable = new DataTable();
                 docDa.Fill(docTable);
 
@@ -73,18 +140,23 @@ namespace WindowsFormsApp1
             dataGridView1.Rows.Clear();
             dataGridView1.Columns.Clear();
 
-            foreach (DataColumn col in scheduleTable.Columns)
-                dataGridView1.Columns.Add(col.ColumnName, col.ColumnName);
+            if (dv == null) dv = scheduleTable.DefaultView;
 
+            // Добавляем колонки
+            foreach (DataColumn col in scheduleTable.Columns)
+            {
+                dataGridView1.Columns.Add(col.ColumnName, col.ColumnName);
+            }
+
+            // Скрываем служебные колонки
             dataGridView1.Columns["idSchedule"].Visible = false;
+            dataGridView1.Columns["idDoctor"].Visible = false;
+
             foreach (DataGridViewColumn col in dataGridView1.Columns)
                 col.SortMode = DataGridViewColumnSortMode.NotSortable;
 
             string currentDoctor = "";
             int groupRowIndex = -1;
-
-            if (dv == null) dv = scheduleTable.DefaultView;
-
             foreach (DataRowView drv in dv)
             {
                 string doctor = drv["Врач"].ToString();
@@ -92,33 +164,32 @@ namespace WindowsFormsApp1
                 if (doctor != currentDoctor)
                 {
                     currentDoctor = doctor;
-                    groupRowIndex = dataGridView1.Rows.Add("", doctor, "", "", "");
+                    groupRowIndex = dataGridView1.Rows.Add("", "", doctor, "", "", "");
                     var groupRow = dataGridView1.Rows[groupRowIndex];
-
                     groupRow.DefaultCellStyle.BackColor = Color.LightGray;
                     groupRow.DefaultCellStyle.Font = new Font(dataGridView1.Font, FontStyle.Bold);
                     groupRow.Tag = "GROUP";
-                    bool collapsed = collapsedGroups.Contains(groupRowIndex);
-                    groupRow.Cells[1].Value = (collapsed ? "► " : "▼ ") + doctor;
+                    groupRow.Cells[2].Value = "▼ " + doctor;
                 }
 
                 int rowIndex = dataGridView1.Rows.Add(
                     drv["idSchedule"],
-                    "   " + doctor,
-                    drv["Дата приема"],
-                    drv["Время приема"],
+                    drv["idDoctor"],
+                    "   " + drv["Врач"],
+                    ((DateTime)drv["Дата приема"]).ToString("dd.MM.yyyy"),
+                    ((TimeSpan)drv["Время приема"]).ToString(@"hh\:mm"),
                     drv["Статус"]
                 );
 
                 var normalRow = dataGridView1.Rows[rowIndex];
-
-                if (collapsedGroups.Contains(groupRowIndex))
-                    normalRow.Visible = false;
-
                 if (drv["Статус"].ToString() == "Свободно")
                     normalRow.DefaultCellStyle.BackColor = Color.LightGreen;
                 else
                     normalRow.DefaultCellStyle.BackColor = Color.LightCoral;
+
+                // Скрываем строки если группа свернута
+                if (collapsedGroups.Contains(groupRowIndex))
+                    normalRow.Visible = false;
             }
         }
         private void FillStatuses()
@@ -235,7 +306,6 @@ namespace WindowsFormsApp1
                 DateTime selectedDateTime = dateTimePicker1.Value.Date + dateTimePicker2.Value.TimeOfDay;
                 if (selectedDateTime < DateTime.Now)
                 {
-                    MessageBox.Show("Нельзя выбрать время в прошлом!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     dateTimePicker2.Value = DateTime.Now;
                 }
             }
@@ -366,60 +436,51 @@ namespace WindowsFormsApp1
 
             DataGridViewRow clickedRow = dataGridView1.Rows[e.RowIndex];
 
+            // --- Групповые строки ---
             if (clickedRow.Tag != null && clickedRow.Tag.ToString() == "GROUP")
             {
-                bool collapsed;
-
-                if (clickedRow.Cells[1].Value.ToString().StartsWith("▼ "))
-                {
-                    collapsed = true;
-                    clickedRow.Cells[1].Value = "► " + clickedRow.Cells[1].Value.ToString().Substring(2);
-                }
-                else
-                {
-                    collapsed = false;
-                    clickedRow.Cells[1].Value = "▼ " + clickedRow.Cells[1].Value.ToString().Substring(2);
-                }
+                bool collapsed = clickedRow.Cells[2].Value.ToString().StartsWith("▼ ");
+                clickedRow.Cells[2].Value = (collapsed ? "► " : "▼ ") + clickedRow.Cells[2].Value.ToString().Substring(2);
 
                 if (collapsed)
                     collapsedGroups.Add(e.RowIndex);
                 else
                     collapsedGroups.Remove(e.RowIndex);
 
+                // Скрываем/показываем подстроки
                 for (int i = e.RowIndex + 1; i < dataGridView1.Rows.Count; i++)
                 {
                     var r = dataGridView1.Rows[i];
                     if (r.Tag != null && r.Tag.ToString() == "GROUP") break;
                     r.Visible = !collapsed;
                 }
-
-                return; 
+                return;
             }
 
-            if (!clickedRow.Visible)
-                return;
+            if (!clickedRow.Visible) return;
 
-
+            // --- Выбор Schedule ---
             selectedScheduleId = Convert.ToInt32(clickedRow.Cells["idSchedule"].Value);
-
-            string doctorFullName = clickedRow.Cells["Врач"].Value.ToString();
             status = clickedRow.Cells["Статус"].Value.ToString();
 
-            comboBox1.SelectedIndex = comboBox1.FindStringExact(doctorFullName);
+            // --- Выбираем врача в ComboBox ---
+            if (clickedRow.Cells["idDoctor"] != null && int.TryParse(clickedRow.Cells["idDoctor"].Value.ToString(), out int doctorId))
+            {
+                comboBox1.SelectedValue = doctorId;
+            }
 
+            // --- Дата ---
             if (DateTime.TryParse(clickedRow.Cells["Дата приема"].Value.ToString(), out DateTime dateFromDB))
             {
-                dateTimePicker1.Value = dateFromDB < DateTime.Today ? DateTime.Today : dateFromDB;
+                // Если дата в прошлом, подставляем сегодня
+                DateTime dateValue = dateFromDB < DateTime.Today ? DateTime.Today : dateFromDB;
+                dateTimePicker1.Value = dateValue;
             }
 
             if (TimeSpan.TryParse(clickedRow.Cells["Время приема"].Value.ToString(), out TimeSpan timeFromDB))
             {
-                DateTime combinedDateTime = dateTimePicker1.Value.Date + timeFromDB;
-
-                if (combinedDateTime < DateTime.Now)
-                    dateTimePicker2.Value = DateTime.Now;
-                else
-                    dateTimePicker2.Value = DateTime.Today.Add(timeFromDB);
+                // берем дату из dateTimePicker1 и просто прибавляем TimeSpan
+                dateTimePicker2.Value = dateTimePicker1.Value.Date.Add(timeFromDB);
             }
         }
 
