@@ -180,6 +180,43 @@ namespace WindowsFormsApp1
                 return;
             }
 
+            // Проверяем, нет ли у пациента записи на этот же день
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string checkSql = @"
+        SELECT COUNT(*) 
+        FROM `Order` o
+        JOIN Schedule s ON o.schedule = s.idSchedule
+        WHERE o.Patients_idPatients = @patientId
+          AND DATE(s.Date) = (
+                SELECT DATE(Date) 
+                FROM Schedule 
+                WHERE idSchedule = @currentSchedule
+          )
+          AND o.Status <> 0;";
+
+                using (MySqlCommand cmd = new MySqlCommand(checkSql, con))
+                {
+                    cmd.Parameters.AddWithValue("@patientId", selectedPatientId);
+                    cmd.Parameters.AddWithValue("@currentSchedule", selectedScheduleId);
+
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show(
+                            "У этого пациента уже есть запись на выбранную дату!",
+                            "Ошибка",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+
+                        return; // стоп — талон не создаём
+                    }
+                }
+            }
+
             // Расчёт общей суммы и скидки
             decimal total = 0;
             foreach (DataGridViewRow row in dataGridView2.Rows)

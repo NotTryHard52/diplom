@@ -1,11 +1,11 @@
-﻿using MySql.Data.MySqlClient;                      // Подключаем библиотеку для работы с MySQL
-using System;                                      // Базовые типы .NET
-using System.Data;                                 // Для использования DataTable, DataAdapter
-using System.Drawing;                              // Для работы с изображениями
-using System.IO;                                   // Для операций с файлами
-using System.Windows.Forms;                        // Для компонентов Windows Forms
+﻿using MySql.Data.MySqlClient;                  
+using System;                                      
+using System.Data;                               
+using System.Drawing;                           
+using System.IO;                          
+using System.Windows.Forms;                        
 
-namespace WindowsFormsApp1                        // Пространство имён приложения
+namespace WindowsFormsApp1                      
 {
     public partial class AddDoctor : Form          // Класс формы AddDoctor
     {
