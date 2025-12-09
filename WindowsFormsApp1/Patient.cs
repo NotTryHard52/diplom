@@ -1,42 +1,42 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class Patient : Form
     {
-        string connectionString;
-        DataTable patientTable;
-        public event Action<int, string> PatientSelected;
-        int selectedId = -1;
-        private bool openedFromTalon = false;
+        string connectionString; // Строка подключения к базе данных
+        DataTable patientTable; // Таблица для хранения данных пациентов
+        public event Action<int, string> PatientSelected; // Событие для передачи выбранного пациента
+        int selectedId = -1; // Id выбранного пациента
+        private bool openedFromTalon = false; // Флаг, был ли вызов формы из создания талона
+
         public Patient(bool fromTalon = false)
         {
             InitializeComponent();
 
             openedFromTalon = fromTalon;
 
+            // Кнопка "Выбрать" отображается только если форма открыта из талона
             button4.Visible = openedFromTalon;
         }
 
+        // Загрузка формы
         private void Patient_Load(object sender, EventArgs e)
         {
-            comboBox2.SelectedIndex = 0;
-            LoadPatient();
-            var hoverEffect = new HoverDataGridView(dataGridView1);
+            comboBox2.SelectedIndex = 0; // Установка сортировки по умолчанию
+            LoadPatient(); // Загрузка данных пациентов
+            var hoverEffect = new HoverDataGridView(dataGridView1); // Визуальный эффект наведения на строки
         }
+
+        // Загрузка данных пациентов из базы данных
         private void LoadPatient()
         {
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
+
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
@@ -44,19 +44,26 @@ namespace WindowsFormsApp1
                 MySqlCommand cmd = new MySqlCommand("SELECT * FROM Patients;", con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(patientTable);
+
+                // Настройка DataGridView
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = patientTable;
-                dataGridView1.Columns[0].Visible = false;
+
+                // Настройка заголовков колонок
+                dataGridView1.Columns[0].Visible = false; // Скрываем Id
                 dataGridView1.Columns[1].HeaderText = "Фамилия";
                 dataGridView1.Columns[2].HeaderText = "Имя";
                 dataGridView1.Columns[3].HeaderText = "Отчество";
                 dataGridView1.Columns[4].HeaderText = "Дата рождения";
                 dataGridView1.Columns[5].HeaderText = "Номер телефона";
                 dataGridView1.Columns[6].HeaderText = "Номер полиса";
+
+                // Показываем количество записей
                 label9.Text = $"Количество записей: {patientTable.Rows.Count}";
             }
         }
 
+        // Редактирование выбранного пациента
         private void button2_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count == 0)
@@ -66,23 +73,26 @@ namespace WindowsFormsApp1
             }
 
             int id = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["idPatients"].Value);
-
             EditPatient ed = new EditPatient(id);
             ed.ShowDialog();
 
-            LoadPatient();
+            LoadPatient(); // Обновляем таблицу после редактирования
         }
 
+        // Смена параметра сортировки
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             ApplyFilterAndSort();
         }
+
+        // Применение фильтра и сортировки к таблице
         private void ApplyFilterAndSort()
         {
             if (patientTable == null) return;
 
             string filterExpr = "";
 
+            // Поиск по номеру полиса
             string searchText = textBox5.Text.Trim().Replace("'", "''");
             if (!string.IsNullOrEmpty(searchText))
             {
@@ -90,12 +100,9 @@ namespace WindowsFormsApp1
                 {
                     filterExpr = $"Number_policy = {policyNumber}";
                 }
-                else
-                {
-                    filterExpr = "";
-                }
             }
 
+            // Сортировка по фамилии
             string sortExpr = "";
             if (comboBox2.SelectedIndex == 1)
                 sortExpr = "Surname ASC";
@@ -110,24 +117,28 @@ namespace WindowsFormsApp1
             dataGridView1.Refresh();
         }
 
+        // Изменение текста поиска
         private void textBox5_TextChanged(object sender, EventArgs e)
         {
             ApplyFilterAndSort();
         }
 
+        // Ввод только чисел для поиска по полису
         private void textBox5_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Numbers(sender, e);
         }
 
+        // Добавление нового пациента
         private void button1_Click(object sender, EventArgs e)
         {
             AddPatient ad = new AddPatient();
             ad.ShowDialog();
 
-            LoadPatient();
+            LoadPatient(); // Обновляем таблицу после добавления
         }
 
+        // Выбор пациента для передачи в форму талона
         private void button4_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count == 0)
@@ -137,21 +148,23 @@ namespace WindowsFormsApp1
             }
 
             DataGridViewRow row = dataGridView1.SelectedRows[0];
-
             int patientId = Convert.ToInt32(row.Cells["idPatients"].Value);
             string fullName = $"{row.Cells["Surname"].Value} {row.Cells["Name"].Value} {row.Cells["Lastname"].Value}";
 
+            // Вызываем событие для передачи данных
             PatientSelected?.Invoke(patientId, fullName);
 
-            this.Close();
+            this.Close(); // Закрываем форму
         }
 
+        // Сброс фильтров
         private void button5_Click(object sender, EventArgs e)
         {
             comboBox2.SelectedIndex = 0;
             textBox5.Text = "";
         }
 
+        // Удаление выбранного пациента
         private void button3_Click(object sender, EventArgs e)
         {
             if (selectedId == -1)
@@ -164,6 +177,7 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка, используется ли пациент в заказах
                 string checkQuery = "SELECT COUNT(*) FROM `Order` WHERE Patients_idPatients = @patientId";
                 using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                 {
@@ -177,6 +191,7 @@ namespace WindowsFormsApp1
                     }
                 }
 
+                // Подтверждение удаления
                 DialogResult result = MessageBox.Show(
                     "Вы уверены, что хотите удалить запись?",
                     "Подтверждение удаления",
@@ -186,6 +201,7 @@ namespace WindowsFormsApp1
                 if (result == DialogResult.No)
                     return;
 
+                // Удаление пациента
                 string deleteQuery = "DELETE FROM Patients WHERE idPatients = @id";
                 using (MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con))
                 {
@@ -196,9 +212,10 @@ namespace WindowsFormsApp1
             }
 
             selectedId = -1;
-            LoadPatient();
+            LoadPatient(); // Обновляем таблицу после удаления
         }
 
+        // Получение Id выбранной строки при клике
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)

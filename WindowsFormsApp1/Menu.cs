@@ -1,161 +1,89 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class Menu : Form
     {
-        private int currentUserId;
-        private string currentRole;
-        private Form activeForm = null;
+        private int currentUserId; // ID текущего пользователя
+        private string currentRole; // роль текущего пользователя
+        private Form activeForm = null; // ссылка на текущую открытую дочернюю форму
+
+        // Конструктор формы Menu, принимает ФИО пользователя, его ID и роль
         public Menu(string FIO, int userId, string role)
         {
             InitializeComponent();
-            label_fio.Text = FIO;
+            label_fio.Text = FIO; // отображаем ФИО пользователя
             currentUserId = userId;
             currentRole = role;
         }
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-            Login login = new Login();
-            this.Hide();
-            login.ShowDialog();
-            this.Show();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Directory direct = new Directory();
-            this.Hide();
-            direct.ShowDialog();
-            this.Show();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            //Form1 user = new Form1();
-            //this.Hide();
-            //user.ShowDialog();
-            //this.Show();
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            Doctor doc = new Doctor();
-            this.Hide();
-            doc.ShowDialog();
-            this.Show();
-        }
-
-        private void pictureBox2_Click(object sender, EventArgs e)
-        {
-            panel1.Width = 60;
-
-            var directoryForm = new Directory();
-
-            // подписка на событие
-            directoryForm.DictionarySelected += (childForm) =>
-            {
-                OpenChildForm(childForm);
-            };
-
-            OpenChildForm(directoryForm);
-
-        }
-
-        private void pictureBox3_Click(object sender, EventArgs e)
-        {
-            OpenChildForm(new User(currentUserId));
-            panel1.Width = 60; // свернуть меню после открытия 193
-        }
+        // Метод для открытия дочерней формы внутри панели panel2
         private void OpenChildForm(Form childForm)
         {
+            // Проверяем, открыта ли уже эта форма; если да, выходим
             if (activeForm != null && activeForm.GetType() == childForm.GetType())
             {
                 return;
             }
 
-            panel2.Controls.Clear();
+            panel2.Controls.Clear(); // очищаем панель перед открытием новой формы
 
+            // Настройка дочерней формы для интеграции в панель
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
 
-            panel2.Controls.Add(childForm);
-            childForm.Show();
+            panel2.Controls.Add(childForm); // добавляем форму в панель
+            childForm.Show(); // отображаем форму
 
-            activeForm = childForm;
+            activeForm = childForm; // сохраняем текущую открытую форму
         }
 
-        private void pictureBox4_Click(object sender, EventArgs e)
-        {
-            OpenChildForm(new Doctor());
-            panel1.Width = 60; // свернуть меню после открытия 193
-        }
-
-        private void pictureBox5_Click(object sender, EventArgs e)
-        {
-            Login login = new Login();
-            this.Hide();
-            login.ShowDialog();
-            this.Show();
-        }
-        public void ExpandPanel()
-        {
-            this.Width = 1120;
-        }
-
-        private void pictureBox9_Click(object sender, EventArgs e)
-        {
-            panel1.Width = 193;
-        }
-
+        // Кнопка для открытия главного меню
         private void button7_Click(object sender, EventArgs e)
         {
             OpenChildForm(new Main_menu(label_fio.Text, currentRole));
         }
 
+        // Кнопка для открытия формы пользователя
         private void button2_Click_1(object sender, EventArgs e)
         {
             OpenChildForm(new User(currentUserId));
         }
 
+        // Кнопка выхода с подтверждением
         private void button8_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show(
-        "Вы действительно хотите выйти?",
-        "Подтверждение выхода",
-        MessageBoxButtons.YesNo,
-        MessageBoxIcon.Question
+                "Вы действительно хотите выйти?",
+                "Подтверждение выхода",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
             );
 
+            // Если пользователь подтвердил, открываем форму логина
             if (result == DialogResult.Yes)
             {
                 Login login = new Login();
-                this.Hide();
-                login.ShowDialog();
-                this.Show();
+                this.Hide(); // скрываем текущую форму
+                login.ShowDialog(); // показываем форму логина
+                this.Show(); // возвращаем текущую форму после закрытия логина
             }
         }
 
+        // Кнопка открытия справочников
         private void button1_Click_1(object sender, EventArgs e)
         {
             var directoryForm = new Directory();
 
+            // Подписка на событие выбора дочерней формы из справочников
             directoryForm.DictionarySelected += (childForm) =>
             {
                 OpenChildForm(childForm);
             };
 
-            OpenChildForm(directoryForm);
+            OpenChildForm(directoryForm); // открываем форму справочников
         }
     }
 }

@@ -1,56 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
+    // Класс для подсветки строки DataGridView при наведении мыши
     public class HoverDataGridView
     {
-        private readonly DataGridView _dataGridView;
-        private Color _hoverColor = Color.FromArgb(192, 255, 255);
-        private Color _defaultColor = Color.White;
-        private int _hoveredRow = -1;
+        private readonly DataGridView _dataGridView; // Ссылка на DataGridView
+        private Color _hoverColor = Color.FromArgb(192, 255, 255); // Цвет подсветки при наведении
+        private Color _defaultColor = Color.White; // Стандартный цвет строки
+        private int _hoveredRow = -1; // Индекс строки, на которой сейчас наведение
 
+        // Конструктор класса. Можно задать свои цвета hover и default
         public HoverDataGridView(DataGridView dgv, Color? hoverColor = null, Color? defaultColor = null)
         {
             _dataGridView = dgv;
 
-            EnableDoubleBuffering(_dataGridView);
+            EnableDoubleBuffering(_dataGridView); // Включаем двойную буферизацию для плавной отрисовки
 
-            if (hoverColor.HasValue) _hoverColor = hoverColor.Value;
-            if (defaultColor.HasValue) _defaultColor = defaultColor.Value;
+            if (hoverColor.HasValue) _hoverColor = hoverColor.Value; // Если задан цвет подсветки, используем его
+            if (defaultColor.HasValue) _defaultColor = defaultColor.Value; // Если задан цвет по умолчанию, используем его
 
+            // Подписываемся на события наведения мыши
             _dataGridView.CellMouseEnter += DataGridView_CellMouseEnter;
             _dataGridView.CellMouseLeave += DataGridView_CellMouseLeave;
         }
 
+        // Метод включения двойной буферизации DataGridView через Reflection
         private void EnableDoubleBuffering(DataGridView dgv)
         {
             typeof(DataGridView)
                 .GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
-                .SetValue(dgv, true, null);
+                .SetValue(dgv, true, null); // Устанавливаем приватное свойство DoubleBuffered в true
         }
 
+        // Событие при наведении мыши на ячейку
         private void DataGridView_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
+            if (e.RowIndex >= 0) // Проверяем, что это не заголовок
             {
-                _hoveredRow = e.RowIndex;
-                _dataGridView.Rows[e.RowIndex].DefaultCellStyle.BackColor = _hoverColor;
+                _hoveredRow = e.RowIndex; // Сохраняем индекс наведенной строки
+                _dataGridView.Rows[e.RowIndex].DefaultCellStyle.BackColor = _hoverColor; // Меняем цвет строки
             }
         }
 
+        // Событие при уходе мыши с ячейки
         private void DataGridView_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
         {
-            if (_hoveredRow >= 0 && _hoveredRow < _dataGridView.Rows.Count)
+            if (_hoveredRow >= 0 && _hoveredRow < _dataGridView.Rows.Count) // Проверяем валидность индекса
             {
-                _dataGridView.Rows[_hoveredRow].DefaultCellStyle.BackColor = _defaultColor;
-                _hoveredRow = -1;
+                _dataGridView.Rows[_hoveredRow].DefaultCellStyle.BackColor = _defaultColor; // Возвращаем стандартный цвет
+                _hoveredRow = -1; // Сбрасываем индекс
             }
         }
     }

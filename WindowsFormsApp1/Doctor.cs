@@ -1,231 +1,243 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class Doctor : Form
     {
-        string connectionString;
-        DataTable doctorsTable;
-        int selectedId = -1;
+        string connectionString;               // Строка подключения к БД
+        DataTable doctorsTable;                // Таблица для хранения данных врачей
+        int selectedId = -1;                   // ID выбранного врача (-1 = не выбран)
 
         public Doctor()
         {
-            InitializeComponent();
+            InitializeComponent();             // Инициализация компонентов формы
         }
 
         private void Doctor_Load(object sender, EventArgs e)
         {
-            FillSpecialties();
-            comboBox2.SelectedIndex = 0;
-            comboBox1.SelectedIndex = 0;
-            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
-            textBox5.TextChanged += textBox5_TextChanged;
-            LoadDoctor();
-            var hoverEffect = new HoverDataGridView(dataGridView1);
+            FillSpecialties();                 // Заполнение списка специальностей
+            comboBox2.SelectedIndex = 0;       // Значение сортировки по умолчанию
+            comboBox1.SelectedIndex = 0;       // Фильтр специальностей по умолчанию
+            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged; // Обработчик смены фильтра
+            textBox5.TextChanged += textBox5_TextChanged;                    // Обработчик ввода поиска
+            LoadDoctor();                      // Загрузка списка врачей
+            var hoverEffect = new HoverDataGridView(dataGridView1); // Наведение на строки (эффект подсветки)
         }
+
         private void LoadDoctor()
         {
             Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
+            connectionString = connect.ConnectDB(); // Получаем строку подключения
+
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
-                con.Open();
-                doctorsTable = new DataTable();
+                con.Open();                         // Открытие соединения
+
+                doctorsTable = new DataTable();     // Таблица для загрузки данных
+
+                // SQL-запрос — выбираем врачей + название специальности
                 MySqlCommand cmd = new MySqlCommand(
                     "SELECT d.idDoctors, d.Surname, d.Name, d.Lastname, d.Phone_number, d.Photo, s.SpecialityName " +
                     "FROM Doctors d JOIN Speciality s ON d.Speciality = s.idSpeciality;", con);
 
-                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                da.Fill(doctorsTable);
-
+                MySqlDataAdapter da = new MySqlDataAdapter(cmd); // Адаптер данных
+                da.Fill(doctorsTable);                           // Заполняем DataTable
             }
-            LoadDoctorPhotos(doctorsTable);
-            dataGridView1.DataSource = doctorsTable;
 
-            dataGridView1.Columns["idDoctors"].Visible = false;
+            LoadDoctorPhotos(doctorsTable);       // Загружаем фото врачей в таблицу
+
+            dataGridView1.DataSource = doctorsTable; // Привязка таблицы к DataGridView
+
+            dataGridView1.Columns["idDoctors"].Visible = false; // Скрываем ID
             dataGridView1.Columns["Surname"].HeaderText = "Фамилия";
             dataGridView1.Columns["Name"].HeaderText = "Имя";
             dataGridView1.Columns["Lastname"].HeaderText = "Отчество";
             dataGridView1.Columns["Phone_number"].HeaderText = "Телефон";
             dataGridView1.Columns["SpecialityName"].HeaderText = "Специальность";
-            dataGridView1.Columns["Photo"].Visible = false;
-            label9.Text = $"Количество записей: {doctorsTable.Rows.Count}";
+            dataGridView1.Columns["Photo"].Visible = false;      // Скрываем текстовое имя фото
 
+            label9.Text = $"Количество записей: {doctorsTable.Rows.Count}"; // Вывод количества
+
+            // Колонка с изображениями
             DataGridViewImageColumn imgCol = (DataGridViewImageColumn)dataGridView1.Columns["Фото"];
-            imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
+            imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom; // Масштабирование фото
 
-            dataGridView1.RowTemplate.Height = 100;
-            dataGridView1.Refresh();
+            dataGridView1.RowTemplate.Height = 100; // Высота строки из-за фото
+            dataGridView1.Refresh();                // Перерисовка
         }
 
         private void LoadDoctorPhotos(DataTable table)
         {
-            if (table == null) return;
+            if (table == null) return;              // Проверка на null
 
-            if (!table.Columns.Contains("Фото"))
-                table.Columns.Add("Фото", typeof(Image));
+            if (!table.Columns.Contains("Фото"))    // Если нет колонки "Фото"
+                table.Columns.Add("Фото", typeof(Image)); // Создаем колонку с типом Image
 
-            string photoFolder = Path.Combine(Application.StartupPath, "photo");
+            string photoFolder = Path.Combine(Application.StartupPath, "photo"); // Папка с фото
 
             foreach (DataRow row in table.Rows)
             {
-                string fileName = "not-image.png";
+                string fileName = "not-image.png";  // Фото по умолчанию
 
                 if (row["Photo"] != DBNull.Value && !string.IsNullOrEmpty(row["Photo"].ToString()))
-                    fileName = row["Photo"].ToString();
+                    fileName = row["Photo"].ToString(); // Имя файла из БД
 
-                string photoPath = Path.Combine(photoFolder, fileName);
-                if (!File.Exists(photoPath))
+                string photoPath = Path.Combine(photoFolder, fileName); // Полный путь
+
+                if (!File.Exists(photoPath)) // Если фото не существует
                     photoPath = Path.Combine(photoFolder, "not-image.png");
 
                 try
                 {
+                    // Загружаем изображение через FileStream, чтобы избежать блокировок
                     using (FileStream fs = new FileStream(photoPath, FileMode.Open, FileAccess.Read))
                     {
                         using (var tempImg = Image.FromStream(fs))
                         {
-                            row["Фото"] = new Bitmap(tempImg);
+                            row["Фото"] = new Bitmap(tempImg); // Добавляем фото в таблицу
                         }
                     }
                 }
                 catch
                 {
-                    row["Фото"] = new Bitmap(100, 100);
+                    row["Фото"] = new Bitmap(100, 100); // В случае ошибки — пустая картинка
                 }
             }
         }
+
         private void FillSpecialties()
         {
             Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
+            connectionString = connect.ConnectDB(); // Получаем строку подключения
+
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
-                string query = "SELECT DISTINCT SpecialityName FROM speciality;";
+
+                string query = "SELECT DISTINCT SpecialityName FROM speciality;"; // Список специальностей
                 MySqlCommand cmd = new MySqlCommand(query, con);
+
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
-                    comboBox1.Items.Clear();
-                    comboBox1.Items.Add("Все");
+                    comboBox1.Items.Clear();        // Очищаем список
+                    comboBox1.Items.Add("Все");     // Пункт для отображения всех врачей
+
                     while (reader.Read())
                     {
                         string specialty = reader["SpecialityName"].ToString();
-                        comboBox1.Items.Add(specialty);
+                        comboBox1.Items.Add(specialty); // Добавляем специальность
                     }
                 }
             }
         }
+
         private void button2_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count == 0)
+            if (dataGridView1.SelectedRows.Count == 0)     // Если не выбрана строка
             {
-                MessageBox.Show("Выберите запись для редактирования!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите запись для редактирования!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Получаем ID врача
-            int doctorId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["idDoctors"].Value);
+            int doctorId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["idDoctors"].Value); // Получаем ID врача
 
-            // Получаем фото из таблицы (колонка "Фото")
-            Image photo = null;
+            Image photo = null;                             // Фото врача
             if (dataGridView1.SelectedRows[0].Cells["Фото"].Value is Image img)
             {
-                photo = new Bitmap(img); // копия, чтобы не блокировать ресурс
+                photo = new Bitmap(img);                    // Делаем копию
             }
 
-            // Открываем форму редактирования и передаем фото
-            EditDoctor editForm = new EditDoctor(doctorId, photo);
-            editForm.ShowDialog();
+            EditDoctor editForm = new EditDoctor(doctorId, photo); // Создаем форму редактирования
+            editForm.ShowDialog();                                  // Открываем её
 
-            // После закрытия формы — обновляем таблицу
-            LoadDoctor();
+            LoadDoctor();                                           // Обновляем таблицу после закрытия
         }
 
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ApplyFilterAndSort();
+            ApplyFilterAndSort(); // Сортировка
         }
+
         private void ApplyFilterAndSort()
         {
             if (doctorsTable == null) return;
 
-            string filterExpr = "";
+            string filterExpr = ""; // Строка фильтра
 
+            // Фильтр по специальности
             string selectedSpecialty = comboBox1.SelectedItem?.ToString();
             if (!string.IsNullOrEmpty(selectedSpecialty) && selectedSpecialty != "Все")
             {
                 filterExpr = $"SpecialityName = '{selectedSpecialty.Replace("'", "''")}'";
             }
 
+            // Фильтр по фамилии
             string searchText = textBox5.Text.Trim().Replace("'", "''");
             if (!string.IsNullOrEmpty(searchText))
             {
                 if (!string.IsNullOrEmpty(filterExpr))
-                {
                     filterExpr += " AND ";
-                }
+
                 filterExpr += $"Surname LIKE '%{searchText}%'";
             }
 
+            // Сортировка
             string sortExpr = "";
             if (comboBox2.SelectedIndex == 1)
                 sortExpr = "Surname ASC";
             else if (comboBox2.SelectedIndex == 2)
                 sortExpr = "Surname DESC";
 
-            DataView dv = doctorsTable.DefaultView;
-            dv.RowFilter = filterExpr;
-            dv.Sort = sortExpr;
+            DataView dv = doctorsTable.DefaultView; // Представление таблицы
+            dv.RowFilter = filterExpr;              // Применяем фильтр
+            dv.Sort = sortExpr;                     // Применяем сортировку
 
-            dataGridView1.DataSource = dv;
+            dataGridView1.DataSource = dv;          // Обновляем отображения
             dataGridView1.Refresh();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ApplyFilterAndSort();
+            ApplyFilterAndSort(); // Обновляем отображение при смене специальности
         }
 
         private void textBox5_TextChanged(object sender, EventArgs e)
         {
-            ApplyFilterAndSort();
+            ApplyFilterAndSort(); // Фильтр по фамилии
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            AddDoctor ad = new AddDoctor();
-            ad.ShowDialog();
+            AddDoctor ad = new AddDoctor(); // Форма добавления врача
+            ad.ShowDialog();                // Открываем модально
 
-            LoadDoctor();
+            LoadDoctor();                   // Перезагружаем таблицу
         }
 
         private void textBox5_KeyPress(object sender, KeyPressEventArgs e)
         {
-            InputLimit.Russian_Hyphen(sender, e);
+            InputLimit.Russian_Hyphen(sender, e); // Ограничиваем ввод ФИО и дефисов
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            comboBox2.SelectedIndex = 0;
-            comboBox1.SelectedIndex = 0;
-            textBox5.Text = "";
+            comboBox2.SelectedIndex = 0; // Сброс сортировки
+            comboBox1.SelectedIndex = 0; // Сброс фильтра
+            textBox5.Text = "";          // Очистка поиска
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (selectedId == -1)
+            if (selectedId == -1) // Если врач не выбран
             {
-                MessageBox.Show("Выберите запись для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите запись для удаления!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -233,11 +245,13 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверяем, используется ли врач в расписании
                 string checkQuery = "SELECT COUNT(*) FROM Schedule WHERE idDoctor = @doctorId";
                 using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                 {
                     checkCmd.Parameters.AddWithValue("@doctorId", selectedId);
                     int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
                     if (count > 0)
                     {
                         MessageBox.Show("Нельзя удалить этого врача, так как он используется в расписании!",
@@ -252,28 +266,30 @@ namespace WindowsFormsApp1
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
 
-                if (result == DialogResult.No)
-                    return;
+                if (result == DialogResult.No) return;
 
+                // Удаление врача
                 string deleteQuery = "DELETE FROM Doctors WHERE idDoctors = @id";
                 using (MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con))
                 {
                     deleteCmd.Parameters.AddWithValue("@id", selectedId);
                     deleteCmd.ExecuteNonQuery();
-                    MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    MessageBox.Show("Запись успешно удалена!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
-            selectedId = -1;
-            LoadDoctor();
+            selectedId = -1; // Сбрасываем выбор
+            LoadDoctor();    // Перезагружаем список
         }
 
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
+            if (e.RowIndex >= 0) // Если нажата строка, а не заголовок
             {
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-                selectedId = Convert.ToInt32(row.Cells["idDoctors"].Value);
+                selectedId = Convert.ToInt32(row.Cells["idDoctors"].Value); // Сохраняем выбранный ID
             }
         }
     }

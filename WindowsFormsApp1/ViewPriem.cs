@@ -1,20 +1,21 @@
-﻿using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient; // Подключение MySQL клиента
 using System;
 using System.Data;
-using System.Drawing.Imaging;
-using System.IO;
+using System.Drawing.Imaging; // Для сохранения логотипа
+using System.IO; // Работа с файлами
 using System.Windows.Forms;
-using Word = Microsoft.Office.Interop.Word;
+using Word = Microsoft.Office.Interop.Word; // Используем Word Interop для печати чека
 
 namespace WindowsFormsApp1
 {
     public partial class ViewPriem : Form
     {
-        private int orderId;
-        string connectionString;
-        decimal totalSum = 0;
-        private bool isGlav;
+        private int orderId; // ID текущего приёма
+        string connectionString; // Строка подключения к БД
+        decimal totalSum = 0; // Сумма всех услуг
+        private bool isGlav; // Флаг, если пользователь главный (ограничения на редактирование)
 
+        // Конструктор формы
         public ViewPriem(int orderId, bool isGlav = false)
         {
             InitializeComponent();
@@ -22,36 +23,44 @@ namespace WindowsFormsApp1
             this.isGlav = isGlav;
         }
 
+        // Событие загрузки формы
         private void ViewPriem_Load(object sender, EventArgs e)
         {
             Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
-            LoadOrderData();
-            LoadServices();
-            LoadStatuses();
-            CalculateTotal();
-            if (isGlav) { DisableForGlav(); }
+            connectionString = connect.ConnectDB(); // Получаем строку подключения
+            LoadOrderData(); // Загружаем данные о приёме
+            LoadServices();  // Загружаем услуги в таблицу
+            LoadStatuses();  // Загружаем статусы в comboBox
+            CalculateTotal(); // Вычисляем итоговую сумму
+
+            if (isGlav) { DisableForGlav(); } // Блокировка для главного пользователя
+
+            // Блокировка элементов при определённых статусах
             if (comboBox1.Text == "Завершен" || comboBox1.Text == "Отменен")
             {
                 DisableEditing();
             }
             if (comboBox1.Text == "Создан" || comboBox1.Text == "Отменен")
             {
-                button5.Enabled = false;
+                button5.Enabled = false; // Печать чека недоступна
             }
-            var hoverEffect = new HoverDataGridView(dataGridView1);
+
+            var hoverEffect = new HoverDataGridView(dataGridView1); // Эффект при наведении на DataGridView
         }
+
+        // Блокировка элементов для главного пользователя
         private void DisableForGlav()
         {
-            button1.Visible = false;
-            button2.Visible = false;
-            button4.Visible = false;
-            button6.Visible = false;
-            button5.Visible = false;
-
+            button1.Visible = false; // Добавить услугу
+            button2.Visible = false; // Удалить услугу
+            button4.Visible = false; // Завершить приём
+            button6.Visible = false; // Отменить приём
+            button5.Visible = false; // Печать чека
             comboBox1.Enabled = false;
             dataGridView1.Enabled = false;
         }
+
+        // Полная блокировка редактирования
         private void DisableEditing()
         {
             dataGridView1.Enabled = false;
@@ -62,6 +71,7 @@ namespace WindowsFormsApp1
             comboBox1.Enabled = false;
         }
 
+        // Загрузка данных о приёме из БД
         private void LoadOrderData()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -84,6 +94,7 @@ namespace WindowsFormsApp1
                         JOIN Patients p ON o.Patients_idPatients = p.idPatients
                         JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
                         WHERE o.idOrder = @orderId;";
+
                 using (MySqlCommand cmd = new MySqlCommand(query, con))
                 {
                     cmd.Parameters.AddWithValue("@orderId", orderId);
@@ -91,6 +102,7 @@ namespace WindowsFormsApp1
                     {
                         if (reader.Read())
                         {
+                            // Заполнение меток формы данными из БД
                             label_number.Text = "Номер талона: " + reader["idOrder"].ToString();
                             label_patient.Text = "Пациент: " + reader["patient_name"].ToString();
                             label_doctor.Text = "Врач: " + reader["doctor_name"].ToString();
@@ -98,6 +110,8 @@ namespace WindowsFormsApp1
                             label_time.Text = "Время: " + reader["time"].ToString();
                             comboBox1.Text = reader["status"].ToString();
                         }
+
+                        // Сумма, скидка и итог к оплате
                         decimal sum = reader.GetDecimal("sum");
                         decimal discount = reader.GetDecimal("Discount");
                         decimal total = reader.GetDecimal("TotalSum");
@@ -107,10 +121,10 @@ namespace WindowsFormsApp1
                         label10.Text = $"К оплате: {total:N2} руб.";
                     }
                 }
-
             }
         }
 
+        // Загрузка услуг из БД в DataGridView
         private void LoadServices()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -127,11 +141,12 @@ namespace WindowsFormsApp1
                     DataTable dt = new DataTable();
                     new MySqlDataAdapter(cmd).Fill(dt);
                     dataGridView1.DataSource = dt;
-                    dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                    dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect; // Выбор полной строки
                 }
             }
         }
 
+        // Загрузка всех статусов приёма в comboBox
         private void LoadStatuses()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -148,6 +163,7 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Вычисление общей суммы услуг
         private void CalculateTotal()
         {
             totalSum = 0;
@@ -159,6 +175,7 @@ namespace WindowsFormsApp1
             label_total.Text = $"Итого: {totalSum:F2} ₽";
         }
 
+        // Завершение приёма
         private void button4_Click(object sender, EventArgs e)
         {
             if (dataGridView1.Rows.Count == 0)
@@ -182,17 +199,19 @@ namespace WindowsFormsApp1
 
                 comboBox1.Text = "Завершен";
 
+                // Блокировка элементов формы
                 dataGridView1.Enabled = false;
                 button1.Enabled = false;
                 button2.Enabled = false;
                 button4.Enabled = false;
-                button5.Enabled = true;
+                button5.Enabled = true; // Разрешена печать чека
                 button6.Enabled = false;
 
                 MessageBox.Show("Приём завершён!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
+        // Кнопка "Добавить услугу"
         private void button1_Click(object sender, EventArgs e)
         {
             AddServiceToOrder(orderId);
@@ -200,6 +219,7 @@ namespace WindowsFormsApp1
             CalculateTotal();
         }
 
+        // Кнопка "Удалить услугу"
         private void button2_Click(object sender, EventArgs e)
         {
             RemoveSelectedService(orderId);
@@ -207,6 +227,7 @@ namespace WindowsFormsApp1
             CalculateTotal();
         }
 
+        // Метод добавления услуги к приёму
         private void AddServiceToOrder(int orderId)
         {
             Services servicesForm = new Services(true);
@@ -218,6 +239,7 @@ namespace WindowsFormsApp1
 
                 DataTable dt = (DataTable)dataGridView1.DataSource;
 
+                // Проверка на дублирование услуги
                 foreach (DataRow existingRow in dt.Rows)
                 {
                     if (existingRow["Услуга"].ToString() == serviceName)
@@ -227,11 +249,13 @@ namespace WindowsFormsApp1
                     }
                 }
 
+                // Добавление услуги в таблицу
                 DataRow newRow = dt.NewRow();
                 newRow["Услуга"] = serviceName;
                 newRow["Цена"] = servicePrice;
                 dt.Rows.Add(newRow);
 
+                // Добавление услуги в базу
                 using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
                     con.Open();
@@ -245,10 +269,11 @@ namespace WindowsFormsApp1
                 }
 
                 CalculateTotal();
-                UpdateOrderTotalsInDatabase();
+                UpdateOrderTotalsInDatabase(); // Обновляем общие суммы в БД
             }
         }
 
+        // Метод удаления выбранной услуги
         private void RemoveSelectedService(int orderId)
         {
             if (dataGridView1.SelectedRows.Count == 0)
@@ -256,6 +281,7 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Выберите услугу для удаления!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
             DialogResult result = MessageBox.Show(
                 "Вы действительно хотите удалить выбранную услугу из талона?",
                 "Подтверждение",
@@ -264,13 +290,11 @@ namespace WindowsFormsApp1
 
             if (result == DialogResult.Yes)
             {
-
                 string serviceName = dataGridView1.SelectedRows[0].Cells["Услуга"].Value.ToString();
 
                 using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
                     con.Open();
-
                     string deleteQuery = @"
                         DELETE FROM OrderServices 
                         WHERE OrderId = @orderId 
@@ -293,10 +317,13 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Закрытие формы
         private void button3_Click(object sender, EventArgs e)
         {
             this.Close();
         }
+
+        // Обновление итоговой суммы, скидки и оплаты в БД
         private void UpdateOrderTotalsInDatabase()
         {
             decimal sum = 0;
@@ -308,21 +335,22 @@ namespace WindowsFormsApp1
             }
 
             decimal discount = 0;
-            if (sum > 1000) discount = sum * 0.05m;
-
+            if (sum > 1000) discount = sum * 0.05m; // Скидка 5% при сумме >1000
             decimal total = sum - discount;
 
+            // Обновление меток
             label_total.Text = $"Итого: {total:N2} руб.";
             label5.Text = $"Скидка: {discount:N2} руб.";
             label10.Text = $"К оплате: {total:N2} руб.";
 
+            // Обновление БД
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
                 string updateQuery = @"
-            UPDATE `Order` 
-            SET sum=@sum, Discount=@discount, TotalSum=@total 
-            WHERE idOrder=@orderId";
+                    UPDATE `Order` 
+                    SET sum=@sum, Discount=@discount, TotalSum=@total 
+                    WHERE idOrder=@orderId";
                 using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
                 {
                     cmd.Parameters.AddWithValue("@sum", sum);
@@ -334,6 +362,7 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Печать чека через Word
         private void button5_Click(object sender, EventArgs e)
         {
             if (dataGridView1.Rows.Count == 0)
@@ -347,6 +376,7 @@ namespace WindowsFormsApp1
                 Word.Application wordApp = new Word.Application();
                 Word.Document doc = wordApp.Documents.Add();
 
+                // Настройка страницы для чековой ленты
                 doc.PageSetup.PageWidth = wordApp.CentimetersToPoints(8);
                 doc.PageSetup.PageHeight = wordApp.CentimetersToPoints(15);
                 doc.PageSetup.TopMargin = wordApp.CentimetersToPoints(0.5f);
@@ -354,12 +384,14 @@ namespace WindowsFormsApp1
                 doc.PageSetup.LeftMargin = wordApp.CentimetersToPoints(0.5f);
                 doc.PageSetup.RightMargin = wordApp.CentimetersToPoints(0.5f);
 
+                // Временный файл логотипа
                 string tempLogoPath = Path.Combine(Path.GetTempPath(), "temp_logo.png");
                 Properties.Resources.logo.Save(tempLogoPath, ImageFormat.Png);
 
                 Word.Range r = doc.Content;
                 r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
 
+                // Вставка логотипа
                 Word.Paragraph logoParagraph = doc.Paragraphs.Add(r);
                 var shape = logoParagraph.Range.InlineShapes.AddPicture(tempLogoPath, false, true);
                 shape.Width = 60;
@@ -367,6 +399,7 @@ namespace WindowsFormsApp1
                 logoParagraph.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
                 logoParagraph.SpaceAfter = 6;
 
+                // Заголовок чека
                 r = doc.Content;
                 r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
                 Word.Paragraph title = doc.Paragraphs.Add(r);
@@ -376,6 +409,7 @@ namespace WindowsFormsApp1
                 title.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
                 title.SpaceAfter = 6;
 
+                // Информация о приёме
                 string orderNumber = label_number.Text.Replace("Номер талона: ", "");
                 string patientName = label_patient.Text.Replace("Пациент: ", "");
                 string doctorName = label_doctor.Text.Replace("Врач: ", "");
@@ -393,16 +427,14 @@ namespace WindowsFormsApp1
                 info.Range.Font.Size = 10;
                 info.SpaceAfter = 4;
 
+                // Таблица услуг
                 r = doc.Content;
                 r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-
                 int rows = dataGridView1.Rows.Count + 1;
                 Word.Table table = doc.Tables.Add(r, rows, 2);
                 table.Borders.Enable = 1;
-
                 table.Columns[1].Width = wordApp.CentimetersToPoints(5);
                 table.Columns[2].Width = wordApp.CentimetersToPoints(2);
-
                 table.Cell(1, 1).Range.Text = "Услуга";
                 table.Cell(1, 2).Range.Text = "Цена";
                 table.Rows[1].Range.Font.Bold = 1;
@@ -411,13 +443,13 @@ namespace WindowsFormsApp1
                 {
                     table.Cell(i + 2, 1).Range.Text =
                         dataGridView1.Rows[i].Cells["Услуга"].Value.ToString();
-
                     table.Cell(i + 2, 2).Range.Text =
                         dataGridView1.Rows[i].Cells["Цена"].Value.ToString();
                 }
 
                 table.Range.ParagraphFormat.SpaceAfter = 6;
 
+                // Итоги
                 r = doc.Content;
                 r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
                 Word.Paragraph totals = doc.Paragraphs.Add(r);
@@ -428,12 +460,13 @@ namespace WindowsFormsApp1
                 totals.Range.Font.Size = 12;
                 totals.Range.Font.Bold = 1;
                 totals.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                wordApp.Visible = true;
+
+                wordApp.Visible = true; // Показываем документ Word
 
                 MessageBox.Show("Чек подготовлен для печати!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 if (File.Exists(tempLogoPath))
-                    File.Delete(tempLogoPath);
+                    File.Delete(tempLogoPath); // Удаляем временный логотип
             }
             catch (Exception ex)
             {
@@ -441,23 +474,24 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Отмена приёма
         private void button6_Click(object sender, EventArgs e)
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
 
-                // id статуса "Отменен" для Order
+                // Получаем id статуса "Отменен" для Order
                 int orderStatusId = Convert.ToInt32(new MySqlCommand(
                     "SELECT idStatusesPriem FROM StatusesPriem WHERE Name='Отменен' LIMIT 1;", con).ExecuteScalar());
 
-                // ScheduleId для текущего Order
+                // Получаем ScheduleId для текущего Order
                 MySqlCommand scheduleCmd = new MySqlCommand(
                     "SELECT Schedule FROM `Order` WHERE idOrder=@orderId LIMIT 1;", con);
                 scheduleCmd.Parameters.AddWithValue("@orderId", orderId);
                 int scheduleId = Convert.ToInt32(scheduleCmd.ExecuteScalar());
 
-                // id статуса "Свободно" для Schedule
+                // Получаем id статуса "Свободно" для Schedule
                 int freeScheduleStatusId = Convert.ToInt32(new MySqlCommand(
                     "SELECT idStatuses FROM Statuses WHERE StatusName='Свободно' LIMIT 1;", con).ExecuteScalar());
 
@@ -467,14 +501,14 @@ namespace WindowsFormsApp1
                     return;
                 }
 
-                // Обновляем Schedule
+                // Обновление Schedule — перевод в статус "Свободно"
                 MySqlCommand updateScheduleCmd = new MySqlCommand(
                     "UPDATE Schedule SET Status=@scheduleStatusId WHERE idSchedule=@scheduleId;", con);
                 updateScheduleCmd.Parameters.AddWithValue("@scheduleStatusId", freeScheduleStatusId);
                 updateScheduleCmd.Parameters.AddWithValue("@scheduleId", scheduleId);
                 updateScheduleCmd.ExecuteNonQuery();
 
-                // Обновляем Order
+                // Обновление Order — перевод в статус "Отменен"
                 MySqlCommand updateOrderCmd = new MySqlCommand(
                     "UPDATE `Order` SET Status=@orderStatusId WHERE idOrder=@orderId;", con);
                 updateOrderCmd.Parameters.AddWithValue("@orderStatusId", orderStatusId);
@@ -483,6 +517,7 @@ namespace WindowsFormsApp1
 
                 comboBox1.Text = "Отменен";
 
+                // Блокировка элементов формы
                 dataGridView1.Enabled = false;
                 button1.Enabled = false;
                 button2.Enabled = false;

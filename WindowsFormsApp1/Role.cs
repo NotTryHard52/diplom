@@ -1,32 +1,31 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class Role : Form
     {
-        string connectionString;
-        int selectedRoleId = -1;
+        string connectionString; // Строка подключения к базе данных
+        int selectedRoleId = -1; // Id выбранной роли
+
         public Role()
         {
             InitializeComponent();
         }
 
+        // Загрузка формы
         private void Role_Load(object sender, EventArgs e)
         {
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
-            LoadRoles();
-            var hoverEffect = new HoverDataGridView(dataGridView1);
+
+            LoadRoles(); // Загружаем роли из базы
+            var hoverEffect = new HoverDataGridView(dataGridView1); // Визуальный эффект наведения на строки
         }
+
+        // Загрузка ролей из базы и отображение в DataGridView
         private void LoadRoles()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -40,13 +39,15 @@ namespace WindowsFormsApp1
 
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = t;
-                dataGridView1.Columns[0].Visible = false;
+
+                dataGridView1.Columns[0].Visible = false; // Скрываем Id
                 dataGridView1.Columns[1].HeaderText = "Наименование";
 
                 label2.Text = $"Количество записей: {t.Rows.Count}";
             }
         }
 
+        // Добавление новой роли
         private void button1_Click(object sender, EventArgs e)
         {
             string roleName = textBox1.Text.Trim();
@@ -61,10 +62,10 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка на существующую роль
                 string checkQuery = "SELECT COUNT(*) FROM Roles WHERE RoleName = @name";
                 MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
                 checkCmd.Parameters.AddWithValue("@name", roleName);
-
                 int count = Convert.ToInt32(checkCmd.ExecuteScalar());
 
                 if (count > 0)
@@ -73,6 +74,7 @@ namespace WindowsFormsApp1
                     return;
                 }
 
+                // Добавление роли
                 string insertQuery = "INSERT INTO Roles (RoleName) VALUES (@name)";
                 MySqlCommand insertCmd = new MySqlCommand(insertQuery, con);
                 insertCmd.Parameters.AddWithValue("@name", roleName);
@@ -82,14 +84,16 @@ namespace WindowsFormsApp1
             }
 
             textBox1.Clear();
-            LoadRoles();
+            LoadRoles(); // Обновляем таблицу после добавления
         }
 
+        // Ограничение ввода текста для роли (только русские символы)
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Russian(sender, e);
         }
 
+        // Редактирование выбранной роли
         private void button2_Click(object sender, EventArgs e)
         {
             if (selectedRoleId == -1)
@@ -116,18 +120,20 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка на дубликат среди других ролей
                 string checkQuery = "SELECT COUNT(*) FROM Roles WHERE RoleName = @name AND idRoles != @id";
                 MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
                 checkCmd.Parameters.AddWithValue("@name", newName);
                 checkCmd.Parameters.AddWithValue("@id", selectedRoleId);
-
                 int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
                 if (count > 0)
                 {
                     MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
+                // Обновление роли
                 string updateQuery = "UPDATE Roles SET RoleName = @name WHERE idRoles = @id";
                 MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
                 updateCmd.Parameters.AddWithValue("@name", newName);
@@ -139,19 +145,21 @@ namespace WindowsFormsApp1
 
             textBox1.Clear();
             selectedRoleId = -1;
-            LoadRoles();
+            LoadRoles(); // Обновляем таблицу после редактирования
         }
 
+        // Выбор роли при клике на строку DataGridView
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-                selectedRoleId = Convert.ToInt32(row.Cells[0].Value);
-                textBox1.Text = row.Cells[1].Value.ToString();
+                selectedRoleId = Convert.ToInt32(row.Cells[0].Value); // Получаем Id выбранной роли
+                textBox1.Text = row.Cells[1].Value.ToString(); // Заполняем текстовое поле названием роли
             }
         }
 
+        // Удаление выбранной роли
         private void button3_Click(object sender, EventArgs e)
         {
             if (selectedRoleId == -1)
@@ -166,22 +174,25 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка, используется ли роль в таблице Users
                 string checkQuery = "SELECT COUNT(*) FROM Users WHERE Role = @roleId";
                 MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
                 checkCmd.Parameters.AddWithValue("@roleId", selectedRoleId);
-
                 int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
                 if (count > 0)
                 {
-                    MessageBox.Show("Нельзя удалить эту роль, так как она используется в других записях!","Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Нельзя удалить эту роль, так как она используется в других записях!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{roleName}\"?","Подтверждение удаления",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+                // Подтверждение удаления
+                DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{roleName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result == DialogResult.No)
                     return;
 
+                // Удаление роли
                 string deleteQuery = "DELETE FROM Roles WHERE idRoles = @id";
                 MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
                 deleteCmd.Parameters.AddWithValue("@id", selectedRoleId);
@@ -192,7 +203,7 @@ namespace WindowsFormsApp1
 
             textBox1.Clear();
             selectedRoleId = -1;
-            LoadRoles();
+            LoadRoles(); // Обновляем таблицу после удаления
         }
     }
 }

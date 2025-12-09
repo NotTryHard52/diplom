@@ -1,32 +1,32 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class Login : Form
     {
+        // Строка подключения к базе данных
         string connectionString;
+
         public Login()
         {
             InitializeComponent();
         }
 
+        // Кнопка "Войти"
         private void button1_Click(object sender, EventArgs e)
         {
             try
             {
+                // Создаем объект для подключения
                 Connect connect = new Connect();
                 connectionString = connect.ConnectDB();
 
+                // Проверка на заполнение полей логин и пароль
                 if (string.IsNullOrWhiteSpace(textBox1.Text) || string.IsNullOrWhiteSpace(textBox2.Text))
                 {
                     MessageBox.Show("Заполните все поля!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -36,7 +36,7 @@ namespace WindowsFormsApp1
                 string login = textBox1.Text;
                 string password = textBox2.Text;
 
-                // Хешируем введённый пароль
+                // Хешируем введённый пароль с помощью SHA256
                 string hash_password;
                 using (SHA256 sha = SHA256.Create())
                 {
@@ -48,6 +48,7 @@ namespace WindowsFormsApp1
                 {
                     con.Open();
 
+                    // Запрос на получение данных пользователя по логину
                     MySqlCommand cmd = new MySqlCommand(
                         "SELECT idUsers, Password, Role, Surname, Name, Lastname " +
                         "FROM users WHERE login = @login", con);
@@ -57,6 +58,7 @@ namespace WindowsFormsApp1
                     DataTable dt = new DataTable();
                     sda.Fill(dt);
 
+                    // Если пользователь не найден
                     if (dt.Rows.Count == 0)
                     {
                         MessageBox.Show("Пользователь не найден!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -72,6 +74,7 @@ namespace WindowsFormsApp1
                     string role = userRow["Role"].ToString();
                     string FIO = $"{userRow["Surname"]} {userRow["Name"]} {userRow["Lastname"]}";
 
+                    // Проверка пароля
                     if (hash_password != dbPasswordHash)
                     {
                         MessageBox.Show("Неверный пароль!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -79,18 +82,19 @@ namespace WindowsFormsApp1
                         return;
                     }
 
+                    // Успешный вход — открытие формы в зависимости от роли пользователя
                     this.Hide();
-                    if (role == "1")
+                    if (role == "1") // Администратор
                     {
                         Menu admin = new Menu(FIO, userId, role);
                         admin.ShowDialog();
                     }
-                    else if (role == "2")
+                    else if (role == "2") // Регистратор
                     {
                         Menu_registrator reg = new Menu_registrator(FIO, userId, role);
                         reg.ShowDialog();
                     }
-                    else if (role == "3")
+                    else if (role == "3") // Главный врач
                     {
                         Form1 glav = new Form1(FIO, userId, role);
                         glav.ShowDialog();
@@ -104,11 +108,13 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Кнопка "Выход"
         private void button2_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
+        // Клик по иконке настроек
         private void pictureBox2_Click(object sender, EventArgs e)
         {
             Settingscs sett = new Settingscs();
@@ -117,10 +123,11 @@ namespace WindowsFormsApp1
             this.Show();
         }
 
+        // Загрузка формы Login
         private void Login_Load(object sender, EventArgs e)
         {
             Connect connect = new Connect();
-            connectionString = connect.ConnectNoDB();
+            connectionString = connect.ConnectNoDB(); // Подключение без указания базы данных
             MySqlConnection con = new MySqlConnection(connectionString);
 
             try
@@ -129,30 +136,31 @@ namespace WindowsFormsApp1
             }
             catch (Exception)
             {
-                DialogResult res = MessageBox.Show($"Ошибка подключения к {connectionString}\nНастроить подключение?", "Ошибка подключения", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                // Ошибка подключения — предложить настройки
+                DialogResult res = MessageBox.Show(
+                    $"Ошибка подключения к {connectionString}\nНастроить подключение?",
+                    "Ошибка подключения",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Error
+                );
 
                 Settingscs error = new Settingscs();
 
                 if (res == DialogResult.Yes)
-                {
                     error.ShowDialog();
-                }
                 else
                     Application.Exit();
             }
         }
 
+        // Чекбокс "Показать пароль"
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             textBox2.UseSystemPasswordChar = !checkBox1.Checked;
         }
 
+        // Ограничение ввода в поле логина — только английские символы
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            InputLimit.English_Symbol(sender, e);
-        }
-
-        private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.English_Symbol(sender, e);
         }

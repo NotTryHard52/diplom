@@ -1,74 +1,68 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class EditDoctor : Form
     {
-        string connectionString;
-        int selectedDoctorId;
-        string oldSurname;
-        string oldName;
-        string oldLastname;
-        string oldPhone;
-        int oldSpecialityId;
-        private Image doctorPhoto;
-        private string oldPhotoFileName;
-        string selectedPhotoFileName;
-        string photoFolder;
-        string selectedPhotoFullPath;
-        bool photoDeleted = false;
-        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "not-image.png");
+        string connectionString;             // Строка подключения к БД
+        int selectedDoctorId;                // ID редактируемого врача
+        string oldSurname;                   // Старое значение фамилии
+        string oldName;                      // Старое значение имени
+        string oldLastname;                  // Старое значение отчества
+        string oldPhone;                     // Старый телефон
+        int oldSpecialityId;                 // Старый ID специальности
+        private Image doctorPhoto;           // Фото врача
+        private string oldPhotoFileName;     // Старое имя файла фото
+        string selectedPhotoFileName;        // Выбранный файл фото
+        string photoFolder;                  // Папка для фото
+        string selectedPhotoFullPath;        // Полный путь выбранного фото
+        bool photoDeleted = false;           // Флаг удаления фото
+        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "not-image.png"); // Фото-заглушка
+
         public EditDoctor(int doctorId, Image photo)
         {
-            InitializeComponent();
-            selectedDoctorId = doctorId;
-            doctorPhoto = photo;
+            InitializeComponent();           // Инициализация компонентов
+            selectedDoctorId = doctorId;     // Сохраняем ID врача
+            doctorPhoto = photo;             // Сохраняем текущее фото
         }
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
-            InputLimit.Russian_Hyphen(sender, e);
+            InputLimit.Russian_Hyphen(sender, e); // Ограничение ввода: русские буквы и дефис
         }
 
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
-            InputLimit.OnlyRussian(sender, e);
-        }
-
-        private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            InputLimit.OnlyRussian(sender, e);
+            InputLimit.OnlyRussian(sender, e);    // Только русские буквы
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
+            // Проверка, что обязательные поля заполнены
             if (string.IsNullOrWhiteSpace(textBox1.Text) ||
-        string.IsNullOrWhiteSpace(textBox2.Text) ||
-        !maskedTextBox1.MaskFull ||
-        comboBox2.SelectedValue == null)
+                string.IsNullOrWhiteSpace(textBox2.Text) ||
+                !maskedTextBox1.MaskFull ||
+                comboBox2.SelectedValue == null)
             {
-                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            string newSurname = textBox1.Text.Trim();
-            string newName = textBox2.Text.Trim();
-            string newLastname = textBox3.Text.Trim();
-            string newPhone = maskedTextBox1.Text.Trim();
-            int newSpecialityId = Convert.ToInt32(comboBox2.SelectedValue);
+            string newSurname = textBox1.Text.Trim();        // Новая фамилия
+            string newName = textBox2.Text.Trim();           // Новое имя
+            string newLastname = textBox3.Text.Trim();       // Новое отчество
+            string newPhone = maskedTextBox1.Text.Trim();    // Новый телефон
+            int newSpecialityId = Convert.ToInt32(comboBox2.SelectedValue); // Новая специальность
 
-            bool photoChanged = selectedPhotoFileName != null || photoDeleted;
+            bool photoChanged = selectedPhotoFileName != null || photoDeleted; // Проверка изменения фото
 
+            // Проверка любых изменений
             bool changed =
                 newSurname != oldSurname ||
                 newName != oldName ||
@@ -83,28 +77,27 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            string photoFileToSave = oldPhotoFileName;
+            string photoFileToSave = oldPhotoFileName; // Имя фото, которое будет сохранено
 
-            if (photoDeleted)
+            if (photoDeleted) // Если фото удалено
             {
                 if (!string.IsNullOrEmpty(oldPhotoFileName))
                 {
                     string fullPath = Path.Combine(photoFolder, oldPhotoFileName);
                     if (File.Exists(fullPath))
                     {
-                        try { File.Delete(fullPath); } catch { }
+                        try { File.Delete(fullPath); } catch { } // Удаляем старый файл
                     }
                 }
-
-                photoFileToSave = null;
+                photoFileToSave = null; // Фото не сохраняем
             }
             else if (!string.IsNullOrEmpty(selectedPhotoFileName) &&
-                     !string.IsNullOrEmpty(selectedPhotoFullPath))
+                     !string.IsNullOrEmpty(selectedPhotoFullPath)) // Если выбрали новое фото
             {
                 try
                 {
                     if (!System.IO.Directory.Exists(photoFolder))
-                        System.IO.Directory.CreateDirectory(photoFolder);
+                        System.IO.Directory.CreateDirectory(photoFolder); // Создаем папку, если нет
 
                     string destPath = Path.Combine(photoFolder, selectedPhotoFileName);
 
@@ -113,12 +106,13 @@ namespace WindowsFormsApp1
                                       photoFolder.TrimEnd('\\'),
                                       StringComparison.OrdinalIgnoreCase);
 
-                    if (isSameFolder)
+                    if (isSameFolder) // Если файл уже в нужной папке
                     {
                         photoFileToSave = selectedPhotoFileName;
                     }
                     else
                     {
+                        // Генерация уникального имени, если файл с таким именем существует
                         if (File.Exists(destPath))
                         {
                             string name = Path.GetFileNameWithoutExtension(selectedPhotoFileName);
@@ -128,7 +122,7 @@ namespace WindowsFormsApp1
                             selectedPhotoFileName = uniqueName;
                         }
 
-                        File.Copy(selectedPhotoFullPath, destPath, true);
+                        File.Copy(selectedPhotoFullPath, destPath, true); // Копируем файл
                         photoFileToSave = selectedPhotoFileName;
                     }
                 }
@@ -139,6 +133,7 @@ namespace WindowsFormsApp1
                 }
             }
 
+            // Обновление записи в БД
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
@@ -188,28 +183,29 @@ namespace WindowsFormsApp1
                         ? (object)DBNull.Value
                         : photoFileToSave);
 
-                    cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery(); // Выполняем обновление
                 }
             }
 
             MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            this.Close();
+            this.Close(); // Закрываем форму
         }
 
         private void EditDoctor_Load(object sender, EventArgs e)
         {
             Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
-            LoadSpecialities();
-            LoadDoctorData();
+            connectionString = connect.ConnectDB(); // Получаем строку подключения
+            LoadSpecialities();                      // Загружаем специальности
+            LoadDoctorData();                        // Загружаем данные врача
 
-            photoFolder = System.IO.Path.Combine(Application.StartupPath, "photo");
+            photoFolder = System.IO.Path.Combine(Application.StartupPath, "photo"); // Папка фото
             if (doctorPhoto != null)
             {
-                pictureBox1.Image = new Bitmap(doctorPhoto);
+                pictureBox1.Image = new Bitmap(doctorPhoto); // Устанавливаем текущее фото
             }
-            label6.Text = $"Фото: {(string.IsNullOrEmpty(oldPhotoFileName) ? "нет" : oldPhotoFileName)}";
+            label6.Text = $"Фото: {(string.IsNullOrEmpty(oldPhotoFileName) ? "нет" : oldPhotoFileName)}"; // Название фото
         }
+
         private void LoadSpecialities()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -220,12 +216,13 @@ namespace WindowsFormsApp1
                 DataTable t = new DataTable();
                 da.Fill(t);
 
-                comboBox2.DisplayMember = "SpecialityName";
-                comboBox2.ValueMember = "idSpeciality";
+                comboBox2.DisplayMember = "SpecialityName"; // Отображаемое имя
+                comboBox2.ValueMember = "idSpeciality";     // Значение
                 comboBox2.DataSource = t;
                 comboBox2.SelectedIndex = -1;
             }
         }
+
         private void LoadDoctorData()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -243,14 +240,14 @@ namespace WindowsFormsApp1
                 {
                     if (reader.Read())
                     {
-                        oldSurname = reader["Surname"].ToString();
+                        oldSurname = reader["Surname"].ToString();      // Сохраняем старые значения
                         oldName = reader["Name"].ToString();
                         oldLastname = reader["Lastname"].ToString();
                         oldPhone = reader["Phone_number"].ToString();
                         oldSpecialityId = Convert.ToInt32(reader["idSpeciality"]);
                         oldPhotoFileName = reader["Photo"] == DBNull.Value ? "" : reader["Photo"].ToString();
 
-                        textBox1.Text = oldSurname;
+                        textBox1.Text = oldSurname;     // Заполняем текстбоксы
                         textBox2.Text = oldName;
                         textBox3.Text = oldLastname;
                         maskedTextBox1.Text = oldPhone;
@@ -280,7 +277,7 @@ namespace WindowsFormsApp1
                         }
 
                         Image newImage = Image.FromFile(ofd.FileName);
-                        pictureBox1.Image = new Bitmap(newImage);
+                        pictureBox1.Image = new Bitmap(newImage); // Устанавливаем фото
 
                         selectedPhotoFullPath = ofd.FileName;
                         selectedPhotoFileName = Path.GetFileName(ofd.FileName);
@@ -288,7 +285,7 @@ namespace WindowsFormsApp1
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}","Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -307,13 +304,13 @@ namespace WindowsFormsApp1
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
-            pictureBox1.Image = Image.FromFile(placeholderPath);
+            pictureBox1.Image = Image.FromFile(placeholderPath); // Ставим заглушку
             selectedPhotoFileName = null;
             selectedPhotoFullPath = null;
-            photoDeleted = true;
+            photoDeleted = true; // Отмечаем, что фото будет удалено
 
             MessageBox.Show("Фото будет удалено после сохранения.", "OK",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-    } 
+    }
 }

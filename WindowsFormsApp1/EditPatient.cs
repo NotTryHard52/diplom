@@ -1,48 +1,41 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class EditPatient : Form
     {
-        string connectionString;
-        int selectedPatientId;
+        string connectionString;      // Строка подключения к базе данных
+        int selectedPatientId;        // ID редактируемого пациента
 
+        // Старые значения полей пациента для проверки изменений
         string oldSurname;
         string oldName;
         string oldLastname;
         DateTime oldBirthday;
         string oldPhone;
         string oldPolicy;
+
         public EditPatient(int patientId)
         {
-            InitializeComponent();
-            selectedPatientId = patientId;
+            InitializeComponent();      // Инициализация компонентов формы
+            selectedPatientId = patientId; // Сохраняем ID пациента
         }
 
+        // Ограничение ввода фамилии: русские буквы и дефис
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Russian_Hyphen(sender, e);
         }
 
+        // Ограничение ввода имени: только русские буквы
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.OnlyRussian(sender, e);
         }
 
-        private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            InputLimit.OnlyRussian(sender, e);
-        }
-
+        // Ограничение ввода телефона: только цифры
         private void textBox4_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Numbers(sender, e);
@@ -50,13 +43,14 @@ namespace WindowsFormsApp1
 
         private void EditPatient_Load(object sender, EventArgs e)
         {
-            InputLimit.Date(dateTimePicker1);
+            InputLimit.Date(dateTimePicker1);  // Ограничение ввода даты
             Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
+            connectionString = connect.ConnectDB(); // Получаем строку подключения
 
-            InputLimit.Date(dateTimePicker1);
-            LoadPatientData();
+            LoadPatientData(); // Загружаем данные пациента из БД
         }
+
+        // Метод для загрузки данных выбранного пациента из базы
         private void LoadPatientData()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -70,6 +64,7 @@ namespace WindowsFormsApp1
                 {
                     if (reader.Read())
                     {
+                        // Сохраняем старые значения для последующей проверки изменений
                         oldSurname = reader["Surname"].ToString();
                         oldName = reader["Name"].ToString();
                         oldLastname = reader["Lastname"].ToString();
@@ -77,6 +72,7 @@ namespace WindowsFormsApp1
                         oldPhone = reader["Phone_number"].ToString();
                         oldPolicy = reader["Number_policy"].ToString();
 
+                        // Заполняем поля формы текущими данными пациента
                         textBox1.Text = oldSurname;
                         textBox2.Text = oldName;
                         textBox3.Text = oldLastname;
@@ -88,8 +84,10 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Сохранение изменений пациента
         private void button6_Click(object sender, EventArgs e)
         {
+            // Проверка, что все обязательные поля заполнены
             if (string.IsNullOrWhiteSpace(textBox1.Text) ||
                 string.IsNullOrWhiteSpace(textBox2.Text) ||
                 !maskedTextBox2.MaskFull ||
@@ -99,6 +97,7 @@ namespace WindowsFormsApp1
                 return;
             }
 
+            // Получаем новые значения из формы
             string newSurname = textBox1.Text.Trim();
             string newName = textBox2.Text.Trim();
             string newLastname = textBox3.Text.Trim();
@@ -106,6 +105,7 @@ namespace WindowsFormsApp1
             string newPhone = maskedTextBox2.Text.Trim();
             string newPolicy = maskedTextBox1.Text.Trim();
 
+            // Проверяем, были ли внесены изменения
             bool changed = newSurname != oldSurname ||
                            newName != oldName ||
                            newLastname != oldLastname ||
@@ -119,10 +119,12 @@ namespace WindowsFormsApp1
                 return;
             }
 
+            // Подключение к базе данных и обновление записи
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
 
+                // Проверка на дубликаты по фамилии, имени, отчеству и номеру полиса
                 string checkQuery = @"
                     SELECT COUNT(*) FROM Patients 
                     WHERE Surname = @surname 
@@ -147,6 +149,7 @@ namespace WindowsFormsApp1
                     }
                 }
 
+                // Запрос на обновление данных пациента
                 string query = @"
                     UPDATE Patients
                     SET Surname = @surname,
@@ -167,12 +170,12 @@ namespace WindowsFormsApp1
                     cmd.Parameters.AddWithValue("@policy", newPolicy);
                     cmd.Parameters.AddWithValue("@id", selectedPatientId);
 
-                    cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery(); // Выполняем обновление
                 }
             }
 
             MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            this.Close();
+            this.Close(); // Закрываем форму после сохранения
         }
     }
 }

@@ -1,35 +1,40 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class UchetTalona_GL : Form
     {
+        // Строка подключения к базе данных
         string connectionString;
+
+        // Таблица для хранения данных о талонах
         DataTable orderTable;
+
         public UchetTalona_GL()
         {
             InitializeComponent();
         }
 
+        // Событие загрузки формы
         private void UchetTalona_GL_Load(object sender, EventArgs e)
         {
-            FillStatus();
-            comboBox1.SelectedIndex = 0;
-            comboBox2.SelectedIndex = 0;
+            FillStatus();          // Заполнение comboBox1 статусами
+            comboBox1.SelectedIndex = 0; // По умолчанию "Все"
+            comboBox2.SelectedIndex = 0; // По умолчанию без сортировки
+
+            // Подключение к базе данных
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
+
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                // Загрузка всех талонов с необходимыми связями (Schedule, Doctors, Users, Patients, StatusesPriem)
                 orderTable = new DataTable();
                 string query = @"
                         SELECT 
@@ -51,12 +56,20 @@ namespace WindowsFormsApp1
                 MySqlCommand cmd = new MySqlCommand(query, con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(orderTable);
+
+                // Настройка DataGridView
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = orderTable;
+
+                // Отображение количества записей
                 label9.Text = $"Количество записей: {orderTable.Rows.Count}";
             }
+
+            // Обновление общей выручки
             UpdateRevenueSum();
         }
+
+        // Подсчёт общей выручки (не учитываются отменённые и созданные талоны)
         private void UpdateRevenueSum()
         {
             if (dataGridView1.DataSource == null) return;
@@ -70,6 +83,7 @@ namespace WindowsFormsApp1
 
                 string status = row.Cells["Статус"].Value?.ToString()?.ToLower();
 
+                // Пропускаем отменённые и только созданные талоны
                 if (status != null && (status.Contains("отмен") || status.Contains("создан")))
                     continue;
 
@@ -82,6 +96,8 @@ namespace WindowsFormsApp1
 
             label3.Text = $"Общая выручка: {total:N2} руб.";
         }
+
+        // Заполнение comboBox1 статусами
         private void FillStatus()
         {
             Connect connect = new Connect();
@@ -94,32 +110,37 @@ namespace WindowsFormsApp1
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
                     comboBox1.Items.Clear();
-                    comboBox1.Items.Add("Все");
+                    comboBox1.Items.Add("Все"); // Добавляем вариант "Все"
                     while (reader.Read())
                     {
                         string status = reader["name"].ToString();
-                        comboBox1.Items.Add(status);
+                        comboBox1.Items.Add(status); // Добавляем каждый статус
                     }
                 }
             }
         }
 
+        // Событие изменения выбора статуса
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             ApplyFilterAndSort();
         }
+
+        // Фильтрация и сортировка таблицы по выбранным параметрам
         private void ApplyFilterAndSort()
         {
             if (orderTable == null) return;
 
             string filterExpr = "";
 
+            // Фильтр по статусу
             string selectedSpecialty = comboBox1.SelectedItem?.ToString();
             if (!string.IsNullOrEmpty(selectedSpecialty) && selectedSpecialty != "Все")
             {
                 filterExpr = $"Статус = '{selectedSpecialty.Replace("'", "''")}'";
             }
 
+            // Фильтр по поиску по номеру талона
             string searchText = textBox5.Text.Trim().Replace("'", "''");
             if (!string.IsNullOrEmpty(searchText))
             {
@@ -130,6 +151,7 @@ namespace WindowsFormsApp1
                 filterExpr += $"Convert([Номер талона], 'System.String') LIKE '%{searchText}%'";
             }
 
+            // Сортировка по дате
             string sortExpr = "";
             if (comboBox2.SelectedIndex == 1)
                 sortExpr = "Дата ASC";
@@ -144,16 +166,19 @@ namespace WindowsFormsApp1
             dataGridView1.Refresh();
         }
 
+        // Событие изменения сортировки
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             ApplyFilterAndSort();
         }
 
+        // Событие изменения текста поиска
         private void textBox5_TextChanged(object sender, EventArgs e)
         {
             ApplyFilterAndSort();
         }
 
+        // Кнопка просмотра выбранного талона
         private void button1_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count > 0)
@@ -168,6 +193,7 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Кнопка сброса фильтров
         private void button5_Click(object sender, EventArgs e)
         {
             comboBox2.SelectedIndex = 0;
@@ -175,12 +201,14 @@ namespace WindowsFormsApp1
             textBox5.Text = "";
         }
 
+        // Кнопка экспорта отчета в Excel
         private void button2_Click(object sender, EventArgs e)
         {
             OtchetExcel v = new OtchetExcel();
             v.ShowDialog();
         }
 
+        // Подсветка строк в DataGridView в зависимости от статуса
         private void dataGridView1_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             if (dataGridView1.Rows[e.RowIndex].Cells["Статус"].Value == null)
@@ -190,19 +218,19 @@ namespace WindowsFormsApp1
 
             if (status.Contains("заверш"))
             {
-                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen; // завершён
             }
             else if (status.Contains("отмен"))
             {
-                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightCoral;
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightCoral; // отменён
             }
             else if (status.Contains("создан"))
             {
-                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightYellow;
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightYellow; // создан
             }
             else
             {
-                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
+                dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White; // прочие
             }
         }
     }

@@ -1,42 +1,52 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class User : Form
     {
+        // Строка подключения к базе данных
         string connectionString;
+
+        // Id выбранного пользователя для редактирования/удаления
         int selectedId = -1;
+
+        // Id текущего пользователя, под которым выполнен вход
         private int currentUserId;
+
         public User(int userId)
         {
             InitializeComponent();
             currentUserId = userId;
         }
 
+        // Событие загрузки формы
         private void User_Load(object sender, EventArgs e)
         {
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
-            LoadUser();
+
+            LoadUser(); // Загрузка списка пользователей
+
+            // Обработчик клика по ячейке
             dataGridView1.CellClick += dataGridView1_CellClick;
+
+            // Эффект наведения на строки
             var hoverEffect = new HoverDataGridView(dataGridView1);
         }
+
+        // Загрузка пользователей и ролей
         private void LoadUser()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
 
+                // SQL запрос на выбор всех пользователей с их ролями
                 string userQuery = @"
             SELECT 
                 Users.idUsers,
@@ -54,9 +64,11 @@ namespace WindowsFormsApp1
                 MySqlDataAdapter da = new MySqlDataAdapter(userQuery, con);
                 da.Fill(userTable);
 
+                // Настройка DataGridView
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = userTable;
 
+                // Скрытие id и пароля, настройка заголовков
                 dataGridView1.Columns[0].Visible = false;
                 dataGridView1.Columns[1].HeaderText = "Фамилия";
                 dataGridView1.Columns[2].HeaderText = "Имя";
@@ -64,8 +76,11 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[4].HeaderText = "Логин";
                 dataGridView1.Columns[5].Visible = false;
                 dataGridView1.Columns[6].HeaderText = "Роль";
+
+                // Отображение количества записей
                 label2.Text = $"Количество записей: {userTable.Rows.Count}";
 
+                // Загрузка ролей для comboBox
                 string roleQuery = "SELECT idRoles, RoleName FROM Roles;";
                 MySqlCommand roleCmd = new MySqlCommand(roleQuery, con);
                 MySqlDataAdapter roleDa = new MySqlDataAdapter(roleCmd);
@@ -79,11 +94,13 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Ограничение ввода: фамилия может содержать русские буквы и дефис
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Russian_Hyphen(sender, e);
         }
 
+        // Ограничение ввода: только русские буквы
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.OnlyRussian(sender, e);
@@ -94,6 +111,7 @@ namespace WindowsFormsApp1
             InputLimit.OnlyRussian(sender, e);
         }
 
+        // Ограничение ввода: только английские символы
         private void textBox6_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.English_Symbol(sender, e);
@@ -104,6 +122,7 @@ namespace WindowsFormsApp1
             InputLimit.English_Symbol(sender, e);
         }
 
+        // Генерация случайного логина
         private void button4_Click(object sender, EventArgs e)
         {
             Random rnd = new Random();
@@ -111,11 +130,13 @@ namespace WindowsFormsApp1
             textBox6.Text = "login_" + num;
         }
 
+        // Генерация случайного пароля
         private void button5_Click(object sender, EventArgs e)
         {
             string password = GeneratePassword(10);
             textBox5.Text = password;
         }
+
         private string GeneratePassword(int length)
         {
             const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
@@ -128,13 +149,15 @@ namespace WindowsFormsApp1
             return sb.ToString();
         }
 
+        // Добавление нового пользователя
         private void button1_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(textBox1.Text) || 
+            // Проверка на пустые поля
+            if (string.IsNullOrWhiteSpace(textBox1.Text) ||
         string.IsNullOrWhiteSpace(textBox2.Text) ||
         string.IsNullOrWhiteSpace(textBox6.Text) ||
-        string.IsNullOrWhiteSpace(textBox5.Text) || 
-        comboBox1.SelectedValue == null)             
+        string.IsNullOrWhiteSpace(textBox5.Text) ||
+        comboBox1.SelectedValue == null)
             {
                 MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -147,6 +170,7 @@ namespace WindowsFormsApp1
             string password = textBox5.Text.Trim();
             int roleId = Convert.ToInt32(comboBox1.SelectedValue);
 
+            // Хеширование пароля SHA256
             string hash_password;
             using (var sha = SHA256.Create())
             {
@@ -158,6 +182,7 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка уникальности логина
                 string checkQuery = "SELECT COUNT(*) FROM Users WHERE Login = @login";
                 using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                 {
@@ -171,6 +196,7 @@ namespace WindowsFormsApp1
                     }
                 }
 
+                // Добавление пользователя
                 string insertQuery = @"
             INSERT INTO Users (Surname, Name, Lastname, Login, Password, Role)
             VALUES (@surname, @name, @lastname, @login, @password, @role)";
@@ -190,6 +216,8 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadUser();
             }
+
+            // Очистка полей после добавления
             textBox1.Clear();
             textBox2.Clear();
             textBox3.Clear();
@@ -198,6 +226,7 @@ namespace WindowsFormsApp1
             comboBox1.SelectedIndex = -1;
         }
 
+        // Обработка выбора строки в DataGridView
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
@@ -210,12 +239,15 @@ namespace WindowsFormsApp1
                 textBox3.Text = row.Cells["Lastname"].Value.ToString();
                 textBox6.Text = row.Cells["Login"].Value.ToString();
                 textBox5.Text = "";
+
+                // Блокировка изменения роли, если выбран текущий пользователь
                 string roleName = row.Cells["Role"].Value.ToString();
                 comboBox1.SelectedIndex = comboBox1.FindStringExact(roleName);
                 comboBox1.Enabled = selectedId != currentUserId;
             }
         }
 
+        // Редактирование пользователя
         private void button2_Click(object sender, EventArgs e)
         {
             if (selectedId == -1)
@@ -231,12 +263,15 @@ namespace WindowsFormsApp1
             string password = textBox5.Text.Trim();
             int roleId = Convert.ToInt32(comboBox1.SelectedValue);
 
+            // Проверка на пустые обязательные поля
             if (string.IsNullOrWhiteSpace(surname) || string.IsNullOrWhiteSpace(name) ||
                 string.IsNullOrWhiteSpace(login) || comboBox1.SelectedValue == null)
             {
                 MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            // Проверка, были ли внесены изменения
             string currentSurname = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
             string currentName = dataGridView1.SelectedRows[0].Cells[2].Value.ToString();
             string currentLastname = dataGridView1.SelectedRows[0].Cells[3].Value.ToString();
@@ -261,6 +296,7 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка уникальности логина для других пользователей
                 string checkQuery = "SELECT COUNT(*) FROM Users WHERE Login = @login AND idUsers != @id";
                 using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                 {
@@ -277,6 +313,7 @@ namespace WindowsFormsApp1
                 string updateQuery;
                 if (!string.IsNullOrWhiteSpace(password))
                 {
+                    // Хеширование нового пароля
                     string hash_password;
                     using (var sha = SHA256.Create())
                     {
@@ -325,6 +362,7 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
+            // Очистка полей
             selectedId = -1;
             textBox1.Clear();
             textBox2.Clear();
@@ -335,6 +373,7 @@ namespace WindowsFormsApp1
             LoadUser();
         }
 
+        // Удаление пользователя
         private void button3_Click(object sender, EventArgs e)
         {
             if (selectedId == -1)
@@ -343,6 +382,7 @@ namespace WindowsFormsApp1
                 return;
             }
 
+            // Нельзя удалить текущего пользователя
             if (selectedId == currentUserId)
             {
                 MessageBox.Show("Нельзя удалить пользователя, под которым выполнен вход!", "Отказано", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -355,6 +395,7 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка, используется ли пользователь в других записях
                 string checkQuery = "SELECT COUNT(*) FROM `Order` WHERE User = @userId";
                 using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                 {
@@ -368,6 +409,7 @@ namespace WindowsFormsApp1
                     }
                 }
 
+                // Подтверждение удаления
                 DialogResult result = MessageBox.Show(
                     $"Вы уверены, что хотите удалить пользователя \"{userLogin}\"?",
                     "Подтверждение удаления",
@@ -395,6 +437,7 @@ namespace WindowsFormsApp1
                 }
             }
 
+            // Очистка полей
             selectedId = -1;
             textBox1.Clear();
             textBox2.Clear();

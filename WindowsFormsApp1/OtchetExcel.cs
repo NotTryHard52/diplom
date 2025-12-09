@@ -5,8 +5,6 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -14,25 +12,34 @@ namespace WindowsFormsApp1
 {
     public partial class OtchetExcel : Form
     {
-        string connectionString;
-        DataTable orderTable;
+        string connectionString; // Строка подключения к базе данных
+        DataTable orderTable; // Таблица для хранения данных о заказах
+
         public OtchetExcel()
         {
             InitializeComponent();
         }
 
+        // Загрузка формы
         private void OtchetExcel_Load(object sender, EventArgs e)
         {
+            // Устанавливаем начальные даты фильтрации
             dateFrom.Value = DateTime.Now.AddMonths(-1);
             dateTo.Value = DateTime.Now;
-            dateFrom.MaxDate = DateTime.Now; 
+            dateFrom.MaxDate = DateTime.Now;
             dateTo.MaxDate = DateTime.Now.AddDays(1);
+
+            // Получаем строку подключения
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
+
+            // Загружаем данные из базы
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
                 orderTable = new DataTable();
+
+                // SQL-запрос для получения информации о заказах
                 string query = @"
                         SELECT 
                             o.idOrder AS 'Номер талона',
@@ -50,11 +57,16 @@ namespace WindowsFormsApp1
                         JOIN Patients p ON o.Patients_idPatients = p.idPatients
                         JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
                     ";
+
                 MySqlCommand cmd = new MySqlCommand(query, con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(orderTable);
+
+                // Настройка DataGridView
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = orderTable;
+
+                // Настройка ограничений даты по диапазону данных
                 if (orderTable.Rows.Count > 0)
                 {
                     var dates = orderTable.AsEnumerable()
@@ -77,15 +89,21 @@ namespace WindowsFormsApp1
                     }
                 }
             }
+
+            // Применяем фильтр по дате
             ApplyFilterAndSort();
+
+            // Включаем эффект наведения для DataGridView
             var hoverEffect = new HoverDataGridView(dataGridView1);
         }
 
+        // Кнопка закрытия формы
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
+        // Изменение даты начала фильтрации
         private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
             if (dateFrom.Value > dateTo.Value)
@@ -95,6 +113,7 @@ namespace WindowsFormsApp1
             ApplyFilterAndSort();
         }
 
+        // Изменение даты конца фильтрации
         private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
         {
             if (dateTo.Value < dateFrom.Value)
@@ -103,22 +122,25 @@ namespace WindowsFormsApp1
             }
             ApplyFilterAndSort();
         }
+
+        // Применение фильтра по дате
         private void ApplyFilterAndSort()
         {
             if (orderTable == null || orderTable.Rows.Count == 0)
                 return;
 
             DateTime start = dateFrom.Value.Date;
-            DateTime end = dateTo.Value.Date.AddDays(1).AddTicks(-1); 
+            DateTime end = dateTo.Value.Date.AddDays(1).AddTicks(-1); // Конец дня
 
+            // Фильтр DataView по дате
             string filter = $"Дата >= #{start:MM/dd/yyyy}# AND Дата <= #{end:MM/dd/yyyy}#";
-
             DataView dv = orderTable.DefaultView;
             dv.RowFilter = filter;
 
             dataGridView1.DataSource = dv;
         }
 
+        // Кнопка экспорта в Excel
         private void button2_Click(object sender, EventArgs e)
         {
             if (dataGridView1.Rows.Count == 0)
@@ -127,6 +149,7 @@ namespace WindowsFormsApp1
                 return;
             }
 
+            // Окно сохранения файла
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Excel (*.xlsx)|*.xlsx";
             sfd.FileName = "Отчет.xlsx";
@@ -136,16 +159,19 @@ namespace WindowsFormsApp1
 
             try
             {
+                // Создание Excel-файла
                 Excel.Application excel = new Excel.Application();
                 Excel.Workbook workbook = excel.Workbooks.Add();
                 Excel.Worksheet sheet = workbook.ActiveSheet;
 
                 sheet.Name = "Отчёт";
 
+                // Заголовок отчёта
                 sheet.Cells[1, 1] = "Отчёт по талонам";
                 sheet.Cells[1, 1].Font.Bold = true;
                 sheet.Cells[1, 1].Font.Size = 16;
 
+                // Информация о периоде и дате выгрузки
                 sheet.Cells[3, 1] = "Период:";
                 sheet.Cells[3, 2] = $"{dateFrom.Value:dd.MM.yyyy} — {dateTo.Value:dd.MM.yyyy}";
                 sheet.Cells[4, 1] = "Дата выгрузки:";
@@ -153,6 +179,7 @@ namespace WindowsFormsApp1
 
                 int startRow = 6;
 
+                // Заголовки колонок
                 for (int i = 0; i < dataGridView1.Columns.Count; i++)
                 {
                     sheet.Cells[startRow, i + 1] = dataGridView1.Columns[i].HeaderText;
@@ -163,11 +190,13 @@ namespace WindowsFormsApp1
                     sheet.Cells[startRow, dataGridView1.Columns.Count]
                 ];
 
+                // Форматирование заголовков
                 headerRange.Font.Bold = true;
                 headerRange.Interior.Color = Color.LightBlue;
                 headerRange.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                 headerRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
 
+                // Заполнение данных
                 for (int r = 0; r < dataGridView1.Rows.Count; r++)
                 {
                     for (int c = 0; c < dataGridView1.Columns.Count; c++)
@@ -176,8 +205,9 @@ namespace WindowsFormsApp1
                             dataGridView1.Rows[r].Cells[c].Value?.ToString();
                     }
                 }
-                int statusColumnIndex = -1;
 
+                // Индекс колонки "Статус"
+                int statusColumnIndex = -1;
                 for (int i = 0; i < dataGridView1.Columns.Count; i++)
                 {
                     if (dataGridView1.Columns[i].HeaderText == "Статус")
@@ -187,12 +217,12 @@ namespace WindowsFormsApp1
                     }
                 }
 
+                // Цветовое оформление строк в зависимости от статуса
                 if (statusColumnIndex != -1)
                 {
                     for (int r = 0; r < dataGridView1.Rows.Count; r++)
                     {
                         string status = dataGridView1.Rows[r].Cells["Статус"].Value?.ToString();
-
                         Excel.Range rowRange = sheet.Range[
                             sheet.Cells[startRow + 1 + r, 1],
                             sheet.Cells[startRow + 1 + r, dataGridView1.Columns.Count]
@@ -201,35 +231,27 @@ namespace WindowsFormsApp1
                         if (status != null)
                         {
                             status = status.Trim().ToLower();
-
                             if (status.Contains("заверш"))
-                            {
                                 rowRange.Interior.Color = Color.LightGreen;
-                            }
                             else if (status.Contains("отмен"))
-                            {
                                 rowRange.Interior.Color = Color.LightCoral;
-                            }
                             else if (status.Contains("создан"))
-                            {
                                 rowRange.Interior.Color = Color.LightYellow;
-                            }
                         }
                     }
                 }
 
+                // Границы и автоширина колонок
                 Excel.Range fullTable = sheet.Range[
                     sheet.Cells[startRow, 1],
                     sheet.Cells[startRow + dataGridView1.Rows.Count, dataGridView1.Columns.Count]
                 ];
-
                 fullTable.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
                 fullTable.Columns.AutoFit();
 
+                // Итоговые показатели
                 int totalsRow = startRow + dataGridView1.Rows.Count + 2;
-
                 decimal totalSum = 0;
-
                 int countCompleted = 0;
                 int countCreated = 0;
                 int countCanceled = 0;
@@ -240,24 +262,19 @@ namespace WindowsFormsApp1
 
                     if (status != null)
                     {
-                        if (status.Contains("заверш"))
-                            countCompleted++;
-
-                        if (status.Contains("создан"))
-                            countCreated++;
-
-                        if (status.Contains("отмен"))
-                            countCanceled++;
+                        if (status.Contains("заверш")) countCompleted++;
+                        if (status.Contains("создан")) countCreated++;
+                        if (status.Contains("отмен")) countCanceled++;
                     }
 
-                    if (status != null &&
-                        (status.Contains("отмен") || status.Contains("создан")))
+                    if (status != null && (status.Contains("отмен") || status.Contains("создан")))
                         continue;
 
                     if (row.Cells["Сумма"].Value != null)
                         totalSum += Convert.ToDecimal(row.Cells["Сумма"].Value);
                 }
 
+                // Вывод итогов в Excel
                 sheet.Cells[totalsRow, 1] = "Всего записей:";
                 sheet.Cells[totalsRow, 2] = dataGridView1.Rows.Count;
                 sheet.Cells[totalsRow, 1].Font.Bold = true;
@@ -280,12 +297,12 @@ namespace WindowsFormsApp1
                     sheet.Cells[totalsRow + 5, 2]
                 ].Font.Bold = true;
 
+                // Сохраняем Excel-файл
                 workbook.SaveAs(sfd.FileName);
                 workbook.Close();
                 excel.Quit();
 
-                MessageBox.Show($"Отчёт успешно создан!\nФайл сохранён по адресу:\n{sfd.FileName}","Готово",MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+                MessageBox.Show($"Отчёт успешно создан!\nФайл сохранён по адресу:\n{sfd.FileName}", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -293,6 +310,7 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Окрашивание строк DataGridView в зависимости от статуса
         private void dataGridView1_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             if (dataGridView1.Rows[e.RowIndex].Cells["Статус"].Value == null)
@@ -301,21 +319,13 @@ namespace WindowsFormsApp1
             string status = dataGridView1.Rows[e.RowIndex].Cells["Статус"].Value.ToString().ToLower();
 
             if (status.Contains("заверш"))
-            {
                 dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
-            }
             else if (status.Contains("отмен"))
-            {
                 dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightCoral;
-            }
             else if (status.Contains("создан"))
-            {
                 dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightYellow;
-            }
             else
-            {
                 dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White;
-            }
         }
     }
 }

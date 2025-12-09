@@ -1,90 +1,101 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class Services : Form
     {
-        string connectionString;
-        int selectedId;
-        public int SelectedServiceId { get; private set; }
-        public string SelectedServiceName { get; private set; }
-        public decimal SelectedServicePrice { get; private set; }
-        private bool openedFromTalon = false;
+        string connectionString; // Строка подключения к БД
+        int selectedId; // ID выбранной записи для редактирования или удаления
+        public int SelectedServiceId { get; private set; } // ID выбранной услуги для передачи в другую форму
+        public string SelectedServiceName { get; private set; } // Название выбранной услуги
+        public decimal SelectedServicePrice { get; private set; } // Цена выбранной услуги
+        private bool openedFromTalon = false; // Флаг, открыта ли форма для выбора услуги из талона
+
         public Services(bool fromTalon = false)
         {
             InitializeComponent();
             openedFromTalon = fromTalon;
 
+            // Кнопка выбора услуги видна только если форма открыта из талона
             button4.Visible = openedFromTalon;
         }
 
+        // Загрузка формы
         private void Services_Load(object sender, EventArgs e)
         {
             Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
-            LoadServices();
-            var hoverEffect = new HoverDataGridView(dataGridView1);
+            connectionString = connect.ConnectDB(); // Получаем строку подключения
+            LoadServices(); // Загружаем услуги в DataGridView
+            var hoverEffect = new HoverDataGridView(dataGridView1); // Подсветка строки при наведении
         }
+
+        // Метод загрузки данных из таблицы Services
         private void LoadServices()
         {
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
+
+                // Загружаем услуги вместе с категорией
                 DataTable t = new DataTable();
-                MySqlCommand cmd = new MySqlCommand("SELECT s.idServices, s.Name, s.Price, c.Name AS Category FROM Services s JOIN Category c ON s.Category = c.idCategory;", con);
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT s.idServices, s.Name, s.Price, c.Name AS Category " +
+                    "FROM Services s JOIN Category c ON s.Category = c.idCategory;", con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(t);
+
+                // Настройки DataGridView
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = t;
-                dataGridView1.Columns[0].Visible = false;
+                dataGridView1.Columns[0].Visible = false; // Скрываем ID
                 dataGridView1.Columns[1].HeaderText = "Наименование";
                 dataGridView1.Columns[2].HeaderText = "Цена";
                 dataGridView1.Columns[3].HeaderText = "Категория";
+
                 label2.Text = $"Количество записей: {t.Rows.Count}";
 
+                // Загружаем категории для ComboBox
                 string categoryQuery = "SELECT idCategory, Name FROM Category;";
                 MySqlCommand categoryCmd = new MySqlCommand(categoryQuery, con);
                 MySqlDataAdapter categoryDa = new MySqlDataAdapter(categoryCmd);
                 DataTable categoryTable = new DataTable();
                 categoryDa.Fill(categoryTable);
 
-                comboBox1.DisplayMember = "Name";
-                comboBox1.ValueMember = "idCategory";
+                comboBox1.DisplayMember = "Name"; // Отображаемое поле
+                comboBox1.ValueMember = "idCategory"; // Значение
                 comboBox1.DataSource = categoryTable;
-                comboBox1.SelectedIndex = -1;
+                comboBox1.SelectedIndex = -1; // Сброс выбора
             }
-
         }
 
+        // Ограничение ввода: только русские буквы
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Russian(sender, e);
         }
 
+        // Ограничение ввода: только числа
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Numbers(sender, e);
         }
 
+        // Добавление новой услуги
         private void button1_Click(object sender, EventArgs e)
         {
+            // Проверка, чтобы все поля были заполнены
             if (string.IsNullOrWhiteSpace(textBox1.Text) ||
-        string.IsNullOrWhiteSpace(textBox2.Text) ||
-        comboBox1.SelectedValue == null)       
+                string.IsNullOrWhiteSpace(textBox2.Text) ||
+                comboBox1.SelectedValue == null)
             {
                 MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Проверка корректности цены
             if (!decimal.TryParse(textBox2.Text.Trim(), out decimal price) || price <= 0)
             {
                 MessageBox.Show("Введите корректную цену!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -100,12 +111,12 @@ namespace WindowsFormsApp1
                 {
                     con.Open();
 
+                    // Проверка на дубликат
                     string checkQuery = "SELECT COUNT(*) FROM Services WHERE Name = @name";
                     using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                     {
                         checkCmd.Parameters.AddWithValue("@name", serviceName);
                         int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
                         if (count > 0)
                         {
                             MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -113,6 +124,7 @@ namespace WindowsFormsApp1
                         }
                     }
 
+                    // Вставка новой услуги
                     string insertQuery = "INSERT INTO Services (Name, Price, Category) VALUES (@name, @price, @category)";
                     using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, con))
                     {
@@ -123,7 +135,7 @@ namespace WindowsFormsApp1
                     }
 
                     MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadServices();
+                    LoadServices(); // Обновляем таблицу
                 }
                 catch (Exception ex)
                 {
@@ -131,11 +143,13 @@ namespace WindowsFormsApp1
                 }
             }
 
+            // Сброс полей после добавления
             textBox1.Clear();
             textBox2.Clear();
             comboBox1.SelectedIndex = -1;
         }
 
+        // Обработка выбора строки в DataGridView
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
@@ -150,6 +164,7 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Редактирование выбранной услуги
         private void button2_Click(object sender, EventArgs e)
         {
             if (selectedId == -1)
@@ -161,12 +176,14 @@ namespace WindowsFormsApp1
             string name = textBox1.Text.Trim();
             string priceText = textBox2.Text.Trim();
 
+            // Проверка заполненности полей
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(priceText) || comboBox1.SelectedValue == null)
             {
                 MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Проверка корректности цены
             if (!decimal.TryParse(priceText, out decimal price) || price <= 0)
             {
                 MessageBox.Show("Введите корректную цену!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -175,6 +192,7 @@ namespace WindowsFormsApp1
 
             int categoryId = Convert.ToInt32(comboBox1.SelectedValue);
 
+            // Проверка, были ли изменения
             DataGridViewRow currentRow = dataGridView1.SelectedRows.Count > 0 ? dataGridView1.SelectedRows[0] : null;
             if (currentRow != null)
             {
@@ -196,13 +214,13 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка на дубликат при редактировании
                 string checkQuery = "SELECT COUNT(*) FROM Services WHERE Name = @name AND idServices <> @id";
                 using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                 {
                     checkCmd.Parameters.AddWithValue("@name", name);
                     checkCmd.Parameters.AddWithValue("@id", selectedId);
                     int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
                     if (count > 0)
                     {
                         MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -210,9 +228,10 @@ namespace WindowsFormsApp1
                     }
                 }
 
+                // Обновление записи
                 string updateQuery = @"UPDATE Services 
-                                           SET Name = @name, Price = @price, Category = @category 
-                                           WHERE idServices = @id";
+                                       SET Name = @name, Price = @price, Category = @category 
+                                       WHERE idServices = @id";
                 using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
                 {
                     cmd.Parameters.AddWithValue("@name", name);
@@ -225,6 +244,7 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadServices();
 
+                // Сброс полей
                 selectedId = -1;
                 textBox1.Clear();
                 textBox2.Clear();
@@ -232,6 +252,7 @@ namespace WindowsFormsApp1
             }
         }
 
+        // Выбор услуги для талона (если форма открыта из Talon)
         private void button4_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count == 0)
@@ -246,9 +267,10 @@ namespace WindowsFormsApp1
             SelectedServicePrice = Convert.ToDecimal(row.Cells["Price"].Value);
 
             this.DialogResult = DialogResult.OK;
-            this.Close();
+            this.Close(); // Закрываем форму после выбора услуги
         }
 
+        // Удаление выбранной услуги
         private void button3_Click(object sender, EventArgs e)
         {
             if (selectedId == -1)
@@ -259,6 +281,7 @@ namespace WindowsFormsApp1
 
             string ServicesName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
+            // Подтверждение удаления
             DialogResult result = MessageBox.Show(
                 $"Вы уверены, что хотите удалить запись: \"{ServicesName}\"?",
                 "Подтверждение удаления",
@@ -273,12 +296,12 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка связей с таблицей OrderServices
                 string checkQuery = "SELECT COUNT(*) FROM OrderServices WHERE ServicesId = @id";
                 MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
                 checkCmd.Parameters.AddWithValue("@id", selectedId);
 
                 int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
                 if (count > 0)
                 {
                     MessageBox.Show(
@@ -290,6 +313,7 @@ namespace WindowsFormsApp1
                     return;
                 }
 
+                // Удаление услуги
                 string deleteQuery = "DELETE FROM Services WHERE idServices = @id";
                 MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
                 deleteCmd.Parameters.AddWithValue("@id", selectedId);
@@ -299,6 +323,7 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
+            // Сброс полей
             textBox1.Clear();
             textBox2.Clear();
             comboBox1.SelectedIndex = -1;
