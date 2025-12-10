@@ -343,51 +343,59 @@ namespace WindowsFormsApp1
         // Обработчик кнопки выбора записи для талона
         private void button4_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count == 0)
+            try
             {
-                MessageBox.Show("Выберите запись!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (dataGridView1.SelectedRows.Count == 0)
+                {
+                    MessageBox.Show("Выберите запись!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                DataGridViewRow row = dataGridView1.SelectedRows[0];
+
+                int scheduleId = Convert.ToInt32(row.Cells["idSchedule"].Value);
+                string doctorName = row.Cells["Врач"].Value.ToString();
+
+                // Проверка корректности формата даты и времени
+                if (!DateTime.TryParse(row.Cells["Дата приема"].Value.ToString(), out DateTime date))
+                {
+                    MessageBox.Show("Неверный формат даты!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (!TimeSpan.TryParse(row.Cells["Время приема"].Value.ToString(), out TimeSpan time))
+                {
+                    MessageBox.Show("Неверный формат времени!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                DateTime appointmentDateTime = date.Date + time;
+
+                // Проверка на прошлое время
+                if (appointmentDateTime < DateTime.Now)
+                {
+                    MessageBox.Show("Нельзя выбрать прошлое время!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string status = row.Cells["Статус"].Value.ToString();
+
+                if (status != "Свободно")
+                {
+                    MessageBox.Show("Выбранный слот уже занят!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Вызов события для передачи данных выбранной записи
+                ScheduleSelected?.Invoke(scheduleId, doctorName, date.ToString("yyyy-MM-dd"), time.ToString());
+
+                this.Close(); // Закрываем форму после выбора
+            }
+            catch (FormatException)
+            {
+                MessageBox.Show("Нельзя выбрать данную строку!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            DataGridViewRow row = dataGridView1.SelectedRows[0];
-
-            int scheduleId = Convert.ToInt32(row.Cells["idSchedule"].Value);
-            string doctorName = row.Cells["Врач"].Value.ToString();
-
-            // Проверка корректности формата даты и времени
-            if (!DateTime.TryParse(row.Cells["Дата приема"].Value.ToString(), out DateTime date))
-            {
-                MessageBox.Show("Неверный формат даты!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (!TimeSpan.TryParse(row.Cells["Время приема"].Value.ToString(), out TimeSpan time))
-            {
-                MessageBox.Show("Неверный формат времени!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            DateTime appointmentDateTime = date.Date + time;
-
-            // Проверка на прошлое время
-            if (appointmentDateTime < DateTime.Now)
-            {
-                MessageBox.Show("Нельзя выбрать прошлое время!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            string status = row.Cells["Статус"].Value.ToString();
-
-            if (status != "Свободно")
-            {
-                MessageBox.Show("Выбранный слот уже занят!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // Вызов события для передачи данных выбранной записи
-            ScheduleSelected?.Invoke(scheduleId, doctorName, date.ToString("yyyy-MM-dd"), time.ToString());
-
-            this.Close(); // Закрываем форму после выбора
         }
 
         // Обработчик кнопки "Сброс фильтра статуса"
