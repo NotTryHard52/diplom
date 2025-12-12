@@ -12,6 +12,8 @@ namespace WindowsFormsApp1
         public event Action<int, string> PatientSelected; // Событие для передачи выбранного пациента
         int selectedId = -1; // Id выбранного пациента
         private bool openedFromTalon = false; // Флаг, был ли вызов формы из создания талона
+        private Timer unmaskTimer;
+        private int unmaskedRowIndex = -1;
 
         public Patient(bool fromTalon = false)
         {
@@ -29,6 +31,8 @@ namespace WindowsFormsApp1
             comboBox2.SelectedIndex = 0; // Установка сортировки по умолчанию
             LoadPatient(); // Загрузка данных пациентов
             var hoverEffect = new HoverDataGridView(dataGridView1); // Визуальный эффект наведения на строки
+
+            dataGridView1.CellDoubleClick += DataGridView1_CellDoubleClick;
         }
 
         // Загрузка данных пациентов из базы данных
@@ -264,6 +268,95 @@ namespace WindowsFormsApp1
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
                 selectedId = Convert.ToInt32(row.Cells["idPatients"].Value);
             }
+        }
+        private void DataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return; // Проверяем, что клик не по заголовку
+
+            DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+            int patientId = Convert.ToInt32(row.Cells["idPatients"].Value);
+
+            // Загружаем полные данные пациента из БД без маскировки
+            ShowFullPatientData(patientId, row);
+        }
+
+        private void ShowFullPatientData(int patientId, DataGridViewRow row)
+        {
+            Connect connect = new Connect();
+            string connString = connect.ConnectDB();
+
+            using (MySqlConnection con = new MySqlConnection(connString))
+            {
+                con.Open();
+                string query = @"
+            SELECT Surname, Name, Lastname, Date_birth, Phone_number, Number_policy 
+            FROM Patients 
+            WHERE idPatients = @id";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@id", patientId);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Обновляем ячейки реальными данными из БД
+                            row.Cells["Name"].Value = reader["Name"].ToString();
+                            row.Cells["Lastname"].Value = reader["Lastname"].ToString();
+                            row.Cells["Phone_number"].Value = reader["Phone_number"].ToString();
+                            row.Cells["Number_policy"].Value = reader["Number_policy"].ToString();
+
+                            // Обновляем DataGridView
+                            dataGridView1.Refresh();
+                        }
+                    }
+                }
+            }
+        }
+
+        private void dataGridView1_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            // Останавливаем предыдущий таймер, если он работает
+            StopUnmaskTimer();
+
+            DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+            int patientId = Convert.ToInt32(row.Cells["idPatients"].Value);
+
+            unmaskedRowIndex = e.RowIndex; // Сохраняем индекс строки
+
+            ShowFullPatientData(patientId, row); // Показываем полные данные
+
+            // Запускаем таймер на 20 секунд (20000 мс)
+            unmaskTimer = new Timer();
+            unmaskTimer.Interval = 20000;
+            unmaskTimer.Tick += UnmaskTimer_Tick;
+            unmaskTimer.Start();
+        }
+        // Обработчик таймера - возвращает маскировку через 20 секунд
+        private void UnmaskTimer_Tick(object sender, EventArgs e)
+        {
+            StopUnmaskTimer();
+
+            if (unmaskedRowIndex >= 0 && unmaskedRowIndex < dataGridView1.Rows.Count)
+            {
+                // Перезагружаем таблицу для возврата маскировки
+                LoadPatient();
+                dataGridView1.ClearSelection(); // Снимаем выделение
+            }
+        }
+
+        // Метод для остановки таймера
+        private void StopUnmaskTimer()
+        {
+            if (unmaskTimer != null)
+            {
+                unmaskTimer.Stop();
+                unmaskTimer.Dispose();
+                unmaskTimer = null;
+            }
+            unmaskedRowIndex = -1;
         }
     }
 }
