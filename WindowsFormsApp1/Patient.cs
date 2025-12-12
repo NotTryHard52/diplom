@@ -45,6 +45,9 @@ namespace WindowsFormsApp1
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(patientTable);
 
+                // Маскируем имя и отчество в таблице
+                MaskNameAndPatronymic();
+
                 // Настройка DataGridView
                 dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = patientTable;
@@ -60,6 +63,30 @@ namespace WindowsFormsApp1
 
                 // Показываем количество записей
                 label9.Text = $"Количество записей: {patientTable.Rows.Count}";
+            }
+        }
+
+        // Метод для маскировки имени и отчества
+        private void MaskNameAndPatronymic()
+        {
+            if (patientTable == null || patientTable.Rows.Count == 0) return;
+
+            foreach (DataRow row in patientTable.Rows)
+            {
+                string name = row["Name"]?.ToString();
+                string patronymic = row["Lastname"]?.ToString();
+
+                // Маскируем имя: первый символ
+                if (!string.IsNullOrEmpty(name) && name.Length > 1)
+                {
+                    row["Name"] = $"{name[0]}{new string('*', name.Length - 1)}";
+                }
+
+                // Маскируем отчество: первый символ
+                if (!string.IsNullOrEmpty(patronymic) && patronymic.Length > 1)
+                {
+                    row["Lastname"] = $"{patronymic[0]}{new string('*', patronymic.Length - 1)}";
+                }
             }
         }
 
