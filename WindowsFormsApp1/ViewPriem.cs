@@ -86,7 +86,7 @@ namespace WindowsFormsApp1
                             CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS patient_name,
                             CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS doctor_name,
                             DATE_FORMAT(sc.date, '%d.%m.%Y') AS date,
-                            sc.time,
+                            DATE_FORMAT(sc.time, '%H:%i') AS time,
                             st.name AS status
                         FROM `Order` o
                         JOIN Schedule sc ON o.Schedule = sc.idSchedule

@@ -144,7 +144,7 @@ namespace WindowsFormsApp1
                 o.TotalSum AS 'К оплате',
                 CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
                 DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
-                sc.time AS 'Время',
+                DATE_FORMAT(sc.time, '%H:%i') AS 'Время',
                 CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
                 CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
                 st.name AS 'Статус'

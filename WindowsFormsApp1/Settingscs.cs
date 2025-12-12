@@ -83,5 +83,10 @@ namespace WindowsFormsApp1
                 );
             }
         }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.English_Symbol(sender, e);
+        }
     }
 }

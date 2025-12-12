@@ -41,22 +41,24 @@ namespace WindowsFormsApp1
 
                 // SQL-запрос для получения информации о заказах
                 string query = @"
-                        SELECT 
-                            o.idOrder AS 'Номер талона',
-                            o.sum AS 'Сумма',
-                            CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
-                            DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
-                            sc.time AS 'Время',
-                            CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
-                            CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
-                            st.name AS 'Статус'
-                        FROM `Order` o
-                        JOIN Schedule sc ON o.Schedule = sc.idSchedule
-                        JOIN Doctors d ON sc.idDoctor = d.idDoctors
-                        JOIN `Users` r ON o.User = r.idUsers
-                        JOIN Patients p ON o.Patients_idPatients = p.idPatients
-                        JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
-                    ";
+            SELECT 
+                o.idOrder AS 'Номер талона',
+                o.sum AS 'Сумма',
+                o.Discount AS 'Скидка',
+                o.TotalSum AS 'К оплате',
+                CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
+                DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
+                DATE_FORMAT(sc.time, '%H:%i') AS 'Время',
+                CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
+                CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
+                st.name AS 'Статус'
+            FROM `Order` o
+            JOIN Schedule sc ON o.Schedule = sc.idSchedule
+            JOIN Doctors d ON sc.idDoctor = d.idDoctors
+            JOIN `Users` r ON o.User = r.idUsers
+            JOIN Patients p ON o.Patients_idPatients = p.idPatients
+            JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
+        ";
 
                 MySqlCommand cmd = new MySqlCommand(query, con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
