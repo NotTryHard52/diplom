@@ -76,13 +76,13 @@ namespace WindowsFormsApp1
                 string name = row["Name"]?.ToString();
                 string patronymic = row["Lastname"]?.ToString();
 
-                // Маскируем имя: первый символ
+                // Маскируем имя
                 if (!string.IsNullOrEmpty(name) && name.Length > 1)
                 {
                     row["Name"] = $"{name[0]}{new string('*', name.Length - 1)}";
                 }
 
-                // Маскируем отчество: первый символ
+                // Маскируем отчество
                 if (!string.IsNullOrEmpty(patronymic) && patronymic.Length > 1)
                 {
                     row["Lastname"] = $"{patronymic[0]}{new string('*', patronymic.Length - 1)}";
