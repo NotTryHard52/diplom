@@ -82,7 +82,7 @@
       <DependentUpon>EditPatient.cs</DependentUpon>
     </Compile>
     <Compile Include="HoverDataGridView.cs" />
-    <Compile Include="IdleManager.cs" />
+    <Compile Include="GlobalIdleManager.cs" />
     <Compile Include="InputLimit.cs" />
     <Compile Include="Main_menu.cs">
       <SubType>Form</SubType>
@@ -393,6 +393,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\doc1.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\doc2.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\doc3.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\doc4.jpeg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\not-image.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
