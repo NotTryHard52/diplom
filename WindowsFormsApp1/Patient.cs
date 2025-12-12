@@ -75,6 +75,7 @@ namespace WindowsFormsApp1
             {
                 string name = row["Name"]?.ToString();
                 string patronymic = row["Lastname"]?.ToString();
+                string phone = row["Phone_number"]?.ToString();
 
                 // Маскируем имя
                 if (!string.IsNullOrEmpty(name) && name.Length > 1)
@@ -86,6 +87,12 @@ namespace WindowsFormsApp1
                 if (!string.IsNullOrEmpty(patronymic) && patronymic.Length > 1)
                 {
                     row["Lastname"] = $"{patronymic[0]}{new string('*', patronymic.Length - 1)}";
+                }
+
+                // Маскируем номер телефона - показываем только последние 4 цифры
+                if (!string.IsNullOrEmpty(phone) && phone.Length > 5)
+                {
+                    row["Phone_number"] = new string('*', phone.Length - 5) + phone.Substring(phone.Length - 5);
                 }
             }
         }
