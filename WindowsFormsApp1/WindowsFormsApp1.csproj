@@ -82,6 +82,7 @@
       <DependentUpon>EditPatient.cs</DependentUpon>
     </Compile>
     <Compile Include="HoverDataGridView.cs" />
+    <Compile Include="IdleManager.cs" />
     <Compile Include="InputLimit.cs" />
     <Compile Include="Main_menu.cs">
       <SubType>Form</SubType>
