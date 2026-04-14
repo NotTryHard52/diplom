@@ -69,6 +69,12 @@
       <DependentUpon>AddPatient.cs</DependentUpon>
     </Compile>
     <Compile Include="Connect.cs" />
+    <Compile Include="DoctorCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DoctorCard.Designer.cs">
+      <DependentUpon>DoctorCard.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditDoctor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -227,6 +233,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="AddPatient.resx">
       <DependentUpon>AddPatient.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DoctorCard.resx">
+      <DependentUpon>DoctorCard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditDoctor.resx">
       <DependentUpon>EditDoctor.cs</DependentUpon>

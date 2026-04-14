@@ -27,6 +27,10 @@ namespace WindowsFormsApp1
             textBox5.TextChanged += textBox5_TextChanged;                    // Обработчик ввода поиска
             LoadDoctor();                      // Загрузка списка врачей
             var hoverEffect = new HoverDataGridView(dataGridView1); // Наведение на строки (эффект подсветки)
+            dataGridView1.Visible = false;
+            button3.Visible = false;
+            button2.Visible = false;
+
         }
 
         private void LoadDoctor()
@@ -51,24 +55,53 @@ namespace WindowsFormsApp1
 
             LoadDoctorPhotos(doctorsTable);       // Загружаем фото врачей в таблицу
 
-            dataGridView1.DataSource = doctorsTable; // Привязка таблицы к DataGridView
+            DisplayCards(doctorsTable); // Привязка таблицы к DataGridView
 
-            dataGridView1.Columns["idDoctors"].Visible = false; // Скрываем ID
-            dataGridView1.Columns["Surname"].HeaderText = "Фамилия";
-            dataGridView1.Columns["Name"].HeaderText = "Имя";
-            dataGridView1.Columns["Lastname"].HeaderText = "Отчество";
-            dataGridView1.Columns["Phone_number"].HeaderText = "Телефон";
-            dataGridView1.Columns["SpecialityName"].HeaderText = "Специальность";
-            dataGridView1.Columns["Photo"].Visible = false;      // Скрываем текстовое имя фото
+            //dataGridView1.Columns["idDoctors"].Visible = false; // Скрываем ID
+            //dataGridView1.Columns["Surname"].HeaderText = "Фамилия";
+            //dataGridView1.Columns["Name"].HeaderText = "Имя";
+            //dataGridView1.Columns["Lastname"].HeaderText = "Отчество";
+            //dataGridView1.Columns["Phone_number"].HeaderText = "Телефон";
+            //dataGridView1.Columns["SpecialityName"].HeaderText = "Специальность";
+            //dataGridView1.Columns["Photo"].Visible = false;      // Скрываем текстовое имя фото
 
-            label9.Text = $"Количество записей: {doctorsTable.Rows.Count}"; // Вывод количества
+            //label9.Text = $"Количество записей: {doctorsTable.Rows.Count}"; // Вывод количества
+            groupBox2.Text = $"Количество записей: {doctorsTable.Rows.Count}";
 
             // Колонка с изображениями
-            DataGridViewImageColumn imgCol = (DataGridViewImageColumn)dataGridView1.Columns["Фото"];
-            imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom; // Масштабирование фото
+            //DataGridViewImageColumn imgCol = (DataGridViewImageColumn)dataGridView1.Columns["Фото"];
+            //imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom; // Масштабирование фото
 
-            dataGridView1.RowTemplate.Height = 100; // Высота строки из-за фото
-            dataGridView1.Refresh();                // Перерисовка
+            //dataGridView1.RowTemplate.Height = 100; // Высота строки из-за фото
+            //dataGridView1.Refresh();                // Перерисовка
+        }
+
+        private void DisplayCards(DataTable table)
+        {
+            flowLayoutPanel1.Controls.Clear();
+
+            foreach (DataRow row in table.Rows)
+            {
+                DoctorCard card = new DoctorCard();
+
+                int id = Convert.ToInt32(row["idDoctors"]);
+
+                string fio = $"{row["Surname"]} {row["Name"]} {row["Lastname"]}";
+                string phone = row["Phone_number"].ToString();
+                string spec = row["SpecialityName"].ToString();
+                Image photo = row["Фото"] as Image;
+
+                card.SetData(id, fio, phone, spec, photo);
+
+                card.Click += (s, e) =>
+                {
+                    selectedId = id;
+                };
+
+                flowLayoutPanel1.Controls.Add(card);
+            }
+
+            groupBox2.Text = $"Количество записей: {table.Rows.Count}";
         }
 
         private void LoadDoctorPhotos(DataTable table)
@@ -125,7 +158,7 @@ namespace WindowsFormsApp1
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
                     comboBox1.Items.Clear();        // Очищаем список
-                    comboBox1.Items.Add("Все");     // Пункт для отображения всех врачей
+                    comboBox1.Items.Add("Все специальности");     // Пункт для отображения всех врачей
 
                     while (reader.Read())
                     {
@@ -138,7 +171,7 @@ namespace WindowsFormsApp1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count == 0)     // Если не выбрана строка
+            if (selectedId == -1)     // Если не выбрана строка
             {
                 MessageBox.Show("Выберите запись для редактирования!", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -172,7 +205,7 @@ namespace WindowsFormsApp1
 
             // Фильтр по специальности
             string selectedSpecialty = comboBox1.SelectedItem?.ToString();
-            if (!string.IsNullOrEmpty(selectedSpecialty) && selectedSpecialty != "Все")
+            if (!string.IsNullOrEmpty(selectedSpecialty) && selectedSpecialty != "Все специальности")
             {
                 filterExpr = $"SpecialityName = '{selectedSpecialty.Replace("'", "''")}'";
             }
@@ -198,8 +231,8 @@ namespace WindowsFormsApp1
             dv.RowFilter = filterExpr;              // Применяем фильтр
             dv.Sort = sortExpr;                     // Применяем сортировку
 
-            dataGridView1.DataSource = dv;          // Обновляем отображения
-            dataGridView1.Refresh();
+            DisplayCards(dv.ToTable());
+
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)

@@ -23,31 +23,13 @@ namespace WindowsFormsApp1
             currentConfig.AppSettings.Settings["uid"].Value = textBox2.Text;
             currentConfig.AppSettings.Settings["pwd"].Value = textBox4.Text;
 
-            // Обновляем таймаут бездействия
-            if (int.TryParse(textBox3.Text, out int idleTimeout))
-            {
-                if (idleTimeout < 30)
-                    idleTimeout = 30; // минимум 30 сек
-                else if (idleTimeout > 3600)
-                    idleTimeout = 3600; // максимум 3600 сек
-
-                if (currentConfig.AppSettings.Settings["IdleTimeoutSeconds"] != null)
-                    currentConfig.AppSettings.Settings["IdleTimeoutSeconds"].Value = idleTimeout.ToString();
-                else
-                    currentConfig.AppSettings.Settings.Add("IdleTimeoutSeconds", idleTimeout.ToString());
-            }
-            else
-            {
-                MessageBox.Show("Некорректное значение таймаута", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
 
             // Сохраняем конфигурацию
             currentConfig.Save(ConfigurationSaveMode.Modified);
             ConfigurationManager.RefreshSection("appSettings");
 
             MessageBox.Show(
-                $"Настройки сохранены.\nТаймаут бездействия: {idleTimeout} с",
+                $"Настройки сохранены.",
                 "Сохранено",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information
@@ -67,16 +49,6 @@ namespace WindowsFormsApp1
             textBox1.Text = currentConfig.AppSettings.Settings["host"].Value;
             textBox2.Text = currentConfig.AppSettings.Settings["uid"].Value;
             textBox4.Text = currentConfig.AppSettings.Settings["pwd"].Value;
-
-            string timeoutValue = currentConfig.AppSettings.Settings["IdleTimeoutSeconds"]?.Value;
-            if (!string.IsNullOrEmpty(timeoutValue))
-            {
-                textBox3.Text = timeoutValue;
-            }
-            else
-            {
-                textBox3.Text = "30"; // значение по умолчанию
-            }
         }
 
         // Событие кнопки "Проверить подключение"
