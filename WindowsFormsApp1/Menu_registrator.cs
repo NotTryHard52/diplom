@@ -8,7 +8,6 @@ namespace WindowsFormsApp1
         private int currentUserId; // ID текущего пользователя
         private string currentRole; // роль текущего пользователя
         private Form activeForm = null; // текущая открытая дочерняя форма
-        private GlobalIdleManager idleManager;
 
         // Конструктор формы Menu_registrator, принимает ФИО, ID пользователя и роль
         public Menu_registrator(string FIO, int userId, string role)
@@ -17,12 +16,6 @@ namespace WindowsFormsApp1
             label_fio.Text = FIO; // отображаем ФИО пользователя
             currentUserId = userId;
             currentRole = role;
-
-            idleManager = new GlobalIdleManager();
-            idleManager.IdleTimeoutReached += IdleManager_IdleTimeoutReached;
-
-            // Отслеживаем активность на этой форме
-            idleManager.TrackForm(this);
         }
 
         private void IdleManager_IdleTimeoutReached(object sender, EventArgs e)
@@ -37,7 +30,6 @@ namespace WindowsFormsApp1
                 this.Hide(); // скрываем главное меню
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
-                    idleManager.Restart(); // сброс таймера после успешного входа
                     this.Show();
                 }
                 else
@@ -65,7 +57,6 @@ namespace WindowsFormsApp1
 
             panel2.Controls.Add(childForm); // добавляем форму в панель
             childForm.Show(); // показываем форму
-            idleManager.TrackForm(childForm);
 
             activeForm = childForm; // сохраняем текущую открытую форму
         }
@@ -142,7 +133,6 @@ namespace WindowsFormsApp1
                 this.Hide(); // скрываем текущую форму
                 login.ShowDialog(); // показываем форму логина
                 this.Show(); // возвращаем текущую форму после закрытия логина
-                idleManager.Restart();
             }
         }
     }
