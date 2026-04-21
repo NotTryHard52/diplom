@@ -19,8 +19,6 @@ namespace WindowsFormsApp1
         public DoctorCard()
         {
             InitializeComponent();
-            button2.Click += button2_Click;
-            button3.Click += button3_Click;
         }
         public void SetData(int id, string fio, string phone, string spec, Image photo)
         {
