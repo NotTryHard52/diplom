@@ -52,7 +52,7 @@ namespace WindowsFormsApp1
                 // Переименовываем колонку с названием статуса
                 dataGridView1.Columns[1].HeaderText = "Наименование";
 
-                label2.Text = $"Количество записей: {t.Rows.Count}";
+                groupBox1.Text = $"Количество записей: {t.Rows.Count}";
             }
         }
 

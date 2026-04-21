@@ -54,15 +54,17 @@ namespace WindowsFormsApp1
             this.comboBox2.FormattingEnabled = true;
             this.comboBox2.Location = new System.Drawing.Point(16, 243);
             this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(198, 28);
+            this.comboBox2.Size = new System.Drawing.Size(357, 28);
             this.comboBox2.TabIndex = 42;
             // 
             // button6
             // 
-            this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
+            this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button6.ForeColor = System.Drawing.Color.White;
             this.button6.Location = new System.Drawing.Point(16, 277);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(200, 37);
+            this.button6.Size = new System.Drawing.Size(357, 37);
             this.button6.TabIndex = 41;
             this.button6.Text = "Редактировать";
             this.button6.UseVisualStyleBackColor = false;
@@ -70,8 +72,10 @@ namespace WindowsFormsApp1
             // 
             // button1
             // 
-            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button1.Location = new System.Drawing.Point(243, 226);
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.ForeColor = System.Drawing.Color.White;
+            this.button1.Location = new System.Drawing.Point(379, 247);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(192, 34);
             this.button1.TabIndex = 40;
@@ -93,7 +97,7 @@ namespace WindowsFormsApp1
             this.maskedTextBox1.Location = new System.Drawing.Point(16, 191);
             this.maskedTextBox1.Mask = "+7 999 999 99 99";
             this.maskedTextBox1.Name = "maskedTextBox1";
-            this.maskedTextBox1.Size = new System.Drawing.Size(198, 26);
+            this.maskedTextBox1.Size = new System.Drawing.Size(357, 26);
             this.maskedTextBox1.TabIndex = 37;
             // 
             // label4
@@ -110,7 +114,7 @@ namespace WindowsFormsApp1
             this.textBox3.Location = new System.Drawing.Point(16, 139);
             this.textBox3.MaxLength = 40;
             this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(198, 26);
+            this.textBox3.Size = new System.Drawing.Size(357, 26);
             this.textBox3.TabIndex = 35;
             this.textBox3.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox2_KeyPress);
             // 
@@ -128,7 +132,7 @@ namespace WindowsFormsApp1
             this.textBox2.Location = new System.Drawing.Point(16, 86);
             this.textBox2.MaxLength = 40;
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(198, 26);
+            this.textBox2.Size = new System.Drawing.Size(357, 26);
             this.textBox2.TabIndex = 33;
             this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox2_KeyPress);
             // 
@@ -146,7 +150,7 @@ namespace WindowsFormsApp1
             this.textBox1.Location = new System.Drawing.Point(16, 33);
             this.textBox1.MaxLength = 40;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(198, 26);
+            this.textBox1.Size = new System.Drawing.Size(357, 26);
             this.textBox1.TabIndex = 31;
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
@@ -162,7 +166,7 @@ namespace WindowsFormsApp1
             // pictureBox1
             // 
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Location = new System.Drawing.Point(243, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(379, 12);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(192, 188);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -171,17 +175,18 @@ namespace WindowsFormsApp1
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(239, 203);
+            this.label6.Location = new System.Drawing.Point(375, 203);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(51, 20);
+            this.label6.Size = new System.Drawing.Size(196, 37);
             this.label6.TabIndex = 43;
             this.label6.Text = "Фото";
             // 
             // button2
             // 
-            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.button2.Location = new System.Drawing.Point(243, 266);
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button2.ForeColor = System.Drawing.Color.White;
+            this.button2.Location = new System.Drawing.Point(379, 287);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(192, 34);
             this.button2.TabIndex = 44;
@@ -193,7 +198,7 @@ namespace WindowsFormsApp1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(452, 333);
+            this.ClientSize = new System.Drawing.Size(583, 333);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.comboBox2);

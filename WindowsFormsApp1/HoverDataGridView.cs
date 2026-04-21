@@ -8,7 +8,7 @@ namespace WindowsFormsApp1
     public class HoverDataGridView
     {
         private readonly DataGridView _dataGridView; // Ссылка на DataGridView
-        private Color _hoverColor = Color.FromArgb(192, 255, 255); // Цвет подсветки при наведении
+        private Color _hoverColor = Color.FromArgb(39, 70, 144); // Цвет подсветки при наведении
         private Color _defaultColor = Color.White; // Стандартный цвет строки
         private int _hoveredRow = -1; // Индекс строки, на которой сейчас наведение
 
@@ -42,6 +42,7 @@ namespace WindowsFormsApp1
             {
                 _hoveredRow = e.RowIndex; // Сохраняем индекс наведенной строки
                 _dataGridView.Rows[e.RowIndex].DefaultCellStyle.BackColor = _hoverColor; // Меняем цвет строки
+                _dataGridView.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.White; // Меняем цвет текста для лучшей видимости
             }
         }
 
@@ -51,6 +52,7 @@ namespace WindowsFormsApp1
             if (_hoveredRow >= 0 && _hoveredRow < _dataGridView.Rows.Count) // Проверяем валидность индекса
             {
                 _dataGridView.Rows[_hoveredRow].DefaultCellStyle.BackColor = _defaultColor; // Возвращаем стандартный цвет
+                _dataGridView.Rows[_hoveredRow].DefaultCellStyle.ForeColor = Color.Black; // Возвращаем стандартный цвет текста
                 _hoveredRow = -1; // Сбрасываем индекс
             }
         }

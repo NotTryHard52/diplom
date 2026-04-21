@@ -66,7 +66,7 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[6].HeaderText = "Номер полиса";
 
                 // Показываем количество записей
-                label9.Text = $"Количество записей: {patientTable.Rows.Count}";
+                groupBox1.Text = $"Количество записей: {patientTable.Rows.Count}";
             }
         }
 
@@ -141,10 +141,8 @@ namespace WindowsFormsApp1
             string searchText = textBox5.Text.Trim().Replace("'", "''");
             if (!string.IsNullOrEmpty(searchText))
             {
-                if (int.TryParse(searchText, out int policyNumber))
-                {
-                    filterExpr = $"Number_policy = {policyNumber}";
-                }
+                // Приводим поле к строке и используем поиск подстроки, чтобы избежать ошибок сравнения типов
+                filterExpr = $"Convert(Number_policy, 'System.String') LIKE '%{searchText}%'";
             }
 
             // Сортировка по фамилии
@@ -160,6 +158,7 @@ namespace WindowsFormsApp1
 
             dataGridView1.DataSource = dv;
             dataGridView1.Refresh();
+            groupBox1.Text = $"Количество записей: {dv.Count}";
         }
 
         // Изменение текста поиска

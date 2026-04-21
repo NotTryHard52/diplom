@@ -2,6 +2,7 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace WindowsFormsApp1
 {
@@ -45,7 +46,7 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[0].Visible = false;  // Скрываем ID
                 dataGridView1.Columns[1].HeaderText = "Наименование"; // Переименовываем заголовок
 
-                label2.Text = $"Количество записей: {t.Rows.Count}";  // Отображаем количество записей
+                groupBox1.Text = $"Количество записей: {t.Rows.Count}";
             }
         }
 

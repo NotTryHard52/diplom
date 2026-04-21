@@ -55,7 +55,7 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[2].HeaderText = "Цена";
                 dataGridView1.Columns[3].HeaderText = "Категория";
 
-                label2.Text = $"Количество записей: {t.Rows.Count}";
+                groupBox1.Text = $"Количество записей: {t.Rows.Count}";
 
                 // Загружаем категории для ComboBox
                 string categoryQuery = "SELECT idCategory, Name FROM Category;";

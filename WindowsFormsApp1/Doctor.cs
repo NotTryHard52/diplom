@@ -92,11 +92,8 @@ namespace WindowsFormsApp1
                 Image photo = row["Фото"] as Image;
 
                 card.SetData(id, fio, phone, spec, photo);
-
-                card.Click += (s, e) =>
-                {
-                    selectedId = id;
-                };
+                card.EditClicked += Card_EditClicked;
+                card.DeleteClicked += Card_DeleteClicked;
 
                 flowLayoutPanel1.Controls.Add(card);
             }
@@ -324,6 +321,56 @@ namespace WindowsFormsApp1
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
                 selectedId = Convert.ToInt32(row.Cells["idDoctors"].Value); // Сохраняем выбранный ID
             }
+        }
+
+        private void Card_EditClicked(object sender, int id)
+        {
+            Image photo = null;
+
+            DataRow[] rows = doctorsTable.Select($"idDoctors = {id}");
+            if (rows.Length > 0 && rows[0]["Фото"] is Image img)
+            {
+                photo = new Bitmap(img);
+            }
+
+            EditDoctor editForm = new EditDoctor(id, photo);
+            editForm.ShowDialog();
+
+            LoadDoctor();
+        }
+
+        private void Card_DeleteClicked(object sender, int id)
+        {
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM Schedule WHERE idDoctor = @doctorId";
+                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                {
+                    checkCmd.Parameters.AddWithValue("@doctorId", id);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Нельзя удалить врача, он используется в расписании!");
+                        return;
+                    }
+                }
+
+                if (MessageBox.Show("Удалить врача?", "Подтверждение",
+                    MessageBoxButtons.YesNo) != DialogResult.Yes)
+                    return;
+
+                string deleteQuery = "DELETE FROM Doctors WHERE idDoctors = @id";
+                using (MySqlCommand cmd = new MySqlCommand(deleteQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            LoadDoctor();
         }
     }
 }

@@ -53,7 +53,7 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[1].HeaderText = "Наименование";
 
                 // Отображаем количество записей
-                label2.Text = $"Количество записей: {t.Rows.Count}";
+                groupBox1.Text = $"Количество записей: {t.Rows.Count}";
             }
         }
 

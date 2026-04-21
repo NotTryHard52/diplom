@@ -43,48 +43,8 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[0].Visible = false; // Скрываем Id
                 dataGridView1.Columns[1].HeaderText = "Наименование";
 
-                label2.Text = $"Количество записей: {t.Rows.Count}";
+                groupBox1.Text = $"Количество записей: {t.Rows.Count}";
             }
-        }
-
-        // Добавление новой роли
-        private void button1_Click(object sender, EventArgs e)
-        {
-            string roleName = textBox1.Text.Trim();
-
-            if (string.IsNullOrEmpty(roleName))
-            {
-                MessageBox.Show("Поле не должно быть пустым!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            using (MySqlConnection con = new MySqlConnection(connectionString))
-            {
-                con.Open();
-
-                // Проверка на существующую роль
-                string checkQuery = "SELECT COUNT(*) FROM Roles WHERE RoleName = @name";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@name", roleName);
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
-                {
-                    MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                // Добавление роли
-                string insertQuery = "INSERT INTO Roles (RoleName) VALUES (@name)";
-                MySqlCommand insertCmd = new MySqlCommand(insertQuery, con);
-                insertCmd.Parameters.AddWithValue("@name", roleName);
-                insertCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-
-            textBox1.Clear();
-            LoadRoles(); // Обновляем таблицу после добавления
         }
 
         // Ограничение ввода текста для роли (только русские символы)
