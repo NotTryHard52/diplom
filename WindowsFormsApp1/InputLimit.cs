@@ -29,6 +29,27 @@ namespace WindowsFormsApp1
             }
         }
 
+        public static void Captcha_Symbol(object sender, KeyPressEventArgs e, string allowedChars)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox == null) return;
+
+            if (char.IsControl(e.KeyChar)) return; // Backspace и т.д.
+
+            // Ограничение длины
+            if (textBox.Text.Length >= textBox.MaxLength)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            // Разрешаем только символы из капчи
+            if (!allowedChars.Contains(e.KeyChar.ToString()))
+            {
+                e.Handled = true;
+            }
+        }
+
         // Ограничение ввода только русских букв и пробела
         public static void Russian(object sender, KeyPressEventArgs e)
         {

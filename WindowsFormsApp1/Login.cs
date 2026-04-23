@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using System.Drawing;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
@@ -11,6 +12,12 @@ namespace WindowsFormsApp1
     {
         // Строка подключения к базе данных
         string connectionString;
+        string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+        string Captcha_current;
+        Random random = new Random();
+        int loginAttempts = 0;
+        bool captchaRequired = false;
+        DateTime blockUntil = DateTime.MinValue;
 
         public Login()
         {
@@ -31,6 +38,27 @@ namespace WindowsFormsApp1
                 {
                     MessageBox.Show("Заполните все поля!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
+                }
+
+                if (DateTime.Now < blockUntil)
+                {
+                    int secondsLeft = (int)(blockUntil - DateTime.Now).TotalSeconds;
+                    MessageBox.Show($"Попробуйте снова через {secondsLeft} сек.", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (captchaRequired)
+                {
+                    if (textBox3.Text != Captcha_current)
+                    {
+                        MessageBox.Show("Неверная капча!", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                        blockUntil = DateTime.Now.AddSeconds(10);
+                        Captcha_Load();
+                        textBox3.Clear();
+
+                        return;
+                    }
                 }
 
                 string login = textBox1.Text;
@@ -77,12 +105,30 @@ namespace WindowsFormsApp1
                     // Проверка пароля
                     if (hash_password != dbPasswordHash)
                     {
+                        loginAttempts++;
+
                         MessageBox.Show("Неверный пароль!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         textBox2.Clear();
+
+                        if (loginAttempts >= 2)
+                        {
+                            captchaRequired = true;
+
+                            Captcha_Load();
+                            this.Height = 680;
+                            pictureBox3.Location = new Point(12, 278);
+                            button3.Location = new Point(12, 341);
+                            label3.Location = new Point(8, 374);
+                            textBox3.Location = new Point(12, 397);
+                            button1.Location = new Point(12, 429);
+                        }
+
                         return;
                     }
 
                     // Успешный вход — открытие формы в зависимости от роли пользователя
+                    loginAttempts = 0;
+                    captchaRequired = false;
                     this.Hide();
                     if (role == "1") // Администратор
                     {
@@ -106,6 +152,55 @@ namespace WindowsFormsApp1
             {
                 MessageBox.Show(ex.Message, "Ошибка базы данных", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        string GenerateCaptcha(int length)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < length; i++)
+            {
+                sb.Append(chars[random.Next(chars.Length)]);
+            }
+
+            return sb.ToString();
+        }
+
+        private void Captcha_Load()
+        {
+            Captcha_current = GenerateCaptcha(5);
+
+            Bitmap bitmap = new Bitmap(pictureBox3.Width, pictureBox3.Height);
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                g.Clear(Color.White);
+
+                for (int i = 0; i < bitmap.Width * bitmap.Height / 3; i++)
+                {
+                    int xNoise = random.Next(bitmap.Width);
+                    int yNoise = random.Next(bitmap.Height);
+                    bitmap.SetPixel(xNoise, yNoise, Color.FromArgb(random.Next(256), random.Next(256), random.Next(256)));
+                }
+                using (Font font = new Font("Arial", 24, FontStyle.Bold))
+                {
+                    int x = 10;
+                    foreach (char c in Captcha_current)
+                    {
+                        float offsetY = random.Next(-5, 6);
+                        g.DrawString(c.ToString(), font, Brushes.Black, new PointF(x, 10 + offsetY));
+
+                        int charWidth = (int)g.MeasureString(c.ToString(), font).Width;
+                        int charHeight = (int)g.MeasureString(c.ToString(), font).Height;
+
+                        int lineY = (int)(10 + offsetY + random.Next(charHeight / 3, (charHeight * 2) / 3));
+                        Pen pen = new Pen(Color.FromArgb(random.Next(256), random.Next(256), random.Next(256)), 2);
+                        g.DrawLine(pen, x, lineY, x + charWidth, lineY);
+
+                        x += random.Next(20, 35);
+                    }
+                }
+            }
+            pictureBox3.Image = bitmap;
         }
 
         // Кнопка "Выход"
@@ -163,6 +258,16 @@ namespace WindowsFormsApp1
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.English_Symbol(sender, e);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Captcha_Load();
+        }
+
+        private void textBox3_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Captcha_Symbol(sender, e, chars);
         }
     }
 }
