@@ -12,8 +12,11 @@ namespace WindowsFormsApp1
         public event Action<int, string> PatientSelected; // Событие для передачи выбранного пациента
         int selectedId = -1; // Id выбранного пациента
         private bool openedFromTalon = false; // Флаг, был ли вызов формы из создания талона
-        private Timer unmaskTimer;
-        private int unmaskedRowIndex = -1;
+        // Текущий не замаскированный пациент (по id)
+        private int currentlyUnmaskedPatientId = -1;
+        // Резерв маскированных значений для восстановления
+        private System.Collections.Generic.Dictionary<int, (string Name, string Lastname, string Phone, string Policy)> maskedBackup
+            = new System.Collections.Generic.Dictionary<int, (string, string, string, string)>();
 
         public Patient(bool fromTalon = false)
         {
@@ -32,6 +35,7 @@ namespace WindowsFormsApp1
             LoadPatient(); // Загрузка данных пациентов
             var hoverEffect = new HoverDataGridView(dataGridView1); // Визуальный эффект наведения на строки
 
+            // Обработчик двойного клика — централизованный
             dataGridView1.CellDoubleClick += DataGridView1_CellDoubleClick;
         }
 
@@ -193,12 +197,39 @@ namespace WindowsFormsApp1
 
             DataGridViewRow row = dataGridView1.SelectedRows[0];
             int patientId = Convert.ToInt32(row.Cells["idPatients"].Value);
-            string fullName = $"{row.Cells["Surname"].Value} {row.Cells["Name"].Value} {row.Cells["Lastname"].Value}";
 
-            // Вызываем событие для передачи данных
+            // Получаем полные данные пациента из базы (без маскировки) и передаём их в талон
+            Connect connect = new Connect();
+            string connString = connect.ConnectDB();
+            string fullName = null;
+            using (MySqlConnection con = new MySqlConnection(connString))
+            {
+                con.Open();
+                string q = "SELECT Surname, Name, Lastname FROM Patients WHERE idPatients = @id LIMIT 1";
+                using (MySqlCommand cmd = new MySqlCommand(q, con))
+                {
+                    cmd.Parameters.AddWithValue("@id", patientId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            string surname = reader["Surname"]?.ToString();
+                            string name = reader["Name"]?.ToString();
+                            string lastname = reader["Lastname"]?.ToString();
+                            fullName = $"{surname} {name} {lastname}".Trim();
+                        }
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(fullName))
+            {
+                // Fallback: используем значения из строки таблицы
+                fullName = $"{row.Cells["Surname"].Value} {row.Cells["Name"].Value} {row.Cells["Lastname"].Value}";
+            }
+
             PatientSelected?.Invoke(patientId, fullName);
-
-            this.Close(); // Закрываем форму
+            this.Close();
         }
 
         // Сброс фильтров
@@ -275,8 +306,19 @@ namespace WindowsFormsApp1
             DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
             int patientId = Convert.ToInt32(row.Cells["idPatients"].Value);
 
-            // Загружаем полные данные пациента из БД без маскировки
+            // Если уже раскрыт другой пациент — восстанавливаем его в маскированный вид
+            if (currentlyUnmaskedPatientId != -1 && currentlyUnmaskedPatientId != patientId)
+            {
+                RestoreMaskedRow(currentlyUnmaskedPatientId);
+            }
+
+            // Если этот пациент уже раскрыт — ничего не делаем
+            if (currentlyUnmaskedPatientId == patientId)
+                return;
+
+            // Загружаем полные данные пациента из БД и запоминаем маскированные значения
             ShowFullPatientData(patientId, row);
+            currentlyUnmaskedPatientId = patientId;
         }
 
         private void ShowFullPatientData(int patientId, DataGridViewRow row)
@@ -299,11 +341,24 @@ namespace WindowsFormsApp1
                     {
                         if (reader.Read())
                         {
+                            // Запоминаем маскированные значения (на основе реальных данных)
+                            string realName = reader["Name"].ToString();
+                            string realLastname = reader["Lastname"].ToString();
+                            string realPhone = reader["Phone_number"].ToString();
+                            string realPolicy = reader["Number_policy"].ToString();
+
+                            var maskedName = MaskNameValue(realName);
+                            var maskedLastname = MaskNameValue(realLastname);
+                            var maskedPhone = MaskPhoneValue(realPhone);
+                            var maskedPolicy = MaskPolicyValue(realPolicy);
+
+                            maskedBackup[patientId] = (maskedName, maskedLastname, maskedPhone, maskedPolicy);
+
                             // Обновляем ячейки реальными данными из БД
-                            row.Cells["Name"].Value = reader["Name"].ToString();
-                            row.Cells["Lastname"].Value = reader["Lastname"].ToString();
-                            row.Cells["Phone_number"].Value = reader["Phone_number"].ToString();
-                            row.Cells["Number_policy"].Value = reader["Number_policy"].ToString();
+                            row.Cells["Name"].Value = realName;
+                            row.Cells["Lastname"].Value = realLastname;
+                            row.Cells["Phone_number"].Value = realPhone;
+                            row.Cells["Number_policy"].Value = realPolicy;
 
                             // Обновляем DataGridView
                             dataGridView1.Refresh();
@@ -313,49 +368,58 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void dataGridView1_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
+        // Восстановление маскированной строки по id пациента
+        private void RestoreMaskedRow(int patientId)
         {
-            if (e.RowIndex < 0) return;
-
-            // Останавливаем предыдущий таймер, если он работает
-            StopUnmaskTimer();
-
-            DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-            int patientId = Convert.ToInt32(row.Cells["idPatients"].Value);
-
-            unmaskedRowIndex = e.RowIndex; // Сохраняем индекс строки
-
-            ShowFullPatientData(patientId, row); // Показываем полные данные
-
-            // Запускаем таймер на 20 секунд (20000 мс)
-            unmaskTimer = new Timer();
-            unmaskTimer.Interval = 20000;
-            unmaskTimer.Tick += UnmaskTimer_Tick;
-            unmaskTimer.Start();
-        }
-        // Обработчик таймера - возвращает маскировку через 20 секунд
-        private void UnmaskTimer_Tick(object sender, EventArgs e)
-        {
-            StopUnmaskTimer();
-
-            if (unmaskedRowIndex >= 0 && unmaskedRowIndex < dataGridView1.Rows.Count)
+            // Находим строку с данным id в DataGridView
+            foreach (DataGridViewRow r in dataGridView1.Rows)
             {
-                // Перезагружаем таблицу для возврата маскировки
-                LoadPatient();
-                dataGridView1.ClearSelection(); // Снимаем выделение
+                if (r.IsNewRow) continue;
+                if (r.Cells["idPatients"].Value == null) continue;
+                if (Convert.ToInt32(r.Cells["idPatients"].Value) == patientId)
+                {
+                    if (maskedBackup.TryGetValue(patientId, out var mask))
+                    {
+                        r.Cells["Name"].Value = mask.Name;
+                        r.Cells["Lastname"].Value = mask.Lastname;
+                        r.Cells["Phone_number"].Value = mask.Phone;
+                        r.Cells["Number_policy"].Value = mask.Policy;
+                    }
+                    else
+                    {
+                        // Если бэкапа нет — применяем простую маску по текущим значениям
+                        r.Cells["Name"].Value = MaskNameValue(r.Cells["Name"].Value?.ToString());
+                        r.Cells["Lastname"].Value = MaskNameValue(r.Cells["Lastname"].Value?.ToString());
+                        r.Cells["Phone_number"].Value = MaskPhoneValue(r.Cells["Phone_number"].Value?.ToString());
+                        r.Cells["Number_policy"].Value = MaskPolicyValue(r.Cells["Number_policy"].Value?.ToString());
+                    }
+                    dataGridView1.Refresh();
+                    break;
+                }
             }
+
+            // Сбрасываем отметку
+            if (currentlyUnmaskedPatientId == patientId)
+                currentlyUnmaskedPatientId = -1;
         }
 
-        // Метод для остановки таймера
-        private void StopUnmaskTimer()
+        // Утилиты маскировки
+        private string MaskNameValue(string name)
         {
-            if (unmaskTimer != null)
-            {
-                unmaskTimer.Stop();
-                unmaskTimer.Dispose();
-                unmaskTimer = null;
-            }
-            unmaskedRowIndex = -1;
+            if (string.IsNullOrEmpty(name)) return name;
+            return name.Length > 1 ? $"{name[0]}{new string('*', name.Length - 1)}" : name;
+        }
+
+        private string MaskPhoneValue(string phone)
+        {
+            if (string.IsNullOrEmpty(phone)) return phone;
+            return phone.Length > 5 ? new string('*', phone.Length - 5) + phone.Substring(phone.Length - 5) : phone;
+        }
+
+        private string MaskPolicyValue(string policy)
+        {
+            if (string.IsNullOrEmpty(policy)) return policy;
+            return policy.Length > 4 ? new string('*', policy.Length - 4) + policy.Substring(policy.Length - 4) : policy;
         }
     }
 }

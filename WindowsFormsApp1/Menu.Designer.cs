@@ -40,14 +40,17 @@ namespace WindowsFormsApp1
             this.label8 = new System.Windows.Forms.Label();
             this.label_role = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
+            this.panel1.Controls.Add(this.pictureBox2);
             this.panel1.Controls.Add(this.button8);
             this.panel1.Controls.Add(this.button2);
             this.panel1.Controls.Add(this.button1);
@@ -55,7 +58,7 @@ namespace WindowsFormsApp1
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(174, 610);
+            this.panel1.Size = new System.Drawing.Size(174, 702);
             this.panel1.TabIndex = 6;
             // 
             // button8
@@ -65,7 +68,7 @@ namespace WindowsFormsApp1
             this.button8.ForeColor = System.Drawing.Color.Red;
             this.button8.Image = ((System.Drawing.Image)(resources.GetObject("button8.Image")));
             this.button8.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button8.Location = new System.Drawing.Point(0, 557);
+            this.button8.Location = new System.Drawing.Point(0, 649);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(174, 53);
             this.button8.TabIndex = 29;
@@ -79,7 +82,7 @@ namespace WindowsFormsApp1
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.Image = ((System.Drawing.Image)(resources.GetObject("button2.Image")));
             this.button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button2.Location = new System.Drawing.Point(0, 181);
+            this.button2.Location = new System.Drawing.Point(0, 227);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(174, 53);
             this.button2.TabIndex = 28;
@@ -93,7 +96,7 @@ namespace WindowsFormsApp1
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
             this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button1.Location = new System.Drawing.Point(0, 122);
+            this.button1.Location = new System.Drawing.Point(0, 168);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(174, 53);
             this.button1.TabIndex = 27;
@@ -107,7 +110,7 @@ namespace WindowsFormsApp1
             this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button7.Image = ((System.Drawing.Image)(resources.GetObject("button7.Image")));
             this.button7.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button7.Location = new System.Drawing.Point(0, 63);
+            this.button7.Location = new System.Drawing.Point(0, 109);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(174, 53);
             this.button7.TabIndex = 26;
@@ -126,7 +129,7 @@ namespace WindowsFormsApp1
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(174, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1029, 610);
+            this.panel2.Size = new System.Drawing.Size(1204, 702);
             this.panel2.TabIndex = 7;
             // 
             // label_fio
@@ -163,17 +166,27 @@ namespace WindowsFormsApp1
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.меню;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Location = new System.Drawing.Point(514, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(689, 12);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(503, 586);
+            this.pictureBox1.Size = new System.Drawing.Size(503, 678);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::WindowsFormsApp1.Properties.Resources.logo;
+            this.pictureBox2.Location = new System.Drawing.Point(3, 12);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(165, 91);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 30;
+            this.pictureBox2.TabStop = false;
             // 
             // Menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1203, 610);
+            this.ClientSize = new System.Drawing.Size(1378, 702);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -188,6 +201,7 @@ namespace WindowsFormsApp1
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -203,5 +217,6 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.PictureBox pictureBox2;
     }
 }

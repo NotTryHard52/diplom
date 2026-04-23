@@ -142,6 +142,8 @@ namespace WindowsFormsApp1
                     new MySqlDataAdapter(cmd).Fill(dt);
                     dataGridView1.DataSource = dt;
                     dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect; // Выбор полной строки
+                    dataGridView1.Columns["Услуга"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dataGridView1.Columns["Цена"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
                 }
             }
         }
@@ -172,9 +174,9 @@ namespace WindowsFormsApp1
                 if (row.Cells["Цена"]?.Value != null && decimal.TryParse(row.Cells["Цена"].Value.ToString(), out decimal value))
                     totalSum += value;
             }
-            label_total.Text = $"Итого: {totalSum:F2} ₽";
+            label_total.Text = $"Итого: {totalSum:F2} руб.";
         }
-
+        
         // Завершение приёма
         private void button4_Click(object sender, EventArgs e)
         {

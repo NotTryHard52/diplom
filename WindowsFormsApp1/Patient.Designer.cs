@@ -70,7 +70,7 @@ namespace WindowsFormsApp1
             "По убыванию (Я-А)"});
             this.comboBox2.Location = new System.Drawing.Point(292, 25);
             this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(235, 28);
+            this.comboBox2.Size = new System.Drawing.Size(246, 28);
             this.comboBox2.TabIndex = 42;
             this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
             // 
@@ -152,7 +152,7 @@ namespace WindowsFormsApp1
             this.dataGridView1.Size = new System.Drawing.Size(987, 414);
             this.dataGridView1.TabIndex = 47;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
-            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellDoubleClick_1);
+            this.dataGridView1.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView1_CellDoubleClick);
             // 
             // groupBox1
             // 
@@ -173,7 +173,7 @@ namespace WindowsFormsApp1
             this.groupBox2.Controls.Add(this.comboBox2);
             this.groupBox2.Location = new System.Drawing.Point(12, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(808, 56);
+            this.groupBox2.Size = new System.Drawing.Size(544, 56);
             this.groupBox2.TabIndex = 50;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Поиск";
@@ -190,6 +190,7 @@ namespace WindowsFormsApp1
             this.button5.TabIndex = 43;
             this.button5.Text = "Очистить";
             this.button5.UseVisualStyleBackColor = false;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // Patient
             // 

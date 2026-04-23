@@ -43,9 +43,9 @@ namespace WindowsFormsApp1
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(64, 263);
+            this.button1.Location = new System.Drawing.Point(12, 286);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(175, 67);
+            this.button1.Size = new System.Drawing.Size(220, 113);
             this.button1.TabIndex = 13;
             this.button1.Text = "Роли";
             this.button1.UseVisualStyleBackColor = false;
@@ -58,9 +58,9 @@ namespace WindowsFormsApp1
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.ForeColor = System.Drawing.Color.White;
-            this.button2.Location = new System.Drawing.Point(245, 263);
+            this.button2.Location = new System.Drawing.Point(248, 286);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(175, 67);
+            this.button2.Size = new System.Drawing.Size(220, 113);
             this.button2.TabIndex = 14;
             this.button2.Text = "Статус расписания";
             this.button2.UseVisualStyleBackColor = false;
@@ -73,9 +73,9 @@ namespace WindowsFormsApp1
             this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button3.ForeColor = System.Drawing.Color.White;
-            this.button3.Location = new System.Drawing.Point(426, 263);
+            this.button3.Location = new System.Drawing.Point(484, 286);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(175, 67);
+            this.button3.Size = new System.Drawing.Size(220, 113);
             this.button3.TabIndex = 15;
             this.button3.Text = "Категории";
             this.button3.UseVisualStyleBackColor = false;
@@ -88,9 +88,9 @@ namespace WindowsFormsApp1
             this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button4.ForeColor = System.Drawing.Color.White;
-            this.button4.Location = new System.Drawing.Point(607, 263);
+            this.button4.Location = new System.Drawing.Point(720, 286);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(175, 67);
+            this.button4.Size = new System.Drawing.Size(220, 113);
             this.button4.TabIndex = 16;
             this.button4.Text = "Специальность";
             this.button4.UseVisualStyleBackColor = false;
@@ -103,9 +103,9 @@ namespace WindowsFormsApp1
             this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button5.ForeColor = System.Drawing.Color.White;
-            this.button5.Location = new System.Drawing.Point(788, 263);
+            this.button5.Location = new System.Drawing.Point(956, 286);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(175, 67);
+            this.button5.Size = new System.Drawing.Size(220, 113);
             this.button5.TabIndex = 17;
             this.button5.Text = "Статус приема";
             this.button5.UseVisualStyleBackColor = false;
@@ -115,7 +115,7 @@ namespace WindowsFormsApp1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1023, 571);
+            this.ClientSize = new System.Drawing.Size(1188, 663);
             this.ControlBox = false;
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);

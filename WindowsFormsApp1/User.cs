@@ -78,7 +78,7 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns[6].HeaderText = "Роль";
 
                 // Отображение количества записей
-                label2.Text = $"Количество записей: {userTable.Rows.Count}";
+                groupBox1.Text = $"Количество записей: {userTable.Rows.Count}";
 
                 // Загрузка ролей для comboBox
                 string roleQuery = "SELECT idRoles, RoleName FROM Roles;";

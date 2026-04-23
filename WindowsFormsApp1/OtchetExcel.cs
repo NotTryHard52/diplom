@@ -43,15 +43,15 @@ namespace WindowsFormsApp1
                 string query = @"
             SELECT 
                 o.idOrder AS 'Номер талона',
-                o.sum AS 'Сумма',
-                o.Discount AS 'Скидка',
-                o.TotalSum AS 'К оплате',
                 CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
                 DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
                 DATE_FORMAT(sc.time, '%H:%i') AS 'Время',
                 CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
                 CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
-                st.name AS 'Статус'
+                st.name AS 'Статус',
+                o.sum AS 'Сумма',
+                o.Discount AS 'Скидка',
+                o.TotalSum AS 'К оплате'
             FROM `Order` o
             JOIN Schedule sc ON o.Schedule = sc.idSchedule
             JOIN Doctors d ON sc.idDoctor = d.idDoctors
@@ -94,9 +94,6 @@ namespace WindowsFormsApp1
 
             // Применяем фильтр по дате
             ApplyFilterAndSort();
-
-            // Включаем эффект наведения для DataGridView
-            var hoverEffect = new HoverDataGridView(dataGridView1);
         }
 
         // Кнопка закрытия формы

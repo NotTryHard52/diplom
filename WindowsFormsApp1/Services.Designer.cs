@@ -51,7 +51,7 @@ namespace WindowsFormsApp1
             this.textBox1.Location = new System.Drawing.Point(14, 35);
             this.textBox1.MaxLength = 100;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(196, 26);
+            this.textBox1.Size = new System.Drawing.Size(427, 26);
             this.textBox1.TabIndex = 20;
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
@@ -109,7 +109,7 @@ namespace WindowsFormsApp1
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(216, 35);
+            this.textBox2.Location = new System.Drawing.Point(447, 35);
             this.textBox2.MaxLength = 5;
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(196, 26);
@@ -119,7 +119,7 @@ namespace WindowsFormsApp1
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(212, 12);
+            this.label3.Location = new System.Drawing.Point(443, 12);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(52, 20);
             this.label3.TabIndex = 22;
@@ -128,7 +128,7 @@ namespace WindowsFormsApp1
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(414, 12);
+            this.label4.Location = new System.Drawing.Point(645, 12);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(93, 20);
             this.label4.TabIndex = 24;
@@ -138,9 +138,9 @@ namespace WindowsFormsApp1
             // 
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(418, 35);
+            this.comboBox1.Location = new System.Drawing.Point(649, 35);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(196, 28);
+            this.comboBox1.Size = new System.Drawing.Size(259, 28);
             this.comboBox1.TabIndex = 25;
             // 
             // dataGridView1

@@ -47,7 +47,7 @@
             this.pictureBox1.Location = new System.Drawing.Point(4, 5);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(232, 242);
+            this.pictureBox1.Size = new System.Drawing.Size(248, 240);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -55,7 +55,7 @@
             // dfio
             // 
             this.dfio.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.dfio.Location = new System.Drawing.Point(244, 5);
+            this.dfio.Location = new System.Drawing.Point(260, 4);
             this.dfio.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.dfio.Name = "dfio";
             this.dfio.Size = new System.Drawing.Size(225, 44);
@@ -65,7 +65,7 @@
             // phonenumber
             // 
             this.phonenumber.AutoSize = true;
-            this.phonenumber.Location = new System.Drawing.Point(280, 86);
+            this.phonenumber.Location = new System.Drawing.Point(292, 85);
             this.phonenumber.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.phonenumber.Name = "phonenumber";
             this.phonenumber.Size = new System.Drawing.Size(142, 20);
@@ -75,7 +75,7 @@
             // dspec
             // 
             this.dspec.AutoSize = true;
-            this.dspec.Location = new System.Drawing.Point(280, 49);
+            this.dspec.Location = new System.Drawing.Point(292, 48);
             this.dspec.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.dspec.Name = "dspec";
             this.dspec.Size = new System.Drawing.Size(128, 20);
@@ -88,9 +88,9 @@
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.ForeColor = System.Drawing.Color.White;
-            this.button2.Location = new System.Drawing.Point(244, 165);
+            this.button2.Location = new System.Drawing.Point(259, 159);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(226, 38);
+            this.button2.Size = new System.Drawing.Size(286, 38);
             this.button2.TabIndex = 30;
             this.button2.Text = "Редактировать";
             this.button2.UseVisualStyleBackColor = false;
@@ -102,9 +102,9 @@
             this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button3.ForeColor = System.Drawing.Color.White;
-            this.button3.Location = new System.Drawing.Point(243, 209);
+            this.button3.Location = new System.Drawing.Point(259, 203);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(226, 38);
+            this.button3.Size = new System.Drawing.Size(286, 38);
             this.button3.TabIndex = 31;
             this.button3.Text = "Удалить";
             this.button3.UseVisualStyleBackColor = false;
@@ -113,7 +113,7 @@
             // pictureBox2
             // 
             this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(243, 49);
+            this.pictureBox2.Location = new System.Drawing.Point(259, 48);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(41, 20);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -123,7 +123,7 @@
             // pictureBox3
             // 
             this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(243, 86);
+            this.pictureBox3.Location = new System.Drawing.Point(259, 85);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(41, 20);
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -146,7 +146,7 @@
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "DoctorCard";
-            this.Size = new System.Drawing.Size(473, 252);
+            this.Size = new System.Drawing.Size(555, 250);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();

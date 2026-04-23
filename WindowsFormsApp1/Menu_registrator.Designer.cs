@@ -44,9 +44,11 @@ namespace WindowsFormsApp1
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // panel2
@@ -59,7 +61,7 @@ namespace WindowsFormsApp1
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(174, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1029, 610);
+            this.panel2.Size = new System.Drawing.Size(1204, 702);
             this.panel2.TabIndex = 9;
             // 
             // label_role
@@ -77,9 +79,9 @@ namespace WindowsFormsApp1
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.меню;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Location = new System.Drawing.Point(491, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(666, 12);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(526, 586);
+            this.pictureBox1.Size = new System.Drawing.Size(526, 678);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
@@ -105,6 +107,7 @@ namespace WindowsFormsApp1
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
+            this.panel1.Controls.Add(this.pictureBox2);
             this.panel1.Controls.Add(this.button8);
             this.panel1.Controls.Add(this.button7);
             this.panel1.Controls.Add(this.button6);
@@ -116,7 +119,7 @@ namespace WindowsFormsApp1
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(174, 610);
+            this.panel1.Size = new System.Drawing.Size(174, 702);
             this.panel1.TabIndex = 8;
             // 
             // button8
@@ -126,7 +129,7 @@ namespace WindowsFormsApp1
             this.button8.ForeColor = System.Drawing.Color.Red;
             this.button8.Image = ((System.Drawing.Image)(resources.GetObject("button8.Image")));
             this.button8.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button8.Location = new System.Drawing.Point(0, 557);
+            this.button8.Location = new System.Drawing.Point(0, 649);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(174, 53);
             this.button8.TabIndex = 26;
@@ -141,7 +144,7 @@ namespace WindowsFormsApp1
             this.button7.BackColor = System.Drawing.Color.White;
             this.button7.Image = ((System.Drawing.Image)(resources.GetObject("button7.Image")));
             this.button7.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button7.Location = new System.Drawing.Point(0, 63);
+            this.button7.Location = new System.Drawing.Point(0, 109);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(174, 53);
             this.button7.TabIndex = 25;
@@ -155,7 +158,7 @@ namespace WindowsFormsApp1
             this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button6.Image = ((System.Drawing.Image)(resources.GetObject("button6.Image")));
             this.button6.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button6.Location = new System.Drawing.Point(0, 417);
+            this.button6.Location = new System.Drawing.Point(0, 463);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(174, 53);
             this.button6.TabIndex = 24;
@@ -169,7 +172,7 @@ namespace WindowsFormsApp1
             this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button5.Image = ((System.Drawing.Image)(resources.GetObject("button5.Image")));
             this.button5.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button5.Location = new System.Drawing.Point(0, 358);
+            this.button5.Location = new System.Drawing.Point(0, 404);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(174, 53);
             this.button5.TabIndex = 23;
@@ -183,7 +186,7 @@ namespace WindowsFormsApp1
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
             this.button4.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button4.Location = new System.Drawing.Point(0, 299);
+            this.button4.Location = new System.Drawing.Point(0, 345);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(174, 53);
             this.button4.TabIndex = 22;
@@ -197,7 +200,7 @@ namespace WindowsFormsApp1
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.Image = ((System.Drawing.Image)(resources.GetObject("button3.Image")));
             this.button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button3.Location = new System.Drawing.Point(0, 240);
+            this.button3.Location = new System.Drawing.Point(0, 286);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(174, 53);
             this.button3.TabIndex = 21;
@@ -211,7 +214,7 @@ namespace WindowsFormsApp1
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.Image = ((System.Drawing.Image)(resources.GetObject("button2.Image")));
             this.button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button2.Location = new System.Drawing.Point(0, 181);
+            this.button2.Location = new System.Drawing.Point(0, 227);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(174, 53);
             this.button2.TabIndex = 20;
@@ -225,7 +228,7 @@ namespace WindowsFormsApp1
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
             this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button1.Location = new System.Drawing.Point(0, 122);
+            this.button1.Location = new System.Drawing.Point(0, 168);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(174, 53);
             this.button1.TabIndex = 19;
@@ -234,11 +237,21 @@ namespace WindowsFormsApp1
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::WindowsFormsApp1.Properties.Resources.logo;
+            this.pictureBox2.Location = new System.Drawing.Point(3, 12);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(165, 91);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox2.TabIndex = 27;
+            this.pictureBox2.TabStop = false;
+            // 
             // Menu_registrator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1203, 610);
+            this.ClientSize = new System.Drawing.Size(1378, 702);
             this.ControlBox = false;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -254,6 +267,7 @@ namespace WindowsFormsApp1
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -274,5 +288,6 @@ namespace WindowsFormsApp1
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.PictureBox pictureBox2;
     }
 }

@@ -46,9 +46,10 @@ namespace WindowsFormsApp1
             dataGridView2.Columns.Clear();
             dataGridView2.Columns.Add("ServiceName", "Наименование");
             dataGridView2.Columns.Add("Price", "Цена");
-            dataGridView2.Columns.Add("CategoryName", "Категория");
             dataGridView2.Columns.Add("ServiceId", "ServiceId"); // скрытый столбец для id услуги
             dataGridView2.Columns["ServiceId"].Visible = false;
+            dataGridView2.Columns["ServiceName"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridView2.Columns["Price"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             dataGridView2.AllowUserToAddRows = false;
 
             // Добавляем эффект подсветки при наведении на строки
@@ -66,10 +67,8 @@ namespace WindowsFormsApp1
                 MySqlCommand cmd = new MySqlCommand(@"
                     SELECT s.idServices AS ServiceId,
                            s.Name AS ServiceName,
-                           s.Price,
-                           c.Name AS CategoryName
-                    FROM Services s
-                    JOIN Category c ON s.Category = c.idCategory;", con);
+                           s.Price
+                    FROM Services s;", con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(t);
 
@@ -79,7 +78,8 @@ namespace WindowsFormsApp1
                 dataGridView1.Columns["ServiceId"].Visible = false; // скрываем id
                 dataGridView1.Columns["ServiceName"].HeaderText = "Наименование";
                 dataGridView1.Columns["Price"].HeaderText = "Цена";
-                dataGridView1.Columns["CategoryName"].HeaderText = "Категория";
+                dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             }
         }
 
@@ -124,7 +124,6 @@ namespace WindowsFormsApp1
             DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
             string serviceName = selectedRow.Cells["ServiceName"].Value.ToString();
             string price = selectedRow.Cells["Price"].Value.ToString();
-            string category = selectedRow.Cells["CategoryName"].Value.ToString();
             int serviceId = Convert.ToInt32(selectedRow.Cells["ServiceId"].Value);
 
             // Проверка на дубликат
@@ -138,7 +137,7 @@ namespace WindowsFormsApp1
             }
 
             // Добавляем услугу в список выбранных услуг
-            dataGridView2.Rows.Add(serviceName, price, category, serviceId);
+            dataGridView2.Rows.Add(serviceName, price, serviceId);
             UpdateTotal(); // пересчёт суммы
         }
 

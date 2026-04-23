@@ -42,7 +42,7 @@ namespace WindowsFormsApp1
                 // Загружаем услуги вместе с категорией
                 DataTable t = new DataTable();
                 MySqlCommand cmd = new MySqlCommand(
-                    "SELECT s.idServices, s.Name, s.Price, c.Name AS Category " +
+                    "SELECT s.idServices, s.Name, c.Name AS Category, s.Price " +
                     "FROM Services s JOIN Category c ON s.Category = c.idCategory;", con);
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(t);
@@ -52,8 +52,11 @@ namespace WindowsFormsApp1
                 dataGridView1.DataSource = t;
                 dataGridView1.Columns[0].Visible = false; // Скрываем ID
                 dataGridView1.Columns[1].HeaderText = "Наименование";
-                dataGridView1.Columns[2].HeaderText = "Цена";
-                dataGridView1.Columns[3].HeaderText = "Категория";
+                dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.Columns[2].HeaderText = "Категория";
+                dataGridView1.Columns[3].HeaderText = "Цена";
+                dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
 
                 groupBox1.Text = $"Количество записей: {t.Rows.Count}";
 

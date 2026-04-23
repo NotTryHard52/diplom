@@ -39,15 +39,15 @@ namespace WindowsFormsApp1
                 string query = @"
             SELECT 
                 o.idOrder AS 'Номер талона',
-                o.sum AS 'Сумма',
-                o.Discount AS 'Скидка',
-                o.TotalSum AS 'К оплате',
                 CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
                 DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
                 DATE_FORMAT(sc.time, '%H:%i') AS 'Время',
                 CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
                 CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
-                st.name AS 'Статус'
+                st.name AS 'Статус',
+                o.sum AS 'Сумма',
+                o.Discount AS 'Скидка',
+                o.TotalSum AS 'К оплате'
             FROM `Order` o
             JOIN Schedule sc ON o.Schedule = sc.idSchedule
             JOIN Doctors d ON sc.idDoctor = d.idDoctors
@@ -64,7 +64,7 @@ namespace WindowsFormsApp1
                 dataGridView1.DataSource = orderTable;
 
                 // Отображение количества записей
-                label9.Text = $"Количество записей: {orderTable.Rows.Count}";
+                groupBox2.Text = $"Количество записей: {orderTable.Rows.Count}";
             }
 
             // Обновление общей выручки
@@ -165,6 +165,7 @@ namespace WindowsFormsApp1
             dv.Sort = sortExpr;
 
             dataGridView1.DataSource = dv;
+            groupBox2.Text = $"Количество записей: {dv.Count}";
             dataGridView1.Refresh();
         }
 
@@ -198,8 +199,8 @@ namespace WindowsFormsApp1
         // Кнопка сброса фильтров
         private void button5_Click(object sender, EventArgs e)
         {
-            comboBox2.SelectedIndex = 0;
             comboBox1.SelectedIndex = 0;
+            comboBox2.SelectedIndex = 0;
             textBox5.Text = "";
         }
 
@@ -234,6 +235,11 @@ namespace WindowsFormsApp1
             {
                 dataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.White; // прочие
             }
+        }
+
+        private void textBox5_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Numbers(sender, e);
         }
     }
 }
