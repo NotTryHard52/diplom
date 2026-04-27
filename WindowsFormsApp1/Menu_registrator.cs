@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -8,6 +9,8 @@ namespace WindowsFormsApp1
         private int currentUserId; // ID текущего пользователя
         private string currentRole; // роль текущего пользователя
         private Form activeForm = null; // текущая открытая дочерняя форма
+        Color activeColor = Color.FromArgb(91, 122, 196);   // активная
+        Color defaultColor = Color.White; // обычная 
 
         // Конструктор формы Menu_registrator, принимает ФИО, ID пользователя и роль
         public Menu_registrator(string FIO, int userId, string role)
@@ -16,6 +19,22 @@ namespace WindowsFormsApp1
             label_fio.Text = FIO; // отображаем ФИО пользователя
             currentUserId = userId;
             currentRole = role;
+        }
+        private void SetActiveButton(Button activeBtn)
+        {
+            // сбрасываем все кнопки
+            foreach (Control ctrl in panel1.Controls)
+            {
+                if (ctrl is Button btn)
+                {
+                    btn.BackColor = defaultColor;
+                    btn.ForeColor = Color.Black;
+                }
+            }
+
+            // подсвечиваем активную
+            activeBtn.BackColor = activeColor;
+            activeBtn.ForeColor = Color.White;
         }
 
         private void IdleManager_IdleTimeoutReached(object sender, EventArgs e)
@@ -40,80 +59,79 @@ namespace WindowsFormsApp1
         }
 
         // Метод для открытия дочерней формы внутри панели panel2
-        private void OpenChildForm(Form childForm)
+        private void OpenChildForm(Form childForm, Button clickedButton)
         {
-            // Если та же форма уже открыта, выходим
             if (activeForm != null && activeForm.GetType() == childForm.GetType())
-            {
                 return;
-            }
 
-            panel2.Controls.Clear(); // очищаем панель перед открытием новой формы
+            panel2.Controls.Clear();
 
-            // Настройка дочерней формы
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
 
-            panel2.Controls.Add(childForm); // добавляем форму в панель
-            childForm.Show(); // показываем форму
+            panel2.Controls.Add(childForm);
+            childForm.Show();
 
-            activeForm = childForm; // сохраняем текущую открытую форму
+            activeForm = childForm;
+
+            // подсветка кнопки
+            SetActiveButton(clickedButton);
         }
 
         // Загрузка формы Menu_registrator
         private void Menu_registrator_Load(object sender, EventArgs e)
         {
             // При загрузке открываем главное меню
-            OpenChildForm(new Main_menu(label_fio.Text, currentRole));
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7);
         }
 
         // Кнопки для открытия различных дочерних форм
         private void button1_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Services(false));
+            OpenChildForm(new Services(false), button1);
             label_fio.Visible = false; // скрываем ФИО
             label_role.Visible = false; // скрываем роль
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Doctor());
+            OpenChildForm(new Doctor(), button2);
             label_fio.Visible = false;
             label_role.Visible = false;
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Patient());
+            OpenChildForm(new Patient(), button3);
             label_fio.Visible = false;
             label_role.Visible = false;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Schedule());
+            OpenChildForm(new Schedule(), button4);
             label_fio.Visible = false;
             label_role.Visible = false;
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Talon(label_fio.Text, currentUserId));
+            OpenChildForm(new Talon(label_fio.Text, currentUserId), button5);
             label_fio.Visible = false;
             label_role.Visible = false;
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new UchetTalona());
+            OpenChildForm(new UchetTalona(), button6);
             label_fio.Visible = false;
             label_role.Visible = false;
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Main_menu(label_fio.Text, currentRole));
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7);
         }
 
         // Кнопка выхода с подтверждением

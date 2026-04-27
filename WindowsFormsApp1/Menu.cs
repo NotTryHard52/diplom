@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -8,6 +9,8 @@ namespace WindowsFormsApp1
         private int currentUserId; // ID текущего пользователя
         private string currentRole; // роль текущего пользователя
         private Form activeForm = null; // ссылка на текущую открытую дочернюю форму
+        Color activeColor = Color.FromArgb(91, 122, 196);   // активная
+        Color defaultColor = Color.White; // обычная 
 
         // Конструктор формы Menu, принимает ФИО пользователя, его ID и роль
         public Menu(string FIO, int userId, string role)
@@ -18,38 +21,54 @@ namespace WindowsFormsApp1
             currentRole = role;
         }
 
-        // Метод для открытия дочерней формы внутри панели panel2
-        private void OpenChildForm(Form childForm)
+        private void SetActiveButton(Button activeBtn)
         {
-            // Проверяем, открыта ли уже эта форма; если да, выходим
-            if (activeForm != null && activeForm.GetType() == childForm.GetType())
+            // сбрасываем все кнопки
+            foreach (Control ctrl in panel1.Controls)
             {
-                return;
+                if (ctrl is Button btn)
+                {
+                    btn.BackColor = defaultColor;
+                    btn.ForeColor = Color.Black;
+                }
             }
 
-            panel2.Controls.Clear(); // очищаем панель перед открытием новой формы
+            // подсвечиваем активную
+            activeBtn.BackColor = activeColor;
+            activeBtn.ForeColor = Color.White;
+        }
 
-            // Настройка дочерней формы для интеграции в панель
+        // Метод для открытия дочерней формы внутри панели panel2
+        private void OpenChildForm(Form childForm, Button clickedButton)
+        {
+            if (activeForm != null && activeForm.GetType() == childForm.GetType())
+                return;
+
+            panel2.Controls.Clear();
+
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
 
-            panel2.Controls.Add(childForm); // добавляем форму в панель
-            childForm.Show(); // отображаем форму
+            panel2.Controls.Add(childForm);
+            childForm.Show();
 
-            activeForm = childForm; // сохраняем текущую открытую форму
+            activeForm = childForm;
+
+            // подсветка кнопки
+            SetActiveButton(clickedButton);
         }
 
         // Кнопка для открытия главного меню
         private void button7_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Main_menu(label_fio.Text, currentRole));
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7);
         }
 
         // Кнопка для открытия формы пользователя
         private void button2_Click_1(object sender, EventArgs e)
         {
-            OpenChildForm(new User(currentUserId));
+            OpenChildForm(new User(currentUserId), button2);
         }
 
         // Кнопка выхода с подтверждением
@@ -80,10 +99,15 @@ namespace WindowsFormsApp1
             // Подписка на событие выбора дочерней формы из справочников
             directoryForm.DictionarySelected += (childForm) =>
             {
-                OpenChildForm(childForm);
+                OpenChildForm(childForm, button1);
             };
 
-            OpenChildForm(directoryForm); // открываем форму справочников
+            OpenChildForm(directoryForm, button1); // открываем форму справочников
+        }
+
+        private void Menu_Load(object sender, EventArgs e)
+        {
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7); // При старте открываем главное меню
         }
     }
 }
