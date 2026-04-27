@@ -43,7 +43,7 @@ namespace WindowsFormsApp1
         // Кнопка 6 открывает форму учета талона
         private void button6_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new UchetTalona_GL());
+            OpenChildForm(new UchetTalona(true));
         }
 
         // Кнопка 7 открывает главное меню

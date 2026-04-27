@@ -13,10 +13,59 @@ namespace WindowsFormsApp1
 
         // Таблица для хранения данных о талонах
         DataTable orderTable;
+        int currentPage = 1;
+        int pageSize = 10;
+        int totalRecords = 0;
+        int totalPages = 1;
+        bool isGlav = false;
 
-        public UchetTalona()
+        public UchetTalona(bool isGlav = false)
         {
             InitializeComponent();
+            this.isGlav = isGlav;
+        }
+
+        private int GetTotalCount(string filterSql)
+        {
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+
+                string query = "SELECT COUNT(*) FROM `Order` o " +
+                               "JOIN StatusesPriem st ON o.Status = st.idStatusesPriem " +
+                               filterSql;
+
+                MySqlCommand cmd = new MySqlCommand(query, con);
+                return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+        }
+
+        private string BuildFilterSql()
+        {
+            string where = "WHERE 1=1";
+
+            string status = comboBox1.SelectedItem?.ToString();
+            if (!string.IsNullOrEmpty(status) && status != "Все")
+            {
+                where += $" AND st.name = '{status.Replace("'", "''")}'";
+            }
+
+            string search = textBox5.Text.Trim();
+            if (!string.IsNullOrEmpty(search))
+            {
+                where += $" AND o.idOrder LIKE '%{search}%'";
+            }
+
+            return where;
+        }
+        private string GetSortSql()
+        {
+            if (comboBox2.SelectedIndex == 1)
+                return "ORDER BY sc.date ASC";
+            else if (comboBox2.SelectedIndex == 2)
+                return "ORDER BY sc.date DESC";
+
+            return "ORDER BY o.idOrder DESC";
         }
 
         // Событие загрузки формы
@@ -26,6 +75,39 @@ namespace WindowsFormsApp1
             comboBox1.SelectedIndex = 0; // По умолчанию "Все"
             comboBox2.SelectedIndex = 0; // По умолчанию без сортировки
             ReloadOrderTable();    // Загрузка данных из базы
+            if(!isGlav)
+            {
+                label2.Visible = false;
+                button6.Visible = false;
+            }
+        }
+
+        // Подсчёт общей выручки (не учитываются отменённые и созданные талоны)
+        private void UpdateRevenueSum()
+        {
+            if (dataGridView1.DataSource == null) return;
+
+            decimal total = 0;
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.Cells["Сумма"].Value == null || row.Cells["Сумма"].Value == DBNull.Value)
+                    continue;
+
+                string status = row.Cells["Статус"].Value?.ToString()?.ToLower();
+
+                // Пропускаем отменённые и только созданные талоны
+                if (status != null && (status.Contains("отмен") || status.Contains("создан")))
+                    continue;
+
+                decimal value;
+                if (decimal.TryParse(row.Cells["Сумма"].Value.ToString(), out value))
+                {
+                    total += value;
+                }
+            }
+
+            label2.Text = $"Общая выручка: {total:N2} руб.";
         }
 
         // Заполнение comboBox1 статусами из базы
@@ -60,42 +142,9 @@ namespace WindowsFormsApp1
         // Применение фильтров и сортировки к DataGridView
         private void ApplyFilterAndSort()
         {
-            if (orderTable == null) return;
-
-            string filterExpr = "";
-
-            // Фильтр по выбранному статусу
-            string selectedSpecialty = comboBox1.SelectedItem?.ToString();
-            if (!string.IsNullOrEmpty(selectedSpecialty) && selectedSpecialty != "Все")
-            {
-                filterExpr = $"Статус = '{selectedSpecialty.Replace("'", "''")}'";
-            }
-
-            // Фильтр по номеру талона (поиск)
-            string searchText = textBox5.Text.Trim().Replace("'", "''");
-            if (!string.IsNullOrEmpty(searchText))
-            {
-                if (!string.IsNullOrEmpty(filterExpr))
-                {
-                    filterExpr += " AND ";
-                }
-                filterExpr += $"Convert([Номер талона], 'System.String') LIKE '%{searchText}%'";
-            }
-
-            // Сортировка по дате
-            string sortExpr = "";
-            if (comboBox2.SelectedIndex == 1)
-                sortExpr = "Дата ASC";
-            else if (comboBox2.SelectedIndex == 2)
-                sortExpr = "Дата DESC";
-
-            DataView dv = orderTable.DefaultView;
-            dv.RowFilter = filterExpr; // применяем фильтр
-            dv.Sort = sortExpr;        // применяем сортировку
-
-            dataGridView1.DataSource = dv;
-            groupBox2.Text = $"Количество записей: {dv.Count}";
-            dataGridView1.Refresh();
+            // Переключаем на серверную фильтрацию/сортировку и сбрасываем на первую страницу
+            currentPage = 1;
+            ReloadOrderTable();
         }
 
         // Событие изменения выбора сортировки
@@ -116,9 +165,16 @@ namespace WindowsFormsApp1
             if (dataGridView1.SelectedRows.Count > 0)
             {
                 int orderId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["Номер талона"].Value);
-                ViewPriem v = new ViewPriem(orderId, false);
-                var result = v.ShowDialog(); // открываем форму просмотра талона
-
+                if (!isGlav)
+                {
+                    ViewPriem v = new ViewPriem(orderId, false);
+                    var result = v.ShowDialog(); // открываем форму просмотра талона
+                }
+                else
+                {
+                    ViewPriem v = new ViewPriem(orderId, true);
+                    var result = v.ShowDialog(); // открываем форму просмотра талона
+                }
                 ReloadOrderTable(); // обновляем таблицу после просмотра
             }
             else
@@ -133,38 +189,86 @@ namespace WindowsFormsApp1
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
 
+            string filterSql = BuildFilterSql();
+            string sortSql = GetSortSql();
+
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
-                orderTable = new DataTable();
-                string query = @"
-            SELECT 
-                o.idOrder AS 'Номер талона',
-                CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
-                DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
-                DATE_FORMAT(sc.time, '%H:%i') AS 'Время',
-                CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
-                CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
-                st.name AS 'Статус',
-                o.sum AS 'Сумма',
-                o.Discount AS 'Скидка',
-                o.TotalSum AS 'К оплате'
-            FROM `Order` o
-            JOIN Schedule sc ON o.Schedule = sc.idSchedule
-            JOIN Doctors d ON sc.idDoctor = d.idDoctors
-            JOIN `Users` r ON o.User = r.idUsers
-            JOIN Patients p ON o.Patients_idPatients = p.idPatients
-            JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
-        ";
+
+                // считаем записи
+                totalRecords = GetTotalCount(filterSql);
+                totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+                // защита от выхода за границы
+                if (currentPage > totalPages)
+                    currentPage = totalPages == 0 ? 1 : totalPages;
+
+                int offset = (currentPage - 1) * pageSize;
+
+                string query = $@"
+                    SELECT 
+                        o.idOrder AS 'Номер талона',
+                        CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
+                        DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
+                        DATE_FORMAT(sc.time, '%H:%i') AS 'Время',
+                        CONCAT(r.surname, ' ', r.name, ' ', r.lastname) AS 'Регистратор',
+                        CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS 'Пациент',
+                        st.name AS 'Статус',
+                        o.sum AS 'Сумма',
+                        o.Discount AS 'Скидка',
+                        o.TotalSum AS 'К оплате'
+                    FROM `Order` o
+                    JOIN Schedule sc ON o.Schedule = sc.idSchedule
+                    JOIN Doctors d ON sc.idDoctor = d.idDoctors
+                    JOIN `Users` r ON o.User = r.idUsers
+                    JOIN Patients p ON o.Patients_idPatients = p.idPatients
+                    JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
+                    {filterSql}
+                    {sortSql}
+                    LIMIT @offset, @pageSize;
+                ";
 
                 MySqlCommand cmd = new MySqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@offset", offset);
+                cmd.Parameters.AddWithValue("@pageSize", pageSize);
+
+                DataTable table = new DataTable();
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                da.Fill(orderTable);
+                da.Fill(table);
 
-                dataGridView1.DataSource = orderTable; // привязываем данные к таблице
+                orderTable = table;
 
-                ApplyFilterAndSort(); // применяем фильтр и сортировку
-                groupBox2.Text = $"Количество записей: {orderTable.Rows.Count}"; // показываем количество записей
+                dataGridView1.DataSource = table;
+                dataGridView1.Columns["Сумма"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dataGridView1.Columns["К оплате"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dataGridView1.Columns["Скидка"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dataGridView1.Columns["Время"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                dataGridView1.Columns["Статус"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                dataGridView1.Columns["Врач"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.Columns["Пациент"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.Columns["Регистратор"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.Columns["Номер талона"].Width = 75;
+                dataGridView1.Columns["Сумма"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Скидка"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["К оплате"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Дата"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Время"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Статус"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+
+                int start = (currentPage - 1) * pageSize + 1;
+                int end = Math.Min(currentPage * pageSize, totalRecords);
+
+                if (totalRecords == 0)
+                {
+                    start = 0;
+                    end = 0;
+                }
+
+                groupBox2.Text = $"Количество записей: {start}-{end} из {totalRecords}";
+                label1.Text = $"Страница {currentPage} из {totalPages}";
+                textBox1.Clear();
+                UpdateRevenueSum();
             }
         }
 
@@ -205,6 +309,48 @@ namespace WindowsFormsApp1
         private void textBox5_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.Numbers(sender, e);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (currentPage < totalPages)
+            {
+                currentPage++;
+                ReloadOrderTable();
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (currentPage > 1)
+            {
+                currentPage--;
+                ReloadOrderTable();
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            int page;
+            if (int.TryParse(textBox1.Text, out page))
+            {
+                if (page >= 1 && page <= totalPages)
+                {
+                    currentPage = page;
+                    ReloadOrderTable();
+                }
+            }
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.Numbers(sender, e);
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            OtchetExcel v = new OtchetExcel();
+            v.ShowDialog();
         }
     }
 }
