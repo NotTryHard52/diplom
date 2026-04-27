@@ -114,31 +114,7 @@ namespace WindowsFormsApp1
         // Добавление услуги в талон
         private void button1_Click(object sender, EventArgs e)
         {
-            // Проверка, выбрана ли услуга
-            if (dataGridView1.SelectedRows.Count == 0)
-            {
-                MessageBox.Show("Выберите услугу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
-            string serviceName = selectedRow.Cells["ServiceName"].Value.ToString();
-            string price = selectedRow.Cells["Price"].Value.ToString();
-            int serviceId = Convert.ToInt32(selectedRow.Cells["ServiceId"].Value);
-
-            // Проверка на дубликат
-            foreach (DataGridViewRow row in dataGridView2.Rows)
-            {
-                if (Convert.ToInt32(row.Cells["ServiceId"].Value) == serviceId)
-                {
-                    MessageBox.Show("Эта услуга уже добавлена в талон!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-            }
-
-            // Добавляем услугу в список выбранных услуг
-            dataGridView2.Rows.Add(serviceName, price, serviceId);
-            UpdateTotal(); // пересчёт суммы
+            AddSelectedService();
         }
 
         // Подсчёт суммы и скидки
@@ -407,6 +383,46 @@ namespace WindowsFormsApp1
 
                 UpdateTotal(); // пересчёт суммы
             }
+        }
+
+        private void dataGridView1_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            AddSelectedService();
+        }
+
+        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            AddSelectedService();
+        }
+
+        // Общая логика добавления выбранной услуги в талон
+        private void AddSelectedService()
+        {
+            // Проверка, выбрана ли услуга
+            if (dataGridView1.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Выберите услугу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DataGridViewRow selectedRow = dataGridView1.SelectedRows[0];
+            string serviceName = selectedRow.Cells["ServiceName"].Value.ToString();
+            string price = selectedRow.Cells["Price"].Value.ToString();
+            int serviceId = Convert.ToInt32(selectedRow.Cells["ServiceId"].Value);
+
+            // Проверка на дубликат
+            foreach (DataGridViewRow row in dataGridView2.Rows)
+            {
+                if (Convert.ToInt32(row.Cells["ServiceId"].Value) == serviceId)
+                {
+                    MessageBox.Show("Эта услуга уже добавлена в талон!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
+            // Добавляем услугу в список выбранных услуг
+            dataGridView2.Rows.Add(serviceName, price, serviceId);
+            UpdateTotal(); // пересчёт суммы
         }
     }
 }

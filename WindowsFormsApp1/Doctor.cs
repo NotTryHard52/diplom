@@ -28,8 +28,6 @@ namespace WindowsFormsApp1
             LoadDoctor();                      // Загрузка списка врачей
             var hoverEffect = new HoverDataGridView(dataGridView1); // Наведение на строки (эффект подсветки)
             dataGridView1.Visible = false;
-            button3.Visible = false;
-            button2.Visible = false;
 
         }
 
