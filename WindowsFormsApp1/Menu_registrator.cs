@@ -94,23 +94,9 @@ namespace WindowsFormsApp1
             label_role.Visible = false; // скрываем роль
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            OpenChildForm(new Doctor(), button2);
-            label_fio.Visible = false;
-            label_role.Visible = false;
-        }
-
         private void button3_Click(object sender, EventArgs e)
         {
             OpenChildForm(new Patient(), button3);
-            label_fio.Visible = false;
-            label_role.Visible = false;
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            OpenChildForm(new Schedule(), button4);
             label_fio.Visible = false;
             label_role.Visible = false;
         }

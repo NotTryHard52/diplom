@@ -109,5 +109,19 @@ namespace WindowsFormsApp1
         {
             OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7); // При старте открываем главное меню
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            OpenChildForm(new Doctor(), button3);
+            label_fio.Visible = false;
+            label_role.Visible = false;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            OpenChildForm(new Schedule(), button4);
+            label_fio.Visible = false;
+            label_role.Visible = false;
+        }
     }
 }

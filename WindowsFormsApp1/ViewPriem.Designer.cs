@@ -55,8 +55,9 @@ namespace WindowsFormsApp1
             // 
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(91)))), ((int)(((byte)(122)))), ((int)(((byte)(196)))));
@@ -125,6 +126,7 @@ namespace WindowsFormsApp1
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(575, 15);
             this.label1.Name = "label1";
@@ -134,6 +136,7 @@ namespace WindowsFormsApp1
             // 
             // comboBox1
             // 
+            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.Enabled = false;
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(579, 38);
@@ -171,7 +174,7 @@ namespace WindowsFormsApp1
             // 
             // button3
             // 
-            this.button3.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button3.ForeColor = System.Drawing.Color.White;
@@ -185,6 +188,7 @@ namespace WindowsFormsApp1
             // 
             // button4
             // 
+            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button4.ForeColor = System.Drawing.Color.White;
@@ -198,6 +202,7 @@ namespace WindowsFormsApp1
             // 
             // button5
             // 
+            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button5.ForeColor = System.Drawing.Color.White;
@@ -211,6 +216,7 @@ namespace WindowsFormsApp1
             // 
             // label_total
             // 
+            this.label_total.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_total.AutoSize = true;
             this.label_total.Location = new System.Drawing.Point(745, 194);
             this.label_total.Name = "label_total";
@@ -220,7 +226,7 @@ namespace WindowsFormsApp1
             // 
             // label10
             // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(746, 234);
             this.label10.Name = "label10";
@@ -230,7 +236,7 @@ namespace WindowsFormsApp1
             // 
             // label5
             // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(746, 214);
             this.label5.Name = "label5";
@@ -240,6 +246,7 @@ namespace WindowsFormsApp1
             // 
             // button6
             // 
+            this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button6.ForeColor = System.Drawing.Color.White;
@@ -278,6 +285,7 @@ namespace WindowsFormsApp1
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(976, 610);
             this.Name = "ViewPriem";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Просмотр приема";

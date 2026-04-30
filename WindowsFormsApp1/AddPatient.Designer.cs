@@ -47,6 +47,8 @@ namespace WindowsFormsApp1
             // 
             // button6
             // 
+            this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button6.ForeColor = System.Drawing.Color.White;
@@ -60,6 +62,8 @@ namespace WindowsFormsApp1
             // 
             // label4
             // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(8, 171);
             this.label4.Name = "label4";
@@ -69,6 +73,9 @@ namespace WindowsFormsApp1
             // 
             // textBox3
             // 
+            this.textBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox3.Location = new System.Drawing.Point(12, 142);
             this.textBox3.MaxLength = 40;
             this.textBox3.Name = "textBox3";
@@ -78,6 +85,8 @@ namespace WindowsFormsApp1
             // 
             // label3
             // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(8, 118);
             this.label3.Name = "label3";
@@ -87,6 +96,9 @@ namespace WindowsFormsApp1
             // 
             // textBox2
             // 
+            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox2.Location = new System.Drawing.Point(12, 89);
             this.textBox2.MaxLength = 40;
             this.textBox2.Name = "textBox2";
@@ -96,6 +108,8 @@ namespace WindowsFormsApp1
             // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(8, 66);
             this.label2.Name = "label2";
@@ -105,6 +119,9 @@ namespace WindowsFormsApp1
             // 
             // textBox1
             // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.Location = new System.Drawing.Point(12, 36);
             this.textBox1.MaxLength = 40;
             this.textBox1.Name = "textBox1";
@@ -114,6 +131,8 @@ namespace WindowsFormsApp1
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(8, 13);
             this.label1.Name = "label1";
@@ -123,6 +142,9 @@ namespace WindowsFormsApp1
             // 
             // maskedTextBox2
             // 
+            this.maskedTextBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.maskedTextBox2.Location = new System.Drawing.Point(12, 246);
             this.maskedTextBox2.Mask = "+7 999 999 99 99";
             this.maskedTextBox2.Name = "maskedTextBox2";
@@ -131,6 +153,8 @@ namespace WindowsFormsApp1
             // 
             // label6
             // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(8, 223);
             this.label6.Name = "label6";
@@ -140,6 +164,9 @@ namespace WindowsFormsApp1
             // 
             // dateTimePicker1
             // 
+            this.dateTimePicker1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dateTimePicker1.Location = new System.Drawing.Point(12, 194);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(266, 26);
@@ -147,6 +174,8 @@ namespace WindowsFormsApp1
             // 
             // label5
             // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(8, 275);
             this.label5.Name = "label5";
@@ -156,6 +185,9 @@ namespace WindowsFormsApp1
             // 
             // maskedTextBox1
             // 
+            this.maskedTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.maskedTextBox1.Location = new System.Drawing.Point(12, 298);
             this.maskedTextBox1.Mask = "0000000000000000";
             this.maskedTextBox1.Name = "maskedTextBox1";
@@ -181,11 +213,11 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(306, 475);
             this.Name = "AddPatient";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Добавление пациента";

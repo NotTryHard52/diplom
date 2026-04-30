@@ -50,6 +50,8 @@ namespace WindowsFormsApp1
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(8, 141);
             this.label1.Name = "label1";
@@ -59,6 +61,9 @@ namespace WindowsFormsApp1
             // 
             // textBox1
             // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.Location = new System.Drawing.Point(12, 164);
             this.textBox1.MaxLength = 40;
             this.textBox1.Name = "textBox1";
@@ -68,6 +73,9 @@ namespace WindowsFormsApp1
             // 
             // textBox2
             // 
+            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox2.Location = new System.Drawing.Point(12, 216);
             this.textBox2.MaxLength = 40;
             this.textBox2.Name = "textBox2";
@@ -78,6 +86,8 @@ namespace WindowsFormsApp1
             // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(8, 193);
             this.label2.Name = "label2";
@@ -87,6 +97,8 @@ namespace WindowsFormsApp1
             // 
             // button1
             // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.ForeColor = System.Drawing.Color.White;
@@ -100,7 +112,8 @@ namespace WindowsFormsApp1
             // 
             // button2
             // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.ForeColor = System.Drawing.Color.White;
@@ -114,6 +127,8 @@ namespace WindowsFormsApp1
             // 
             // checkBox1
             // 
+            this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox1.AutoSize = true;
             this.checkBox1.Location = new System.Drawing.Point(12, 248);
             this.checkBox1.Name = "checkBox1";
@@ -125,6 +140,7 @@ namespace WindowsFormsApp1
             // 
             // pictureBox2
             // 
+            this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox2.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.icons8_настройки_24;
             this.pictureBox2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.pictureBox2.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -138,6 +154,8 @@ namespace WindowsFormsApp1
             // 
             // pictureBox1
             // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.logo;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -151,15 +169,20 @@ namespace WindowsFormsApp1
             // 
             // pictureBox3
             // 
-            this.pictureBox3.Location = new System.Drawing.Point(311, 78);
+            this.pictureBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox3.Location = new System.Drawing.Point(12, 278);
             this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(262, 57);
+            this.pictureBox3.Size = new System.Drawing.Size(262, 87);
             this.pictureBox3.TabIndex = 10;
             this.pictureBox3.TabStop = false;
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(311, 197);
+            this.textBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox3.Location = new System.Drawing.Point(12, 409);
             this.textBox3.MaxLength = 5;
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(262, 26);
@@ -168,10 +191,12 @@ namespace WindowsFormsApp1
             // 
             // button3
             // 
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button3.ForeColor = System.Drawing.Color.White;
-            this.button3.Location = new System.Drawing.Point(311, 141);
+            this.button3.Location = new System.Drawing.Point(12, 353);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(262, 30);
             this.button3.TabIndex = 13;
@@ -181,8 +206,10 @@ namespace WindowsFormsApp1
             // 
             // label3
             // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(307, 174);
+            this.label3.Location = new System.Drawing.Point(8, 386);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(151, 20);
             this.label3.TabIndex = 15;
@@ -209,9 +236,9 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.MinimumSize = new System.Drawing.Size(302, 447);
             this.Name = "Login";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Авторизация";

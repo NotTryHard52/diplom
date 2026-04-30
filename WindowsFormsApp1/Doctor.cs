@@ -13,9 +13,25 @@ namespace WindowsFormsApp1
         DataTable doctorsTable;                // Таблица для хранения данных врачей
         int selectedId = -1;                   // ID выбранного врача (-1 = не выбран)
 
+
         public Doctor()
         {
             InitializeComponent();             // Инициализация компонентов формы
+            this.Resize += Doctor_Resize;
+        }
+
+        private void Doctor_Resize(object sender, EventArgs e)
+        {
+            UpdateCardLayout();
+        }
+
+        private void UpdateCardLayout()
+        {
+            foreach (Control ctrl in flowLayoutPanel1.Controls)
+            {
+                ctrl.Width = 548;
+                ctrl.Height = 250;
+            }
         }
 
         private void Doctor_Load(object sender, EventArgs e)
@@ -97,6 +113,7 @@ namespace WindowsFormsApp1
             }
 
             groupBox2.Text = $"Количество записей: {table.Rows.Count}";
+            UpdateCardLayout();
         }
 
         private void LoadDoctorPhotos(DataTable table)

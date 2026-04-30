@@ -23,6 +23,19 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
             this.isGlav = isGlav;
+            dataGridView1.SizeChanged += (s, e) => ReloadOrderTable();
+        }
+
+        private int CalculatePageSize()
+        {
+            int rowHeight = dataGridView1.RowTemplate.Height;
+            int headerHeight = dataGridView1.ColumnHeadersHeight;
+
+            int availableHeight = dataGridView1.DisplayRectangle.Height;
+
+            int rows = availableHeight / rowHeight;
+
+            return Math.Max(1, rows - 1);
         }
 
         private int GetTotalCount(string filterSql)
@@ -74,40 +87,47 @@ namespace WindowsFormsApp1
             FillStatus();          // Заполнение comboBox статусами
             comboBox1.SelectedIndex = 0; // По умолчанию "Все"
             comboBox2.SelectedIndex = 0; // По умолчанию без сортировки
-            ReloadOrderTable();    // Загрузка данных из базы
-            if(!isGlav)
+            this.Shown += (s, ev) => ReloadOrderTable();
+            if (!isGlav)
             {
                 label2.Visible = false;
                 button6.Visible = false;
             }
+            dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dataGridView1.RowTemplate.Height = 40;
         }
 
         // Подсчёт общей выручки (не учитываются отменённые и созданные талоны)
         private void UpdateRevenueSum()
         {
-            if (dataGridView1.DataSource == null) return;
+            Connect connect = new Connect();
+            connectionString = connect.ConnectDB();
 
-            decimal total = 0;
+            string filterSql = BuildFilterSql();
 
-            foreach (DataGridViewRow row in dataGridView1.Rows)
+            using (MySqlConnection con = new MySqlConnection(connectionString))
             {
-                if (row.Cells["Сумма"].Value == null || row.Cells["Сумма"].Value == DBNull.Value)
-                    continue;
+                con.Open();
 
-                string status = row.Cells["Статус"].Value?.ToString()?.ToLower();
+                string query = $@"
+                                SELECT 
+                                    IFNULL(SUM(o.TotalSum), 0)
+                                FROM `Order` o
+                                JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
+                                {filterSql};
+                            ";
 
-                // Пропускаем отменённые и только созданные талоны
-                if (status != null && (status.Contains("отмен") || status.Contains("создан")))
-                    continue;
+                MySqlCommand cmd = new MySqlCommand(query, con);
 
-                decimal value;
-                if (decimal.TryParse(row.Cells["Сумма"].Value.ToString(), out value))
-                {
-                    total += value;
-                }
+                object result = cmd.ExecuteScalar();
+
+                decimal total = 0;
+
+                if (result != null && result != DBNull.Value)
+                    total = Convert.ToDecimal(result);
+
+                label2.Text = $"Общая выручка: {total:N2} руб.";
             }
-
-            label2.Text = $"Общая выручка: {total:N2} руб.";
         }
 
         // Заполнение comboBox1 статусами из базы
@@ -164,7 +184,7 @@ namespace WindowsFormsApp1
         {
             if (dataGridView1.SelectedRows.Count > 0)
             {
-                int orderId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["Номер талона"].Value);
+                int orderId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["Номер"].Value);
                 if (!isGlav)
                 {
                     ViewPriem v = new ViewPriem(orderId, false);
@@ -186,6 +206,7 @@ namespace WindowsFormsApp1
         // Загрузка данных о талонах из базы
         private void ReloadOrderTable()
         {
+            pageSize = CalculatePageSize();
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
 
@@ -208,7 +229,7 @@ namespace WindowsFormsApp1
 
                 string query = $@"
                     SELECT 
-                        o.idOrder AS 'Номер талона',
+                        o.idOrder AS 'Номер',
                         CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
                         DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
                         DATE_FORMAT(sc.time, '%H:%i') AS 'Время',
@@ -217,7 +238,7 @@ namespace WindowsFormsApp1
                         st.name AS 'Статус',
                         o.sum AS 'Сумма',
                         o.Discount AS 'Скидка',
-                        o.TotalSum AS 'К оплате'
+                        o.TotalSum AS 'Итого'
                     FROM `Order` o
                     JOIN Schedule sc ON o.Schedule = sc.idSchedule
                     JOIN Doctors d ON sc.idDoctor = d.idDoctors
@@ -241,17 +262,17 @@ namespace WindowsFormsApp1
 
                 dataGridView1.DataSource = table;
                 dataGridView1.Columns["Сумма"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                dataGridView1.Columns["К оплате"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dataGridView1.Columns["Итого"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 dataGridView1.Columns["Скидка"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 dataGridView1.Columns["Время"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 dataGridView1.Columns["Статус"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 dataGridView1.Columns["Врач"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 dataGridView1.Columns["Пациент"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 dataGridView1.Columns["Регистратор"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dataGridView1.Columns["Номер талона"].Width = 75;
+                dataGridView1.Columns["Номер"].Width = 75;
                 dataGridView1.Columns["Сумма"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
                 dataGridView1.Columns["Скидка"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dataGridView1.Columns["К оплате"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Итого"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
                 dataGridView1.Columns["Дата"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
                 dataGridView1.Columns["Время"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
                 dataGridView1.Columns["Статус"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;

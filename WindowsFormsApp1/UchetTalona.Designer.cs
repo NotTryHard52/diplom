@@ -29,7 +29,7 @@ namespace WindowsFormsApp1
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UchetTalona));
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -69,7 +69,7 @@ namespace WindowsFormsApp1
             "Без сортировки",
             "По возрастанию (↑)",
             "По убыванию (↓)"});
-            this.comboBox2.Location = new System.Drawing.Point(349, 23);
+            this.comboBox2.Location = new System.Drawing.Point(476, 23);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(262, 28);
             this.comboBox2.TabIndex = 42;
@@ -94,7 +94,7 @@ namespace WindowsFormsApp1
             this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(617, 23);
+            this.comboBox1.Location = new System.Drawing.Point(744, 23);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(262, 28);
             this.comboBox1.TabIndex = 36;
@@ -102,9 +102,11 @@ namespace WindowsFormsApp1
             // 
             // textBox5
             // 
+            this.textBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox5.Location = new System.Drawing.Point(6, 25);
             this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(329, 26);
+            this.textBox5.Size = new System.Drawing.Size(464, 26);
             this.textBox5.TabIndex = 35;
             this.textBox5.TextChanged += new System.EventHandler(this.textBox5_TextChanged);
             this.textBox5.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox5_KeyPress);
@@ -120,14 +122,14 @@ namespace WindowsFormsApp1
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(91)))), ((int)(((byte)(122)))), ((int)(((byte)(196)))));
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle5;
             this.dataGridView1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.dataGridView1.Location = new System.Drawing.Point(6, 25);
             this.dataGridView1.MultiSelect = false;
@@ -141,7 +143,7 @@ namespace WindowsFormsApp1
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackColor = System.Drawing.Color.LightYellow;
             this.pictureBox1.Location = new System.Drawing.Point(797, 565);
             this.pictureBox1.Name = "pictureBox1";
@@ -151,7 +153,7 @@ namespace WindowsFormsApp1
             // 
             // label3
             // 
-            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(843, 565);
             this.label3.Name = "label3";
@@ -161,7 +163,7 @@ namespace WindowsFormsApp1
             // 
             // label4
             // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(961, 565);
             this.label4.Name = "label4";
@@ -171,7 +173,7 @@ namespace WindowsFormsApp1
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox2.BackColor = System.Drawing.Color.LightCoral;
             this.pictureBox2.Location = new System.Drawing.Point(915, 565);
             this.pictureBox2.Name = "pictureBox2";
@@ -181,7 +183,7 @@ namespace WindowsFormsApp1
             // 
             // label5
             // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(1090, 565);
             this.label5.Name = "label5";
@@ -191,7 +193,7 @@ namespace WindowsFormsApp1
             // 
             // pictureBox3
             // 
-            this.pictureBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.pictureBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox3.BackColor = System.Drawing.Color.LightGreen;
             this.pictureBox3.Location = new System.Drawing.Point(1044, 565);
             this.pictureBox3.Name = "pictureBox3";
@@ -201,12 +203,14 @@ namespace WindowsFormsApp1
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.textBox5);
             this.groupBox1.Controls.Add(this.comboBox1);
             this.groupBox1.Controls.Add(this.comboBox2);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(905, 61);
+            this.groupBox1.Size = new System.Drawing.Size(1012, 61);
             this.groupBox1.TabIndex = 58;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Поиск";
@@ -256,10 +260,10 @@ namespace WindowsFormsApp1
             // textBox1
             // 
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox1.Location = new System.Drawing.Point(304, 622);
+            this.textBox1.Location = new System.Drawing.Point(257, 622);
             this.textBox1.MaxLength = 3;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(87, 26);
+            this.textBox1.Size = new System.Drawing.Size(43, 26);
             this.textBox1.TabIndex = 43;
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
@@ -269,7 +273,7 @@ namespace WindowsFormsApp1
             this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button4.ForeColor = System.Drawing.Color.White;
-            this.button4.Location = new System.Drawing.Point(397, 620);
+            this.button4.Location = new System.Drawing.Point(306, 620);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(150, 30);
             this.button4.TabIndex = 70;
@@ -297,13 +301,13 @@ namespace WindowsFormsApp1
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.Location = new System.Drawing.Point(116, 622);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(182, 26);
+            this.label1.Size = new System.Drawing.Size(135, 26);
             this.label1.TabIndex = 72;
             this.label1.Text = "label1";
             // 
             // label2
             // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.Location = new System.Drawing.Point(793, 598);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(312, 20);

@@ -84,13 +84,14 @@
             // 
             // button2
             // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.ForeColor = System.Drawing.Color.White;
             this.button2.Location = new System.Drawing.Point(259, 159);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(286, 38);
+            this.button2.Size = new System.Drawing.Size(280, 38);
             this.button2.TabIndex = 30;
             this.button2.Text = "Редактировать";
             this.button2.UseVisualStyleBackColor = false;
@@ -98,13 +99,14 @@
             // 
             // button3
             // 
-            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button3.ForeColor = System.Drawing.Color.White;
             this.button3.Location = new System.Drawing.Point(259, 203);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(286, 38);
+            this.button3.Size = new System.Drawing.Size(280, 38);
             this.button3.TabIndex = 31;
             this.button3.Text = "Удалить";
             this.button3.UseVisualStyleBackColor = false;
@@ -135,18 +137,18 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.dspec);
+            this.Controls.Add(this.phonenumber);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.dspec);
-            this.Controls.Add(this.phonenumber);
             this.Controls.Add(this.dfio);
             this.Controls.Add(this.pictureBox1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "DoctorCard";
-            this.Size = new System.Drawing.Size(555, 250);
+            this.Size = new System.Drawing.Size(548, 250);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();

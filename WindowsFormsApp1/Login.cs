@@ -108,14 +108,22 @@ namespace WindowsFormsApp1
                         loginAttempts++;
 
                         MessageBox.Show("Неверный пароль!", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        textBox1.Clear();
                         textBox2.Clear();
 
-                        if (loginAttempts >= 2)
+                        if (loginAttempts >= 1)
                         {
                             captchaRequired = true;
-
+                            pictureBox3.Visible = true;
+                            button3.Visible = true;
+                            label3.Visible = true;
+                            textBox3.Visible = true;
+                            pictureBox3.Visible = true;
+                            pictureBox3.Refresh();
                             Captcha_Load();
-                            this.Height = 680;
+
+                            this.MinimumSize = new Size(302, 593);
+                            this.Height = 593;
                             pictureBox3.Location = new Point(12, 278);
                             button3.Location = new Point(12, 341);
                             label3.Location = new Point(8, 374);
@@ -168,9 +176,14 @@ namespace WindowsFormsApp1
 
         private void Captcha_Load()
         {
-            Captcha_current = GenerateCaptcha(5);
+            if (pictureBox3.Width <= 0 || pictureBox3.Height <= 0)
+                return;
 
-            Bitmap bitmap = new Bitmap(pictureBox3.Width, pictureBox3.Height);
+            Captcha_current = GenerateCaptcha(5);
+            int width = Math.Max(pictureBox3.Width, 150);
+            int height = Math.Max(pictureBox3.Height, 50);
+
+            Bitmap bitmap = new Bitmap(width, height);
             using (Graphics g = Graphics.FromImage(bitmap))
             {
                 g.Clear(Color.White);
@@ -228,6 +241,10 @@ namespace WindowsFormsApp1
             try
             {
                 con.Open();
+                pictureBox3.Visible = false;
+                button3.Visible = false;
+                label3.Visible = false;
+                textBox3.Visible = false;
             }
             catch (Exception)
             {

@@ -158,6 +158,7 @@ namespace WindowsFormsApp1
             // 
             // button7
             // 
+            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.button7.FlatAppearance.BorderSize = 0;
             this.button7.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button7.Image = ((System.Drawing.Image)(resources.GetObject("button7.Image")));
@@ -180,9 +181,9 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.MinimumSize = new System.Drawing.Size(1394, 741);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Меню";

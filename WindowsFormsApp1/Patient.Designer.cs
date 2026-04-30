@@ -62,13 +62,14 @@ namespace WindowsFormsApp1
             // 
             // comboBox2
             // 
+            this.comboBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox2.FormattingEnabled = true;
             this.comboBox2.Items.AddRange(new object[] {
             "Без сортировки",
             "По возрастанию (А-Я)",
             "По убыванию (Я-А)"});
-            this.comboBox2.Location = new System.Drawing.Point(292, 25);
+            this.comboBox2.Location = new System.Drawing.Point(556, 25);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(246, 28);
             this.comboBox2.TabIndex = 42;
@@ -118,10 +119,12 @@ namespace WindowsFormsApp1
             // 
             // textBox5
             // 
+            this.textBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox5.Location = new System.Drawing.Point(6, 25);
             this.textBox5.MaxLength = 40;
             this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(280, 26);
+            this.textBox5.Size = new System.Drawing.Size(544, 26);
             this.textBox5.TabIndex = 35;
             this.textBox5.TextChanged += new System.EventHandler(this.textBox5_TextChanged);
             this.textBox5.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox5_KeyPress);
@@ -170,11 +173,13 @@ namespace WindowsFormsApp1
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.textBox5);
             this.groupBox2.Controls.Add(this.comboBox2);
             this.groupBox2.Location = new System.Drawing.Point(12, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(544, 56);
+            this.groupBox2.Size = new System.Drawing.Size(808, 56);
             this.groupBox2.TabIndex = 50;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Поиск";
