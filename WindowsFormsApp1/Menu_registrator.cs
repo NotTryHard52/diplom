@@ -44,16 +44,17 @@ namespace WindowsFormsApp1
 
         private void ShowLoginForm()
         {
+            this.Hide();
+
             using (Login loginForm = new Login())
             {
-                this.Hide(); // скрываем главное меню
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
                     this.Show();
                 }
                 else
                 {
-                    this.Close(); // закрываем приложение, если логин не выполнен
+                    Application.Exit();
                 }
             }
         }
@@ -96,7 +97,10 @@ namespace WindowsFormsApp1
 
         private void button3_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Patient(), button3);
+            var patientForm = new Patient();
+            patientForm.OnSessionExpired += ShowLoginForm;
+
+            OpenChildForm(patientForm, button3);
             label_fio.Visible = false;
             label_role.Visible = false;
         }

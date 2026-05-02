@@ -25,6 +25,10 @@ namespace WindowsFormsApp1
             // Подписываемся на события наведения мыши
             _dataGridView.CellMouseEnter += DataGridView_CellMouseEnter;
             _dataGridView.CellMouseLeave += DataGridView_CellMouseLeave;
+            _dataGridView.MouseLeave += DataGridView_MouseLeave;
+            _dataGridView.Scroll += DataGridView_Scroll;
+            _dataGridView.SizeChanged += DataGridView_SizeChanged;
+            _dataGridView.DataBindingComplete += DataGridView_DataBindingComplete;
         }
 
         // Метод включения двойной буферизации DataGridView через Reflection
@@ -40,6 +44,17 @@ namespace WindowsFormsApp1
         {
             if (e.RowIndex >= 0) // Проверяем, что это не заголовок
             {
+                // Сбрасываем предыдущую подсветку, если она есть и отличается от текущей
+                if (_hoveredRow >= 0 && _hoveredRow < _dataGridView.Rows.Count && _hoveredRow != e.RowIndex)
+                {
+                    try
+                    {
+                        _dataGridView.Rows[_hoveredRow].DefaultCellStyle.BackColor = _defaultColor;
+                        _dataGridView.Rows[_hoveredRow].DefaultCellStyle.ForeColor = Color.Black;
+                    }
+                    catch { }
+                }
+
                 _hoveredRow = e.RowIndex; // Сохраняем индекс наведенной строки
                 _dataGridView.Rows[e.RowIndex].DefaultCellStyle.BackColor = _hoverColor; // Меняем цвет строки
                 _dataGridView.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.White; // Меняем цвет текста для лучшей видимости
@@ -49,12 +64,61 @@ namespace WindowsFormsApp1
         // Событие при уходе мыши с ячейки
         private void DataGridView_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
         {
-            if (_hoveredRow >= 0 && _hoveredRow < _dataGridView.Rows.Count) // Проверяем валидность индекса
+            // При уходе мыши с ячейки - сбрасываем подсветку текущей строки
+            if (e.RowIndex >= 0 && e.RowIndex < _dataGridView.Rows.Count)
             {
-                _dataGridView.Rows[_hoveredRow].DefaultCellStyle.BackColor = _defaultColor; // Возвращаем стандартный цвет
-                _dataGridView.Rows[_hoveredRow].DefaultCellStyle.ForeColor = Color.Black; // Возвращаем стандартный цвет текста
-                _hoveredRow = -1; // Сбрасываем индекс
+                try
+                {
+                    _dataGridView.Rows[e.RowIndex].DefaultCellStyle.BackColor = _defaultColor;
+                    _dataGridView.Rows[e.RowIndex].DefaultCellStyle.ForeColor = Color.Black;
+                }
+                catch { }
             }
+
+            // Если ушли с ячейки и это была подсвеченная строка - сбрасываем индекс
+            if (_hoveredRow == e.RowIndex)
+                _hoveredRow = -1;
+        }
+
+        private void DataGridView_MouseLeave(object sender, System.EventArgs e)
+        {
+            ResetHoverColors();
+        }
+
+        private void DataGridView_Scroll(object sender, System.Windows.Forms.ScrollEventArgs e)
+        {
+            ResetHoverColors();
+        }
+
+        private void DataGridView_SizeChanged(object sender, System.EventArgs e)
+        {
+            ResetHoverColors();
+        }
+
+        private void DataGridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // После биндинга очищаем возможные цвета и выбор
+            ResetHoverColors();
+            try { _dataGridView.ClearSelection(); } catch { }
+        }
+
+        private void ResetHoverColors()
+        {
+            try
+            {
+                for (int i = 0; i < _dataGridView.Rows.Count; i++)
+                {
+                    var row = _dataGridView.Rows[i];
+                    // Сбрасываем только если явно стоит hover цвет или белым/black не соответствует
+                    if (row.DefaultCellStyle.BackColor == _hoverColor || row.DefaultCellStyle.ForeColor == Color.White)
+                    {
+                        row.DefaultCellStyle.BackColor = _defaultColor;
+                        row.DefaultCellStyle.ForeColor = Color.Black;
+                    }
+                }
+            }
+            catch { }
+            _hoveredRow = -1;
         }
     }
 }

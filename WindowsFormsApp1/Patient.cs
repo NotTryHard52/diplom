@@ -8,7 +8,7 @@ namespace WindowsFormsApp1
     public partial class Patient : Form
     {
         string connectionString; // Строка подключения к базе данных
-        DataTable patientTable; // Таблица для хранения данных пациентов
+        System.Data.DataTable patientTable; // Таблица для хранения данных пациентов
         public event Action<int, string> PatientSelected; // Событие для передачи выбранного пациента
         int selectedId = -1; // Id выбранного пациента
         private bool openedFromTalon = false; // Флаг, был ли вызов формы из создания талона
@@ -17,6 +17,14 @@ namespace WindowsFormsApp1
         // Резерв маскированных значений для восстановления
         private System.Collections.Generic.Dictionary<int, (string Name, string Lastname, string Phone, string Policy)> maskedBackup
             = new System.Collections.Generic.Dictionary<int, (string, string, string, string)>();
+        private System.Windows.Forms.Timer inactivityTimer;
+        private DateTime lastActivityTime;
+        private const int timeoutSeconds = 60;
+        int currentPage = 1;
+        int pageSize = 10;
+        int totalRecords = 0;
+        int totalPages = 1;
+        public event System.Action OnSessionExpired;
 
         public Patient(bool fromTalon = false)
         {
@@ -26,6 +34,43 @@ namespace WindowsFormsApp1
 
             // Кнопка "Выбрать" отображается только если форма открыта из талона
             button4.Visible = openedFromTalon;
+            // При изменении размера таблицы перезагружаем только если изменилось количество видимых строк
+            dataGridView1.SizeChanged += DataGridView1_SizeChanged;
+
+            inactivityTimer = new System.Windows.Forms.Timer();
+            inactivityTimer.Interval = 1000; // проверка каждую секунду
+            inactivityTimer.Tick += InactivityTimer_Tick;
+            inactivityTimer.Start();
+
+            lastActivityTime = DateTime.Now;
+
+            // отслеживание активности
+            RegisterActivityHandlers(this);
+        }
+
+        private void ResetActivity(object sender, EventArgs e)
+        {
+            lastActivityTime = DateTime.Now;
+        }
+
+        private void InactivityTimer_Tick(object sender, EventArgs e)
+        {
+            if ((DateTime.Now - lastActivityTime).TotalSeconds >= timeoutSeconds)
+            {
+                inactivityTimer.Stop();
+                OnSessionExpired?.Invoke();
+            }
+        }
+
+        private void DataGridView1_SizeChanged(object sender, EventArgs e)
+        {
+            int newPageSize = CalculatePageSize();
+            if (newPageSize != pageSize)
+            {
+                // сбрасываем на первую страницу при изменении количества строк на странице
+                currentPage = 1;
+                LoadPatient();
+            }
         }
 
         // Загрузка формы
@@ -39,38 +84,97 @@ namespace WindowsFormsApp1
             dataGridView1.CellDoubleClick += DataGridView1_CellDoubleClick;
         }
 
+        private int CalculatePageSize()
+        {
+            int rowHeight = dataGridView1.RowTemplate.Height;
+            int headerHeight = dataGridView1.ColumnHeadersHeight;
+
+            int availableHeight = dataGridView1.DisplayRectangle.Height;
+
+            int rows = availableHeight / rowHeight;
+
+            return Math.Max(1, rows - 1);
+        }
+
         // Загрузка данных пациентов из базы данных
         private void LoadPatient()
         {
+            pageSize = CalculatePageSize();
             Connect connect = new Connect();
             connectionString = connect.ConnectDB();
+
+            string filterSql = BuildFilterSql();
+            string sortSql = GetSortSql();
 
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
-                patientTable = new DataTable();
-                MySqlCommand cmd = new MySqlCommand("SELECT * FROM Patients;", con);
+
+                // считаем записи
+                totalRecords = GetTotalCount(filterSql);
+                totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+                if (currentPage > totalPages)
+                    currentPage = totalPages == 0 ? 1 : totalPages;
+
+                int offset = (currentPage - 1) * pageSize;
+
+                string query = $@"
+                                    SELECT *
+                                    FROM Patients
+                                    {filterSql}
+                                    {sortSql}
+                                    LIMIT @offset, @pageSize;
+                                ";
+
+                MySqlCommand cmd = new MySqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@offset", offset);
+                cmd.Parameters.AddWithValue("@pageSize", pageSize);
+
+                patientTable = new System.Data.DataTable();
                 MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                 da.Fill(patientTable);
 
-                // Маскируем имя и отчество в таблице
+                dataGridView1.DataSource = null;
+                // Маскировка
                 MaskNameAndPatronymic();
 
-                // Настройка DataGridView
-                dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = patientTable;
 
-                // Настройка заголовков колонок
-                dataGridView1.Columns[0].Visible = false; // Скрываем Id
+                // Снимаем выделение строк после привязки чтобы при изменении размера не подсвечивались все строки
+                try
+                {
+                    dataGridView1.ClearSelection();
+                    // Сброс текущей ячейки, если возможно
+                    if (dataGridView1.CurrentCell != null)
+                        dataGridView1.CurrentCell = null;
+                }
+                catch
+                {
+                    // Игнорируем возможные ошибки при сбросе CurrentCell
+                }
+
+                // Заголовки
+                dataGridView1.Columns[0].Visible = false;
                 dataGridView1.Columns[1].HeaderText = "Фамилия";
                 dataGridView1.Columns[2].HeaderText = "Имя";
                 dataGridView1.Columns[3].HeaderText = "Отчество";
                 dataGridView1.Columns[4].HeaderText = "Дата рождения";
-                dataGridView1.Columns[5].HeaderText = "Номер телефона";
-                dataGridView1.Columns[6].HeaderText = "Номер полиса";
+                dataGridView1.Columns[5].HeaderText = "Телефон";
+                dataGridView1.Columns[6].HeaderText = "Полис";
 
-                // Показываем количество записей
-                groupBox1.Text = $"Количество записей: {patientTable.Rows.Count}";
+                int start = (currentPage - 1) * pageSize + 1;
+                int end = Math.Min(currentPage * pageSize, totalRecords);
+
+                if (totalRecords == 0)
+                {
+                    start = 0;
+                    end = 0;
+                }
+
+                groupBox1.Text = $"Количество записей: {start}-{end} из {totalRecords}";
+                label1.Text = $"Страница {currentPage} из {totalPages}";
+                textBox1.Clear();
             }
         }
 
@@ -137,32 +241,8 @@ namespace WindowsFormsApp1
         // Применение фильтра и сортировки к таблице
         private void ApplyFilterAndSort()
         {
-            if (patientTable == null) return;
-
-            string filterExpr = "";
-
-            // Поиск по номеру полиса
-            string searchText = textBox5.Text.Trim().Replace("'", "''");
-            if (!string.IsNullOrEmpty(searchText))
-            {
-                // Приводим поле к строке и используем поиск подстроки, чтобы избежать ошибок сравнения типов
-                filterExpr = $"Convert(Number_policy, 'System.String') LIKE '%{searchText}%'";
-            }
-
-            // Сортировка по фамилии
-            string sortExpr = "";
-            if (comboBox2.SelectedIndex == 1)
-                sortExpr = "Surname ASC";
-            else if (comboBox2.SelectedIndex == 2)
-                sortExpr = "Surname DESC";
-
-            DataView dv = patientTable.DefaultView;
-            dv.RowFilter = filterExpr;
-            dv.Sort = sortExpr;
-
-            dataGridView1.DataSource = dv;
-            dataGridView1.Refresh();
-            groupBox1.Text = $"Количество записей: {dv.Count}";
+            currentPage = 1;
+            LoadPatient();
         }
 
         // Изменение текста поиска
@@ -421,5 +501,81 @@ namespace WindowsFormsApp1
             if (string.IsNullOrEmpty(policy)) return policy;
             return policy.Length > 4 ? new string('*', policy.Length - 4) + policy.Substring(policy.Length - 4) : policy;
         }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            if (currentPage > 1)
+            {
+                currentPage--;
+                LoadPatient();
+            }
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            if (currentPage < totalPages)
+            {
+                currentPage++;
+                LoadPatient();
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            int page;
+            if (int.TryParse(textBox1.Text, out page))
+            {
+                if (page >= 1 && page <= totalPages)
+                {
+                    currentPage = page;
+                    LoadPatient();
+                }
+            }
+        }
+        private string BuildFilterSql()
+        {
+            string where = "WHERE 1=1";
+
+            string search = textBox5.Text.Trim().Replace("'", "''");
+            if (!string.IsNullOrEmpty(search))
+            {
+                where += $" AND Number_policy LIKE '%{search}%'";
+            }
+
+            return where;
+        }
+        private string GetSortSql()
+        {
+            if (comboBox2.SelectedIndex == 1)
+                return "ORDER BY Surname ASC";
+            else if (comboBox2.SelectedIndex == 2)
+                return "ORDER BY Surname DESC";
+
+            return "ORDER BY idPatients DESC";
+        }
+        private int GetTotalCount(string filterSql)
+        {
+            using (MySqlConnection con = new MySqlConnection(connectionString))
+            {
+                con.Open();
+                string query = $"SELECT COUNT(*) FROM Patients {filterSql}";
+                MySqlCommand cmd = new MySqlCommand(query, con);
+                return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+        }
+        private void RegisterActivityHandlers(Control parent)
+        {
+            foreach (Control ctrl in parent.Controls)
+            {
+                ctrl.MouseMove += ResetActivity;
+                ctrl.MouseClick += ResetActivity;
+                ctrl.KeyDown += ResetActivity;
+
+                // Рекурсивно для вложенных контролов
+                if (ctrl.HasChildren)
+                    RegisterActivityHandlers(ctrl);
+            }
+        }
+
     }
 }
