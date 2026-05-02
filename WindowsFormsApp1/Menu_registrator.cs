@@ -114,7 +114,10 @@ namespace WindowsFormsApp1
 
         private void button6_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new UchetTalona(), button6);
+            var uchetForm = new UchetTalona();
+            uchetForm.OnSessionExpired += ShowLoginForm;
+
+            OpenChildForm(uchetForm, button6);
             label_fio.Visible = false;
             label_role.Visible = false;
         }

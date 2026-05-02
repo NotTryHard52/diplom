@@ -21,6 +21,28 @@ namespace WindowsFormsApp1
             currentRole = role;           // Сохраняем роль пользователя
         }
 
+        private void IdleManager_IdleTimeoutReached(object sender, EventArgs e)
+        {
+            ShowLoginForm();
+        }
+
+        private void ShowLoginForm()
+        {
+            this.Hide();
+
+            using (Login loginForm = new Login())
+            {
+                if (loginForm.ShowDialog() == DialogResult.OK)
+                {
+                    this.Show();
+                }
+                else
+                {
+                    Application.Exit();
+                }
+            }
+        }
+
         private void SetActiveButton(Button activeBtn)
         {
             // сбрасываем все кнопки
@@ -62,7 +84,10 @@ namespace WindowsFormsApp1
         // Кнопка 6 открывает форму учета талона
         private void button6_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new UchetTalona(true), button6);
+            var uchetForm = new UchetTalona();
+            uchetForm.OnSessionExpired += ShowLoginForm;
+
+            OpenChildForm(uchetForm, button6);
         }
 
         // Кнопка 7 открывает главное меню

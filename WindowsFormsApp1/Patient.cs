@@ -8,7 +8,7 @@ namespace WindowsFormsApp1
     public partial class Patient : Form
     {
         string connectionString; // Строка подключения к базе данных
-        System.Data.DataTable patientTable; // Таблица для хранения данных пациентов
+        DataTable patientTable; // Таблица для хранения данных пациентов
         public event Action<int, string> PatientSelected; // Событие для передачи выбранного пациента
         int selectedId = -1; // Id выбранного пациента
         private bool openedFromTalon = false; // Флаг, был ли вызов формы из создания талона
@@ -17,14 +17,14 @@ namespace WindowsFormsApp1
         // Резерв маскированных значений для восстановления
         private System.Collections.Generic.Dictionary<int, (string Name, string Lastname, string Phone, string Policy)> maskedBackup
             = new System.Collections.Generic.Dictionary<int, (string, string, string, string)>();
-        private System.Windows.Forms.Timer inactivityTimer;
+        private Timer inactivityTimer;
         private DateTime lastActivityTime;
         private const int timeoutSeconds = 60;
         int currentPage = 1;
         int pageSize = 10;
         int totalRecords = 0;
         int totalPages = 1;
-        public event System.Action OnSessionExpired;
+        public event Action OnSessionExpired;
 
         public Patient(bool fromTalon = false)
         {
@@ -37,7 +37,7 @@ namespace WindowsFormsApp1
             // При изменении размера таблицы перезагружаем только если изменилось количество видимых строк
             dataGridView1.SizeChanged += DataGridView1_SizeChanged;
 
-            inactivityTimer = new System.Windows.Forms.Timer();
+            inactivityTimer = new Timer();
             inactivityTimer.Interval = 1000; // проверка каждую секунду
             inactivityTimer.Tick += InactivityTimer_Tick;
             inactivityTimer.Start();

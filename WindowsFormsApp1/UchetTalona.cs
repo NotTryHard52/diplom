@@ -18,12 +18,54 @@ namespace WindowsFormsApp1
         int totalRecords = 0;
         int totalPages = 1;
         bool isGlav = false;
+        private Timer inactivityTimer;
+        private DateTime lastActivityTime;
+        private const int timeoutSeconds = 60;
+        public event Action OnSessionExpired;
 
         public UchetTalona(bool isGlav = false)
         {
             InitializeComponent();
             this.isGlav = isGlav;
             dataGridView1.SizeChanged += (s, e) => ReloadOrderTable();
+
+            inactivityTimer = new Timer();
+            inactivityTimer.Interval = 1000; // проверка каждую секунду
+            inactivityTimer.Tick += InactivityTimer_Tick;
+            inactivityTimer.Start();
+
+            lastActivityTime = DateTime.Now;
+
+            // отслеживание активности
+            RegisterActivityHandlers(this);
+        }
+
+        private void ResetActivity(object sender, EventArgs e)
+        {
+            lastActivityTime = DateTime.Now;
+        }
+
+        private void InactivityTimer_Tick(object sender, EventArgs e)
+        {
+            if ((DateTime.Now - lastActivityTime).TotalSeconds >= timeoutSeconds)
+            {
+                inactivityTimer.Stop();
+                OnSessionExpired?.Invoke();
+            }
+        }
+
+        private void RegisterActivityHandlers(Control parent)
+        {
+            foreach (Control ctrl in parent.Controls)
+            {
+                ctrl.MouseMove += ResetActivity;
+                ctrl.MouseClick += ResetActivity;
+                ctrl.KeyDown += ResetActivity;
+
+                // Рекурсивно для вложенных контролов
+                if (ctrl.HasChildren)
+                    RegisterActivityHandlers(ctrl);
+            }
         }
 
         private int CalculatePageSize()
