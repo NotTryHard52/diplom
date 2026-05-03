@@ -130,6 +130,12 @@
     <Compile Include="Settingscs.Designer.cs">
       <DependentUpon>Settingscs.cs</DependentUpon>
     </Compile>
+    <Compile Include="ScheduleCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ScheduleCard.Designer.cs">
+      <DependentUpon>ScheduleCard.cs</DependentUpon>
+    </Compile>
     <Compile Include="Speciality.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -254,6 +260,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Schedule.resx">
       <DependentUpon>Schedule.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ScheduleCard.resx">
+      <DependentUpon>ScheduleCard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Services.resx">
       <DependentUpon>Services.cs</DependentUpon>
