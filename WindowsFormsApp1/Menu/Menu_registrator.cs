@@ -151,18 +151,7 @@ namespace WindowsFormsApp1
         // Кнопка выхода с подтверждением
         private void button8_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show(
-                "Вы действительно хотите выйти?",
-                "Подтверждение выхода",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            // Если пользователь подтвердил, показываем форму логина
-            if (result == DialogResult.Yes)
-            {
-                this.Close();
-            }
+            this.Close();
         }
     }
 }

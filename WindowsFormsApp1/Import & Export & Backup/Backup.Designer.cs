@@ -47,6 +47,7 @@
             this.button1.TabIndex = 94;
             this.button1.Text = "Резервная копия";
             this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // label2
             // 
@@ -71,6 +72,7 @@
             this.button6.TabIndex = 92;
             this.button6.Text = "Выбрать путь";
             this.button6.UseVisualStyleBackColor = false;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // Backup
             // 

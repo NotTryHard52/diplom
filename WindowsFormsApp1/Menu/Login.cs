@@ -221,6 +221,15 @@ namespace WindowsFormsApp1
         private void button2_Click(object sender, EventArgs e)
         {
             Application.Exit();
+            try
+            {
+                BackupClass.CreateBackupWithDialog(AppDomain.CurrentDomain.BaseDirectory);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка дампа");
+                MessageBox.Show(ex.Message);
+            }
         }
 
         // Клик по иконке настроек

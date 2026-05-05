@@ -125,17 +125,7 @@ namespace WindowsFormsApp1
         // Кнопка 8 для выхода из системы
         private void button8_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show(
-                "Вы действительно хотите выйти?",             // Текст сообщения
-                "Подтверждение выхода",                      // Заголовок окна
-                MessageBoxButtons.YesNo,                     // Кнопки Да/Нет
-                MessageBoxIcon.Question                      // Значок вопроса
-            );
-
-            if (result == DialogResult.Yes)                 // Если пользователь подтвердил выход
-            {
-                this.Close();                             // После закрытия формы входа показываем текущую форму
-            }
+            this.Close();
         }
     }
 }
