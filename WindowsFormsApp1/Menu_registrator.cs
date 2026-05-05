@@ -140,10 +140,7 @@ namespace WindowsFormsApp1
             // Если пользователь подтвердил, показываем форму логина
             if (result == DialogResult.Yes)
             {
-                Login login = new Login();
-                this.Hide(); // скрываем текущую форму
-                login.ShowDialog(); // показываем форму логина
-                this.Show(); // возвращаем текущую форму после закрытия логина
+                this.Close();
             }
         }
     }

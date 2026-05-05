@@ -84,10 +84,7 @@ namespace WindowsFormsApp1
             // Если пользователь подтвердил, открываем форму логина
             if (result == DialogResult.Yes)
             {
-                Login login = new Login();
-                this.Hide(); // скрываем текущую форму
-                login.ShowDialog(); // показываем форму логина
-                this.Show(); // возвращаем текущую форму после закрытия логина
+                this.Close();
             }
         }
 
@@ -122,6 +119,24 @@ namespace WindowsFormsApp1
             OpenChildForm(new Schedule(), button4);
             label_fio.Visible = false;
             label_role.Visible = false;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Import import = new Import();
+            import.ShowDialog();
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            Backup backup = new Backup();
+            backup.ShowDialog();
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            Export export = new Export();
+            export.ShowDialog();
         }
     }
 }

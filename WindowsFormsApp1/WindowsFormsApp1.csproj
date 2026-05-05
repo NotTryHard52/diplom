@@ -68,6 +68,12 @@
     <Compile Include="AddPatient.Designer.cs">
       <DependentUpon>AddPatient.cs</DependentUpon>
     </Compile>
+    <Compile Include="Backup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Backup.Designer.cs">
+      <DependentUpon>Backup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Connect.cs" />
     <Compile Include="DoctorCard.cs">
       <SubType>UserControl</SubType>
@@ -87,7 +93,19 @@
     <Compile Include="EditPatient.Designer.cs">
       <DependentUpon>EditPatient.cs</DependentUpon>
     </Compile>
+    <Compile Include="Export.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Export.Designer.cs">
+      <DependentUpon>Export.cs</DependentUpon>
+    </Compile>
     <Compile Include="HoverDataGridView.cs" />
+    <Compile Include="Import.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Import.Designer.cs">
+      <DependentUpon>Import.cs</DependentUpon>
+    </Compile>
     <Compile Include="InputLimit.cs" />
     <Compile Include="Main_menu.cs">
       <SubType>Form</SubType>
@@ -240,6 +258,9 @@
     <EmbeddedResource Include="AddPatient.resx">
       <DependentUpon>AddPatient.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Backup.resx">
+      <DependentUpon>Backup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DoctorCard.resx">
       <DependentUpon>DoctorCard.cs</DependentUpon>
     </EmbeddedResource>
@@ -248,6 +269,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditPatient.resx">
       <DependentUpon>EditPatient.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Export.resx">
+      <DependentUpon>Export.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Import.resx">
+      <DependentUpon>Import.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main_menu.resx">
       <DependentUpon>Main_menu.cs</DependentUpon>

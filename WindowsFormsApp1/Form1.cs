@@ -84,7 +84,7 @@ namespace WindowsFormsApp1
         // Кнопка 6 открывает форму учета талона
         private void button6_Click(object sender, EventArgs e)
         {
-            var uchetForm = new UchetTalona();
+            var uchetForm = new UchetTalona(true);
             uchetForm.OnSessionExpired += ShowLoginForm;
 
             OpenChildForm(uchetForm, button6);
@@ -114,10 +114,7 @@ namespace WindowsFormsApp1
 
             if (result == DialogResult.Yes)                 // Если пользователь подтвердил выход
             {
-                Login login = new Login();                 // Создаем форму входа
-                this.Hide();                               // Скрываем текущую форму
-                login.ShowDialog();                        // Показываем форму входа
-                this.Show();                               // После закрытия формы входа показываем текущую форму
+                this.Close();                             // После закрытия формы входа показываем текущую форму
             }
         }
     }

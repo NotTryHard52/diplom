@@ -137,23 +137,24 @@ namespace WindowsFormsApp1
                     // Успешный вход — открытие формы в зависимости от роли пользователя
                     loginAttempts = 0;
                     captchaRequired = false;
+                    textBox1.Clear();
+                    textBox2.Clear();
                     this.Hide();
+                    Form nextForm = null;
                     if (role == "1") // Администратор
                     {
-                        Menu admin = new Menu(FIO, userId, role);
-                        admin.ShowDialog();
+                        nextForm = new Menu(FIO, userId, role);
                     }
                     else if (role == "2") // Регистратор
                     {
-                        Menu_registrator reg = new Menu_registrator(FIO, userId, role);
-                        reg.ShowDialog();
+                        nextForm = new Menu_registrator(FIO, userId, role);
                     }
                     else if (role == "3") // Главный врач
                     {
-                        Form1 glav = new Form1(FIO, userId, role);
-                        glav.ShowDialog();
+                        nextForm = new Form1(FIO, userId, role);
                     }
-                    this.Close();
+                    nextForm.FormClosed += (s, args) => this.Show();
+                    nextForm.Show();
                 }
             }
             catch (MySqlException ex)

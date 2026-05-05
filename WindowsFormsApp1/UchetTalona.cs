@@ -28,6 +28,10 @@ namespace WindowsFormsApp1
             InitializeComponent();
             this.isGlav = isGlav;
             dataGridView1.SizeChanged += (s, e) => ReloadOrderTable();
+            if(isGlav)
+            {
+                button6.Visible = true;
+            }
 
             inactivityTimer = new Timer();
             inactivityTimer.Interval = 1000; // проверка каждую секунду
