@@ -19,6 +19,26 @@ namespace WindowsFormsApp1
             label_fio.Text = FIO; // отображаем ФИО пользователя
             currentUserId = userId;
             currentRole = role;
+            this.FormClosing += Menu_registrator_FormClosing;
+        }
+
+        private void Menu_registrator_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Проверяем, что пользователь сам закрывает форму
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                DialogResult result = MessageBox.Show(
+                    "Вы действительно хотите выйти?",
+                    "Подтверждение выхода",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (result == DialogResult.No)
+                {
+                    e.Cancel = true; // отменяем закрытие
+                }
+            }
         }
         private void SetActiveButton(Button activeBtn)
         {
@@ -62,8 +82,10 @@ namespace WindowsFormsApp1
         // Метод для открытия дочерней формы внутри панели panel2
         private void OpenChildForm(Form childForm, Button clickedButton)
         {
-            if (activeForm != null && activeForm.GetType() == childForm.GetType())
-                return;
+            if (activeForm != null)
+            {
+                activeForm.Close();
+            }
 
             panel2.Controls.Clear();
 
@@ -76,7 +98,6 @@ namespace WindowsFormsApp1
 
             activeForm = childForm;
 
-            // подсветка кнопки
             SetActiveButton(clickedButton);
         }
 

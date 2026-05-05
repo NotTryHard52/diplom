@@ -19,7 +19,7 @@ namespace WindowsFormsApp1
             = new System.Collections.Generic.Dictionary<int, (string, string, string, string)>();
         private Timer inactivityTimer;
         private DateTime lastActivityTime;
-        private const int timeoutSeconds = 60;
+        private const int timeoutSeconds = 5;
         int currentPage = 1;
         int pageSize = 10;
         int totalRecords = 0;
@@ -576,6 +576,5 @@ namespace WindowsFormsApp1
                     RegisterActivityHandlers(ctrl);
             }
         }
-
     }
 }
