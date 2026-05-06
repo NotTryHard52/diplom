@@ -270,14 +270,23 @@ namespace WindowsFormsApp1
                     {
                         FileInfo fileInfo = new FileInfo(ofd.FileName);
 
-                        if (fileInfo.Length > 2 * 1024 * 1024)
+                        if (fileInfo.Length > 1 * 1024 * 1024)
                         {
-                            MessageBox.Show("Размер изображения не должен превышать 2 МБ!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Размер изображения не должен превышать 1 МБ!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
-                        Image newImage = Image.FromFile(ofd.FileName);
-                        pictureBox1.Image = new Bitmap(newImage); // Устанавливаем фото
+                        using (Image newImage = Image.FromFile(ofd.FileName))
+                        {
+                            // Проверка разрешения 400x400
+                            if (newImage.Width != 400 || newImage.Height != 400)
+                            {
+                                MessageBox.Show("Изображение должно быть размером 400x400 пикселей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
+                            pictureBox1.Image = new Bitmap(newImage);
+                        }
 
                         selectedPhotoFullPath = ofd.FileName;
                         selectedPhotoFileName = Path.GetFileName(ofd.FileName);
