@@ -419,5 +419,29 @@ namespace WindowsFormsApp1
             OtchetExcel v = new OtchetExcel();
             v.ShowDialog();
         }
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            inactivityTimer.Stop();
+            inactivityTimer.Tick -= InactivityTimer_Tick;
+            inactivityTimer.Dispose();
+
+            OnSessionExpired = null;
+
+            base.OnFormClosed(e);
+        }
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+
+            if (this.Visible)
+            {
+                lastActivityTime = DateTime.Now;
+                inactivityTimer.Start();
+            }
+            else
+            {
+                inactivityTimer.Stop();
+            }
+        }
     }
 }

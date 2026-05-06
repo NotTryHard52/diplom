@@ -354,6 +354,9 @@
     <EmbeddedResource Include="Main Forms\ViewPriem.resx">
       <DependentUpon>ViewPriem.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="ordertempnotable.docx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

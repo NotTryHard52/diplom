@@ -19,7 +19,7 @@ namespace WindowsFormsApp1
             = new System.Collections.Generic.Dictionary<int, (string, string, string, string)>();
         private Timer inactivityTimer;
         private DateTime lastActivityTime;
-        private const int timeoutSeconds = 5;
+        private const int timeoutSeconds = 60;
         int currentPage = 1;
         int pageSize = 10;
         int totalRecords = 0;
@@ -574,6 +574,30 @@ namespace WindowsFormsApp1
                 // Рекурсивно для вложенных контролов
                 if (ctrl.HasChildren)
                     RegisterActivityHandlers(ctrl);
+            }
+        }
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            inactivityTimer.Stop();
+            inactivityTimer.Tick -= InactivityTimer_Tick;
+            inactivityTimer.Dispose();
+
+            OnSessionExpired = null;
+
+            base.OnFormClosed(e);
+        }
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+
+            if (this.Visible)
+            {
+                lastActivityTime = DateTime.Now;
+                inactivityTimer.Start();
+            }
+            else
+            {
+                inactivityTimer.Stop();
             }
         }
     }

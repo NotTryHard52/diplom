@@ -82,6 +82,13 @@ namespace WindowsFormsApp1
         // Метод для открытия дочерней формы внутри панели panel2
         private void OpenChildForm(Form childForm, Button clickedButton)
         {
+            if (activeForm != null && activeForm.GetType() == childForm.GetType())
+            {
+                SetActiveButton(clickedButton);
+                return;
+            }
+
+            // закрываем предыдущую
             if (activeForm != null)
             {
                 activeForm.Close();

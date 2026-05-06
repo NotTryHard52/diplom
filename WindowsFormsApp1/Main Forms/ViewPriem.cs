@@ -369,110 +369,84 @@ namespace WindowsFormsApp1
         {
             if (dataGridView1.Rows.Count == 0)
             {
-                MessageBox.Show("Нет услуг для печати чека!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Нет услуг для печати чека!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
+                string templatePath = Path.Combine(Application.StartupPath, "ordertempnotable.docx");
+
+                if (!File.Exists(templatePath))
+                {
+                    MessageBox.Show("Не найден шаблон чека!", "Ошибка");
+                    return;
+                }
+
                 Word.Application wordApp = new Word.Application();
-                Word.Document doc = wordApp.Documents.Add();
+                Word.Document doc = wordApp.Documents.Open(templatePath);
 
-                // Настройка страницы для чековой ленты
-                doc.PageSetup.PageWidth = wordApp.CentimetersToPoints(8);
-                doc.PageSetup.PageHeight = wordApp.CentimetersToPoints(15);
-                doc.PageSetup.TopMargin = wordApp.CentimetersToPoints(0.5f);
-                doc.PageSetup.BottomMargin = wordApp.CentimetersToPoints(0.5f);
-                doc.PageSetup.LeftMargin = wordApp.CentimetersToPoints(0.5f);
-                doc.PageSetup.RightMargin = wordApp.CentimetersToPoints(0.5f);
-
-                // Временный файл логотипа
-                string tempLogoPath = Path.Combine(Path.GetTempPath(), "temp_logo.png");
-                Properties.Resources.logo.Save(tempLogoPath, ImageFormat.Png);
-
-                Word.Range r = doc.Content;
-                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-
-                // Вставка логотипа
-                Word.Paragraph logoParagraph = doc.Paragraphs.Add(r);
-                var shape = logoParagraph.Range.InlineShapes.AddPicture(tempLogoPath, false, true);
-                shape.Width = 60;
-                shape.Height = 60;
-                logoParagraph.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                logoParagraph.SpaceAfter = 6;
-
-                // Заголовок чека
-                r = doc.Content;
-                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                Word.Paragraph title = doc.Paragraphs.Add(r);
-                title.Range.Text = "ЧЕК ПРИЁМА";
-                title.Range.Font.Size = 14;
-                title.Range.Font.Bold = 1;
-                title.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                title.SpaceAfter = 6;
-
-                // Информация о приёме
+                // Данные
                 string orderNumber = label_number.Text.Replace("Номер талона: ", "");
                 string patientName = label_patient.Text.Replace("Пациент: ", "");
                 string doctorName = label_doctor.Text.Replace("Врач: ", "");
                 string date = label_data.Text.Replace("Дата: ", "");
                 string time = label_time.Text.Replace("Время: ", "");
 
-                r = doc.Content;
-                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                Word.Paragraph info = doc.Paragraphs.Add(r);
-                info.Range.Text =
-                    $"Талон №: {orderNumber}\n" +
-                    $"Пациент: {patientName}\n" +
-                    $"Врач: {doctorName}\n" +
-                    $"Дата: {date}  Время: {time}";
-                info.Range.Font.Size = 10;
-                info.SpaceAfter = 4;
+                string total = label_total.Text.Replace("Итого: ", "");
+                string discount = label5.Text.Replace("Скидка: ", "");
+                string final = label10.Text.Replace("К оплате: ", "");
 
-                // Таблица услуг
-                r = doc.Content;
-                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                int rows = dataGridView1.Rows.Count + 1;
-                Word.Table table = doc.Tables.Add(r, rows, 2);
-                table.Borders.Enable = 1;
-                table.Columns[1].Width = wordApp.CentimetersToPoints(5);
-                table.Columns[2].Width = wordApp.CentimetersToPoints(2);
-                table.Cell(1, 1).Range.Text = "Услуга";
-                table.Cell(1, 2).Range.Text = "Цена";
-                table.Rows[1].Range.Font.Bold = 1;
+                Word.Range range = doc.Content;
 
-                for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                object replaceAll = Word.WdReplace.wdReplaceAll;
+
+                // Замена плейсхолдеров
+                range.Find.Execute("{number}", ReplaceWith: orderNumber, Replace: replaceAll);
+                range.Find.Execute("{surname}", ReplaceWith: patientName, Replace: replaceAll);
+                range.Find.Execute("{FIO}", ReplaceWith: doctorName, Replace: replaceAll);
+                range.Find.Execute("{orderdate}", ReplaceWith: date, Replace: replaceAll);
+
+                range.Find.Execute("{total}", ReplaceWith: total, Replace: replaceAll);
+                range.Find.Execute("{dicount}", ReplaceWith: discount, Replace: replaceAll);
+                range.Find.Execute("{pay}", ReplaceWith: final, Replace: replaceAll);
+
+                // ===== ВСТАВКА ТАБЛИЦЫ =====
+                Word.Range tableRange = doc.Content;
+
+                if (tableRange.Find.Execute("{SERVICES_TABLE}"))
                 {
-                    table.Cell(i + 2, 1).Range.Text =
-                        dataGridView1.Rows[i].Cells["Услуга"].Value.ToString();
-                    table.Cell(i + 2, 2).Range.Text =
-                        dataGridView1.Rows[i].Cells["Цена"].Value.ToString();
+                    Word.Range r = tableRange;
+
+                    Word.Table table = doc.Tables.Add(r, dataGridView1.Rows.Count + 1, 2);
+
+                    table.Borders.Enable = 1;
+                    table.Cell(1, 1).Range.Text = "Услуга";
+                    table.Cell(1, 2).Range.Text = "Цена";
+                    table.Rows[1].Range.Bold = 1;
+
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                    {
+                        table.Cell(i + 2, 1).Range.Text =
+                            dataGridView1.Rows[i].Cells["Услуга"].Value.ToString();
+
+                        table.Cell(i + 2, 2).Range.Text =
+                            dataGridView1.Rows[i].Cells["Цена"].Value.ToString();
+                    }
+
+                    // удалить текст {SERVICES_TABLE}
+                    r.Text = "";
                 }
 
-                table.Range.ParagraphFormat.SpaceAfter = 6;
+                wordApp.Visible = true;
 
-                // Итоги
-                r = doc.Content;
-                r.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
-                Word.Paragraph totals = doc.Paragraphs.Add(r);
-                totals.Range.Text =
-                    $"{label_total.Text}\n" +
-                    $"{label5.Text}\n" +
-                    $"{label10.Text}";
-                totals.Range.Font.Size = 12;
-                totals.Range.Font.Bold = 1;
-                totals.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-
-                wordApp.Visible = true; // Показываем документ Word
-
-                MessageBox.Show("Чек подготовлен для печати!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                if (File.Exists(tempLogoPath))
-                    File.Delete(tempLogoPath); // Удаляем временный логотип
+                MessageBox.Show("Чек готов!", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при создании чека: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ошибка: " + ex.Message);
             }
         }
 
