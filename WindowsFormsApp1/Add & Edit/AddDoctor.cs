@@ -13,7 +13,7 @@ namespace WindowsFormsApp1
         string selectedPhotoFileName;              // Имя выбранного файла фото
         string selectedPhotoFullPath;              // Полный путь к фото на диске
         string photoFolder;                        // Папка для хранения фото
-        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "not-image.png");
+        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "upload.png");
         // Путь к изображению-заглушке
 
         public AddDoctor()                         // Конструктор формы

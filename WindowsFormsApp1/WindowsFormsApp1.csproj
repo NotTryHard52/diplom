@@ -354,6 +354,9 @@
     <EmbeddedResource Include="Main Forms\ViewPriem.resx">
       <DependentUpon>ViewPriem.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="ordertemp.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ordertempnotable.docx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -448,6 +451,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="photo\not-image.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="photo\upload.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

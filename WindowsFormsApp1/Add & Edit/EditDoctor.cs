@@ -22,7 +22,7 @@ namespace WindowsFormsApp1
         string photoFolder;                  // Папка для фото
         string selectedPhotoFullPath;        // Полный путь выбранного фото
         bool photoDeleted = false;           // Флаг удаления фото
-        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "not-image.png"); // Фото-заглушка
+        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "upload.png"); // Фото-заглушка
 
         public EditDoctor(int doctorId, Image photo)
         {

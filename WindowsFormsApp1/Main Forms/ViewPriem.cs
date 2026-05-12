@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Drawing.Imaging; // Для сохранения логотипа
 using System.IO; // Работа с файлами
+using System.Text;
 using System.Windows.Forms;
 using Word = Microsoft.Office.Interop.Word; // Используем Word Interop для печати чека
 
@@ -109,16 +110,15 @@ namespace WindowsFormsApp1
                             label_data.Text = "Дата: " + reader["date"].ToString();
                             label_time.Text = "Время: " + reader["time"].ToString();
                             comboBox1.Text = reader["status"].ToString();
+                            // Сумма, скидка и итог к оплате
+                            decimal sum = reader.GetDecimal("sum");
+                            decimal discount = reader.GetDecimal("Discount");
+                            decimal total = reader.GetDecimal("TotalSum");
+
+                            label_total.Text = $"Итого: {total:N2} руб.";
+                            label5.Text = $"Скидка: {discount:N2} руб.";
+                            label10.Text = $"К оплате: {total:N2} руб.";
                         }
-
-                        // Сумма, скидка и итог к оплате
-                        decimal sum = reader.GetDecimal("sum");
-                        decimal discount = reader.GetDecimal("Discount");
-                        decimal total = reader.GetDecimal("TotalSum");
-
-                        label_total.Text = $"Итого: {total:N2} руб.";
-                        label5.Text = $"Скидка: {discount:N2} руб.";
-                        label10.Text = $"К оплате: {total:N2} руб.";
                     }
                 }
             }
@@ -376,7 +376,10 @@ namespace WindowsFormsApp1
 
             try
             {
-                string templatePath = Path.Combine(Application.StartupPath, "ordertempnotable.docx");
+                string templatePath = Path.Combine(Application.StartupPath, "ordertemp.docx");
+                string birthday = "";
+                string snils = "";
+                string speciality = "";
 
                 if (!File.Exists(templatePath))
                 {
@@ -386,6 +389,38 @@ namespace WindowsFormsApp1
 
                 Word.Application wordApp = new Word.Application();
                 Word.Document doc = wordApp.Documents.Open(templatePath);
+                using (MySqlConnection con = new MySqlConnection(connectionString))
+                {
+                    con.Open();
+
+                    string query = @"
+                            SELECT 
+                                    DATE_FORMAT(p.date_birth, '%d.%m.%Y') AS birthday,
+                                    p.number_policy AS snils,
+                                    CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS doctor_name,
+                                    sp.SpecialityName AS speciality
+                                FROM `Order` o
+                                JOIN Schedule sc ON o.Schedule = sc.idSchedule
+                                JOIN Doctors d ON sc.idDoctor = d.idDoctors
+                                JOIN Patients p ON o.Patients_idPatients = p.idPatients
+                                JOIN Speciality sp ON d.Speciality = sp.idSpeciality
+                                WHERE o.idOrder = @orderId";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@orderId", orderId);
+
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                birthday = reader["birthday"].ToString();
+                                snils = reader["snils"].ToString();
+                                speciality = reader["speciality"].ToString();
+                            }
+                        }
+                    }
+                }
 
                 // Данные
                 string orderNumber = label_number.Text.Replace("Номер талона: ", "");
@@ -404,45 +439,63 @@ namespace WindowsFormsApp1
 
                 // Замена плейсхолдеров
                 range.Find.Execute("{number}", ReplaceWith: orderNumber, Replace: replaceAll);
-                range.Find.Execute("{surname}", ReplaceWith: patientName, Replace: replaceAll);
+                range.Find.Execute("{FIOP}", ReplaceWith: patientName, Replace: replaceAll);
                 range.Find.Execute("{FIO}", ReplaceWith: doctorName, Replace: replaceAll);
                 range.Find.Execute("{orderdate}", ReplaceWith: date, Replace: replaceAll);
+                range.Find.Execute("{birthday}", ReplaceWith: birthday, Replace: replaceAll);
+                range.Find.Execute("{chils}", ReplaceWith: snils, Replace: replaceAll);
+                range.Find.Execute("{speciality}", ReplaceWith: speciality, Replace: replaceAll);
 
                 range.Find.Execute("{total}", ReplaceWith: total, Replace: replaceAll);
-                range.Find.Execute("{dicount}", ReplaceWith: discount, Replace: replaceAll);
+                range.Find.Execute("{discount}", ReplaceWith: discount, Replace: replaceAll);
                 range.Find.Execute("{pay}", ReplaceWith: final, Replace: replaceAll);
 
-                // ===== ВСТАВКА ТАБЛИЦЫ =====
-                Word.Range tableRange = doc.Content;
+                // ===== ФОРМИРУЕМ СПИСОК УСЛУГ =====
+                StringBuilder servicesBuilder = new StringBuilder();
+                StringBuilder costBuilder = new StringBuilder();
 
-                if (tableRange.Find.Execute("{SERVICES_TABLE}"))
+                for (int i = 0; i < dataGridView1.Rows.Count; i++)
                 {
-                    Word.Range r = tableRange;
+                    servicesBuilder.Append(
+                        dataGridView1.Rows[i].Cells["Услуга"].Value.ToString() + "\v");
 
-                    Word.Table table = doc.Tables.Add(r, dataGridView1.Rows.Count + 1, 2);
-
-                    table.Borders.Enable = 1;
-                    table.Cell(1, 1).Range.Text = "Услуга";
-                    table.Cell(1, 2).Range.Text = "Цена";
-                    table.Rows[1].Range.Bold = 1;
-
-                    for (int i = 0; i < dataGridView1.Rows.Count; i++)
-                    {
-                        table.Cell(i + 2, 1).Range.Text =
-                            dataGridView1.Rows[i].Cells["Услуга"].Value.ToString();
-
-                        table.Cell(i + 2, 2).Range.Text =
-                            dataGridView1.Rows[i].Cells["Цена"].Value.ToString();
-                    }
-
-                    // удалить текст {SERVICES_TABLE}
-                    r.Text = "";
+                    costBuilder.Append(
+                        dataGridView1.Rows[i].Cells["Цена"].Value.ToString() + " руб." + "\v");
                 }
 
-                wordApp.Visible = true;
+                // Замена плейсхолдеров
+                range.Find.Execute("{nameservices}",
+                    ReplaceWith: servicesBuilder.ToString(),
+                    Replace: replaceAll);
 
-                MessageBox.Show("Чек готов!", "Успех",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                range.Find.Execute("{cost}",
+                    ReplaceWith: costBuilder.ToString(),
+                    Replace: replaceAll);
+
+                string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+                // имя файла
+                string pdfPath = Path.Combine(
+                    documentsPath,
+                    $"Чек_{orderNumber}.pdf");
+
+                // экспорт в PDF
+                doc.ExportAsFixedFormat(
+                    pdfPath,
+                    Word.WdExportFormat.wdExportFormatPDF);
+
+                // закрываем Word
+                doc.Close(false);
+                wordApp.Quit();
+
+                // открываем PDF
+                System.Diagnostics.Process.Start(pdfPath);
+
+                MessageBox.Show(
+                    "PDF-чек успешно создан!",
+                    "Успех",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
