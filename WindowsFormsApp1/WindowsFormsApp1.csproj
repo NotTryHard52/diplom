@@ -238,12 +238,6 @@
     <Compile Include="Main Forms\UchetTalona.Designer.cs">
       <DependentUpon>UchetTalona.cs</DependentUpon>
     </Compile>
-    <Compile Include="Main Forms\UchetTalona_GL.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Main Forms\UchetTalona_GL.Designer.cs">
-      <DependentUpon>UchetTalona_GL.cs</DependentUpon>
-    </Compile>
     <Compile Include="Main Forms\User.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -344,9 +338,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Main Forms\UchetTalona.resx">
       <DependentUpon>UchetTalona.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Main Forms\UchetTalona_GL.resx">
-      <DependentUpon>UchetTalona_GL.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main Forms\User.resx">
       <DependentUpon>User.cs</DependentUpon>

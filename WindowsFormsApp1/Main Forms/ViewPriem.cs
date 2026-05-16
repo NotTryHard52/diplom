@@ -1,7 +1,6 @@
 ﻿using MySql.Data.MySqlClient; // Подключение MySQL клиента
 using System;
 using System.Data;
-using System.Drawing.Imaging; // Для сохранения логотипа
 using System.IO; // Работа с файлами
 using System.Text;
 using System.Windows.Forms;

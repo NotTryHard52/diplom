@@ -1,7 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using Word = Microsoft.Office.Interop.Word;
@@ -286,7 +285,7 @@ namespace WindowsFormsApp1
                                     return;
                                 }
 
-                                // ===== ДАННЫЕ =====
+                                // Данные
                                 string number = orderId.ToString();
 
                                 string fioPatient = "";
@@ -339,7 +338,6 @@ namespace WindowsFormsApp1
                                     }
                                 }
 
-                                // ===== WORD =====
                                 Word.Application wordApp = new Word.Application();
                                 Word.Document doc = wordApp.Documents.Open(templatePath);
 
@@ -351,7 +349,6 @@ namespace WindowsFormsApp1
                                     range.Find.Execute(find, ReplaceWith: value, Replace: replaceAll);
                                 }
 
-                                // ===== ЗАМЕНА ПЛЕЙСХОЛДЕРОВ =====
                                 Replace("{number}", number);
                                 Replace("{date}", date);
                                 Replace("{time}", time);
