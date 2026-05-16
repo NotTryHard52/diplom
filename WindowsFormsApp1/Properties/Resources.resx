@@ -130,15 +130,6 @@
   <data name="справочники1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\справочники1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="free-icon-project-manager-10307422" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\free-icon-project-manager-10307422.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="free-icon-customer-686379" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\free-icon-customer-686379.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="меню1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\меню.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="услуги" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\услуги.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -154,9 +145,6 @@
   <data name="пациенты" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\пациенты.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="free-icon-categories-8207826" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\free-icon-categories-8207826.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="талон" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\талон.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -169,23 +157,11 @@
   <data name="no-photo_94BoRIW" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\no-photo_94BoRIW.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="выход" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\выход.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="врачи" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\врачи.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="free-icon-clipboard-3022275" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\free-icon-clipboard-3022275.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="free-icon-eye-158746" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\free-icon-eye-158746.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="выход1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\выход1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="1640528661_1-abrakadabra-fun-p-serii-chelovek-na-avu-1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\1640528661_1-abrakadabra-fun-p-serii-chelovek-na-avu-1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="учет_талона" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\учет_талона.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

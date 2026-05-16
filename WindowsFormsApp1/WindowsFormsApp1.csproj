@@ -129,16 +129,16 @@
     <Compile Include="Main Forms\Patient.Designer.cs">
       <DependentUpon>Patient.cs</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Resources1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Main Forms\Schedule.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Main Forms\Schedule.Designer.cs">
       <DependentUpon>Schedule.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Spravochniki\Services.cs">
       <SubType>Form</SubType>
@@ -320,9 +320,9 @@
       <DependentUpon>Menu_registrator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
-      <LastGenOutput>Resources1.Designer.cs</LastGenOutput>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Spravochniki\Role.resx">
       <DependentUpon>Role.cs</DependentUpon>
@@ -369,31 +369,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\1640528661_1-abrakadabra-fun-p-serii-chelovek-na-avu-1.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\free-icon-project-manager-10307422.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\free-icon-clipboard-3022275.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\free-icon-categories-8207826.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\free-icon-medical-team-4807695.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\icons8-настройки-24.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\no-photo_94BoRIW.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\free-icon-eye-158746.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\услуги.png" />
@@ -414,16 +396,10 @@
     <None Include="Resources\учет_талона.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\выход.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\выход1.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\меню.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\меню.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\меню1.png" />
