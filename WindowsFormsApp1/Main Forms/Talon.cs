@@ -278,56 +278,99 @@ namespace WindowsFormsApp1
 
                             try
                             {
-                                // Создание документа Word
+                                string templatePath = Path.Combine(Application.StartupPath, "talontemp.docx");
+
+                                if (!File.Exists(templatePath))
+                                {
+                                    MessageBox.Show("Не найден шаблон талона!");
+                                    return;
+                                }
+
+                                // ===== ДАННЫЕ =====
+                                string number = orderId.ToString();
+
+                                string fioPatient = "";
+                                string birthday = "";
+                                string chils = "";
+                                string fioDoctor = "";
+                                string speciality = "";
+                                string date = "";
+                                string time = "";
+
+                                using (MySqlConnection con2 = new MySqlConnection(connectionString))
+                                {
+                                    con2.Open();
+
+                                    string query = @"
+                                            SELECT 
+                                                CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS patient,
+                                                DATE_FORMAT(p.date_birth, '%d.%m.%Y') AS birthday,
+                                                p.number_policy AS chils,
+                                                CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS doctor,
+                                                sp.SpecialityName AS speciality,
+                                                DATE_FORMAT(sc.Date, '%d.%m.%Y') AS date,
+                                                sc.Time AS time
+                                            FROM `Order` o
+                                            JOIN Patients p ON o.Patients_idPatients = p.idPatients
+                                            JOIN Schedule sc ON o.schedule = sc.idSchedule
+                                            JOIN Doctors d ON sc.idDoctor = d.idDoctors
+                                            JOIN Speciality sp ON d.Speciality = sp.idSpeciality
+                                            WHERE o.idOrder = @orderId";
+
+                                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                                    {
+                                        cmd.Parameters.AddWithValue("@orderId", orderId);
+
+                                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                                        {
+                                            if (reader.Read())
+                                            {
+                                                fioPatient = reader["patient"].ToString();
+                                                birthday = reader["birthday"].ToString();
+                                                chils = reader["chils"].ToString();
+                                                fioDoctor = reader["doctor"].ToString();
+                                                speciality = reader["speciality"].ToString();
+
+                                                DateTime dtTime;
+                                                date = reader["date"].ToString();
+                                                time = TimeSpan.Parse(reader["time"].ToString()).ToString(@"hh\:mm");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // ===== WORD =====
                                 Word.Application wordApp = new Word.Application();
-                                Word.Document doc = wordApp.Documents.Add();
+                                Word.Document doc = wordApp.Documents.Open(templatePath);
 
-                                // Добавление логотипа
-                                string tempLogoPath = Path.Combine(Path.GetTempPath(), "temp_logo.png");
-                                Properties.Resources.logo.Save(tempLogoPath, ImageFormat.Png);
-                                Word.Paragraph logoParagraph = doc.Content.Paragraphs.Add();
-                                var shape = logoParagraph.Range.InlineShapes.AddPicture(tempLogoPath, LinkToFile: false, SaveWithDocument: true);
-                                shape.Width = 60;
-                                shape.Height = 60;
-                                logoParagraph.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                                Word.Range range = doc.Content;
+                                object replaceAll = Word.WdReplace.wdReplaceAll;
 
-                                // Настройка размера страницы
-                                doc.PageSetup.PageWidth = wordApp.CentimetersToPoints(8);
-                                doc.PageSetup.PageHeight = wordApp.CentimetersToPoints(8);
-                                doc.PageSetup.TopMargin = wordApp.CentimetersToPoints(0.5f);
-                                doc.PageSetup.BottomMargin = wordApp.CentimetersToPoints(0.5f);
-                                doc.PageSetup.LeftMargin = wordApp.CentimetersToPoints(0.5f);
-                                doc.PageSetup.RightMargin = wordApp.CentimetersToPoints(0.5f);
+                                void Replace(string find, string value)
+                                {
+                                    range.Find.Execute(find, ReplaceWith: value, Replace: replaceAll);
+                                }
 
-                                // Заголовок талона
-                                Word.Paragraph para = doc.Content.Paragraphs.Add();
-                                para.Range.Text = "ЗАПИСЬ НА ПРИЁМ";
-                                para.Range.Font.Size = 12;
-                                para.Range.Font.Bold = 1;
-                                para.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                                para.Range.InsertParagraphAfter();
+                                // ===== ЗАМЕНА ПЛЕЙСХОЛДЕРОВ =====
+                                Replace("{number}", number);
+                                Replace("{date}", date);
+                                Replace("{time}", time);
 
-                                // Информация о пациенте, враче и времени
-                                string patStr = label9.Text.Replace("Пациент: ", "");
-                                string docStr = label1.Text.Replace("Врач: ", "");
-                                string dateStr = DateTime.Parse(label7.Text.Replace("Дата приема: ", "")).ToString("dd.MM.yyyy");
-                                string timeStr = label8.Text.Replace("Время приема: ", "").Trim();
+                                Replace("{FIOP}", fioPatient);
+                                Replace("{birthday}", birthday);
+                                Replace("{chils}", chils);
 
-                                Word.Paragraph infoPara = doc.Content.Paragraphs.Add();
-                                infoPara.Range.Text = $"Пациент: {patStr}\n" +
-                                                      $"Врач: {docStr}\n" +
-                                                      $"Дата: {dateStr}  Время: {timeStr}";
-                                infoPara.Range.Font.Size = 12;
-                                infoPara.Range.Font.Bold = 1;
-                                infoPara.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                                infoPara.Range.InsertParagraphAfter();
-                                wordApp.Visible = true; // показываем Word
+                                Replace("{FIO}", fioDoctor);
+                                Replace("{speciality}", speciality);
 
-                                MessageBox.Show("Талон подготовлен в Word.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                wordApp.Visible = true;
+
+                                MessageBox.Show("Талон успешно сформирован!", "Успех",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                             catch (Exception ex)
                             {
-                                MessageBox.Show("Ошибка при создании документа Word: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("Ошибка Word: " + ex.Message);
                             }
                         }
 
