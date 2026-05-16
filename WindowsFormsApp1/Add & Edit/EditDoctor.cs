@@ -198,10 +198,18 @@ namespace WindowsFormsApp1
             LoadSpecialities();                      // Загружаем специальности
             LoadDoctorData();                        // Загружаем данные врача
 
-            photoFolder = System.IO.Path.Combine(Application.StartupPath, "photo"); // Папка фото
-            if (doctorPhoto != null)
+            photoFolder = Path.Combine(Application.StartupPath, "photo");
+
+            if (!string.IsNullOrEmpty(oldPhotoFileName))
             {
-                pictureBox1.Image = new Bitmap(doctorPhoto); // Устанавливаем текущее фото
+                pictureBox1.Image = new Bitmap(doctorPhoto);
+            }
+            else
+            {
+                if (File.Exists(placeholderPath))
+                {
+                    pictureBox1.Image = Image.FromFile(placeholderPath);
+                }
             }
             label6.Text = $"Фото: {(string.IsNullOrEmpty(oldPhotoFileName) ? "нет" : oldPhotoFileName)}"; // Название фото
         }
@@ -257,7 +265,7 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        void UploadPhoto()
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -300,6 +308,11 @@ namespace WindowsFormsApp1
             }
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            UploadPhoto();
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(oldPhotoFileName))
@@ -320,6 +333,11 @@ namespace WindowsFormsApp1
 
             MessageBox.Show("Фото будет удалено после сохранения.", "OK",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            UploadPhoto();
         }
     }
 }

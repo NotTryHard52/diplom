@@ -83,7 +83,7 @@ namespace WindowsFormsApp1
             }
             else
             {
-                finalPhotoFileName = "not-image.png";            // Если фото нет — используем заглушку
+                finalPhotoFileName = "";            // Если фото нет — используем заглушку
             }
 
             using (MySqlConnection con = new MySqlConnection(connectionString))
@@ -166,41 +166,57 @@ namespace WindowsFormsApp1
             label6.Text = "Фото: нет";                            // Подпись
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        void UploadPhoto()
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())     // Окно выбора файла
+            using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Изображения (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png";
-                // Разрешённые форматы
                 ofd.Title = "Выберите новое фото";
 
-                if (ofd.ShowDialog() == DialogResult.OK)           // Если пользователь выбрал файл
+                if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
-                        FileInfo fileInfo = new FileInfo(ofd.FileName); // Получаем сведения о файле
+                        FileInfo fileInfo = new FileInfo(ofd.FileName);
 
-                        if (fileInfo.Length > 2 * 1024 * 1024)      // Проверяем размер > 2 МБ
+                        if (fileInfo.Length > 1 * 1024 * 1024)
                         {
-                            MessageBox.Show("Размер изображения не должен превышать 2 МБ!", "Ошибка",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Размер изображения не должен превышать 1 МБ!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
-                        Image newImage = Image.FromFile(ofd.FileName);  // Загружаем изображение
-                        pictureBox1.Image = new Bitmap(newImage);       // Отображаем в PictureBox
+                        using (Image newImage = Image.FromFile(ofd.FileName))
+                        {
+                            // Проверка разрешения 400x400
+                            if (newImage.Width != 400 || newImage.Height != 400)
+                            {
+                                MessageBox.Show("Изображение должно быть размером 400x400 пикселей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
 
-                        selectedPhotoFullPath = ofd.FileName;           // Запоминаем путь
+                            pictureBox1.Image = new Bitmap(newImage);
+                        }
+
+                        selectedPhotoFullPath = ofd.FileName;
                         selectedPhotoFileName = Path.GetFileName(ofd.FileName);
-                        label6.Text = $"Фото: {selectedPhotoFileName}"; // Обновляем подпись
+                        label6.Text = $"Фото: {selectedPhotoFileName}";
                     }
-                    catch (Exception ex)                                // Обработка ошибок
+                    catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}", "Ошибка",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            UploadPhoto();
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            UploadPhoto();
         }
     }
 }

@@ -36,6 +36,10 @@ namespace WindowsFormsApp1
 
         private void Doctor_Load(object sender, EventArgs e)
         {
+            typeof(FlowLayoutPanel)
+                    .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    ?.SetValue(flowLayoutPanel1, true, null);
+
             FillSpecialties();                 // Заполнение списка специальностей
             comboBox2.SelectedIndex = 0;       // Значение сортировки по умолчанию
             comboBox1.SelectedIndex = 0;       // Фильтр специальностей по умолчанию
@@ -70,28 +74,12 @@ namespace WindowsFormsApp1
             LoadDoctorPhotos(doctorsTable);       // Загружаем фото врачей в таблицу
 
             DisplayCards(doctorsTable); // Привязка таблицы к DataGridView
-
-            //dataGridView1.Columns["idDoctors"].Visible = false; // Скрываем ID
-            //dataGridView1.Columns["Surname"].HeaderText = "Фамилия";
-            //dataGridView1.Columns["Name"].HeaderText = "Имя";
-            //dataGridView1.Columns["Lastname"].HeaderText = "Отчество";
-            //dataGridView1.Columns["Phone_number"].HeaderText = "Телефон";
-            //dataGridView1.Columns["SpecialityName"].HeaderText = "Специальность";
-            //dataGridView1.Columns["Photo"].Visible = false;      // Скрываем текстовое имя фото
-
-            //label9.Text = $"Количество записей: {doctorsTable.Rows.Count}"; // Вывод количества
             groupBox2.Text = $"Количество записей: {doctorsTable.Rows.Count}";
-
-            // Колонка с изображениями
-            //DataGridViewImageColumn imgCol = (DataGridViewImageColumn)dataGridView1.Columns["Фото"];
-            //imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom; // Масштабирование фото
-
-            //dataGridView1.RowTemplate.Height = 100; // Высота строки из-за фото
-            //dataGridView1.Refresh();                // Перерисовка
         }
 
         private void DisplayCards(DataTable table)
         {
+            flowLayoutPanel1.SuspendLayout();
             flowLayoutPanel1.Controls.Clear();
 
             foreach (DataRow row in table.Rows)
@@ -112,6 +100,7 @@ namespace WindowsFormsApp1
                 flowLayoutPanel1.Controls.Add(card);
             }
 
+            flowLayoutPanel1.ResumeLayout();
             groupBox2.Text = $"Количество записей: {table.Rows.Count}";
             UpdateCardLayout();
         }

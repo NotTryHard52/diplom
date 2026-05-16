@@ -155,13 +155,12 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
-                string query = $@"
-                                SELECT 
-                                    IFNULL(SUM(o.TotalSum), 0)
-                                FROM `Order` o
-                                JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
-                                {filterSql};
-                            ";
+                string query = @"
+                        SELECT IFNULL(SUM(o.TotalSum), 0)
+                        FROM `Order` o
+                        JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
+                        WHERE st.name NOT IN ('Отменён', 'Создан');
+                        ";
 
                 MySqlCommand cmd = new MySqlCommand(query, con);
 

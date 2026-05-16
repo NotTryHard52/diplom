@@ -357,8 +357,8 @@
     <None Include="ordertemp.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ordertempnotable.docx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="otchettemplate.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

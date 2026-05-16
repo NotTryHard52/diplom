@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -42,7 +43,7 @@ namespace WindowsFormsApp1
                 // SQL-запрос для получения информации о заказах
                 string query = @"
             SELECT 
-                o.idOrder AS 'Номер талона',
+                o.idOrder AS 'Номер',
                 CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
                 DATE_FORMAT(sc.date, '%d.%m.%Y') AS 'Дата',
                 DATE_FORMAT(sc.time, '%H:%i') AS 'Время',
@@ -51,7 +52,7 @@ namespace WindowsFormsApp1
                 st.name AS 'Статус',
                 o.sum AS 'Сумма',
                 o.Discount AS 'Скидка',
-                o.TotalSum AS 'К оплате'
+                o.TotalSum AS 'Итого'
             FROM `Order` o
             JOIN Schedule sc ON o.Schedule = sc.idSchedule
             JOIN Doctors d ON sc.idDoctor = d.idDoctors
@@ -65,8 +66,22 @@ namespace WindowsFormsApp1
                 da.Fill(orderTable);
 
                 // Настройка DataGridView
-                dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
                 dataGridView1.DataSource = orderTable;
+                dataGridView1.Columns["Сумма"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dataGridView1.Columns["Итого"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dataGridView1.Columns["Скидка"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dataGridView1.Columns["Время"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                dataGridView1.Columns["Статус"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                dataGridView1.Columns["Врач"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.Columns["Пациент"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.Columns["Регистратор"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dataGridView1.Columns["Номер"].Width = 75;
+                dataGridView1.Columns["Сумма"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Скидка"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Итого"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Дата"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Время"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                dataGridView1.Columns["Статус"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
 
                 // Настройка ограничений даты по диапазону данных
                 if (orderTable.Rows.Count > 0)
@@ -144,168 +159,143 @@ namespace WindowsFormsApp1
         {
             if (dataGridView1.Rows.Count == 0)
             {
-                MessageBox.Show("Отчёт не может быть сформирован, потому что нет данных в таблице за выбранный период.\n", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Нет данных для отчёта.");
                 return;
             }
 
-            // Окно сохранения файла
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Excel (*.xlsx)|*.xlsx";
-            sfd.FileName = "Отчет.xlsx";
+            sfd.FileName = $"Отчет_{dateFrom.Value:dd-MM-yyyy}_{dateTo.Value:dd-MM-yyyy}.xlsx";
 
             if (sfd.ShowDialog() != DialogResult.OK)
                 return;
 
+            string savedFile = sfd.FileName;
+
+            Excel.Application excel = null;
+            Excel.Workbook workbook = null;
+
             try
             {
-                // Создание Excel-файла
-                Excel.Application excel = new Excel.Application();
-                Excel.Workbook workbook = excel.Workbooks.Add();
-                Excel.Worksheet sheet = workbook.ActiveSheet;
+                excel = new Excel.Application();
+                excel.DisplayAlerts = false;
+                excel.Visible = false;
 
-                sheet.Name = "Отчёт";
+                string templatePath = Path.Combine(Application.StartupPath, "otchettemplate.xlsx");
 
-                // Заголовок отчёта
-                sheet.Cells[1, 1] = "Отчёт по талонам";
-                sheet.Cells[1, 1].Font.Bold = true;
-                sheet.Cells[1, 1].Font.Size = 16;
+                workbook = excel.Workbooks.Open(templatePath);
 
-                // Информация о периоде и дате выгрузки
-                sheet.Cells[3, 1] = "Период:";
-                sheet.Cells[3, 2] = $"{dateFrom.Value:dd.MM.yyyy} — {dateTo.Value:dd.MM.yyyy}";
-                sheet.Cells[4, 1] = "Дата выгрузки:";
-                sheet.Cells[4, 2] = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
+                Excel.Worksheet dataSheet =
+                    (Excel.Worksheet)workbook.Worksheets["DATA"];
 
-                int startRow = 6;
+                Excel.Worksheet dashboardSheet =
+                    (Excel.Worksheet)workbook.Worksheets["DASHBOARD"];
 
-                // Заголовки колонок
-                for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                dashboardSheet.Range["B1"].Value2 =
+                    $"{dateFrom.Value:dd.MM.yyyy} - {dateTo.Value:dd.MM.yyyy}";
+
+                Excel.ListObject table =
+                    dataSheet.ListObjects["TicketsTable"];
+
+                if (table == null)
                 {
-                    sheet.Cells[startRow, i + 1] = dataGridView1.Columns[i].HeaderText;
+                    MessageBox.Show("Таблица TicketsTable не найдена.");
+                    return;
                 }
 
-                Excel.Range headerRange = sheet.Range[
-                    sheet.Cells[startRow, 1],
-                    sheet.Cells[startRow, dataGridView1.Columns.Count]
+                var rows = dataGridView1.Rows
+                    .Cast<DataGridViewRow>()
+                    .Where(r => !r.IsNewRow)
+                    .ToList();
+
+                int rowCount = rows.Count;
+                int colCount = dataGridView1.Columns.Count;
+
+                object[,] data = new object[rowCount, colCount];
+
+                for (int r = 0; r < rowCount; r++)
+                {
+                    for (int c = 0; c < colCount; c++)
+                    {
+                        data[r, c] = rows[r].Cells[c].Value ?? "";
+                    }
+                }
+
+                Excel.Range newRange = dataSheet.Range[
+                    dataSheet.Cells[1, 1],
+                    dataSheet.Cells[rowCount + 1, colCount]
                 ];
 
-                // Форматирование заголовков
-                headerRange.Font.Bold = true;
-                headerRange.Interior.Color = Color.LightBlue;
-                headerRange.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-                headerRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+                table.Resize(newRange);
+                Excel.Range body = table.DataBodyRange;
 
-                // Заполнение данных
-                for (int r = 0; r < dataGridView1.Rows.Count; r++)
+                if (body != null && rowCount > 0)
                 {
-                    for (int c = 0; c < dataGridView1.Columns.Count; c++)
-                    {
-                        sheet.Cells[startRow + 1 + r, c + 1] =
-                            dataGridView1.Rows[r].Cells[c].Value?.ToString();
-                    }
+                    body.Value2 = data;
                 }
+                workbook.RefreshAll();
 
-                // Индекс колонки "Статус"
-                int statusColumnIndex = -1;
-                for (int i = 0; i < dataGridView1.Columns.Count; i++)
+                foreach (Excel.Worksheet ws in workbook.Worksheets)
                 {
-                    if (dataGridView1.Columns[i].HeaderText == "Статус")
+                    try
                     {
-                        statusColumnIndex = i + 1;
-                        break;
-                    }
-                }
-
-                // Цветовое оформление строк в зависимости от статуса
-                if (statusColumnIndex != -1)
-                {
-                    for (int r = 0; r < dataGridView1.Rows.Count; r++)
-                    {
-                        string status = dataGridView1.Rows[r].Cells["Статус"].Value?.ToString();
-                        Excel.Range rowRange = sheet.Range[
-                            sheet.Cells[startRow + 1 + r, 1],
-                            sheet.Cells[startRow + 1 + r, dataGridView1.Columns.Count]
-                        ];
-
-                        if (status != null)
+                        foreach (Excel.PivotTable pt in ws.PivotTables())
                         {
-                            status = status.Trim().ToLower();
-                            if (status.Contains("заверш"))
-                                rowRange.Interior.Color = Color.LightGreen;
-                            else if (status.Contains("отмен"))
-                                rowRange.Interior.Color = Color.LightCoral;
-                            else if (status.Contains("создан"))
-                                rowRange.Interior.Color = Color.LightYellow;
+                            pt.RefreshTable();
                         }
                     }
+                    catch { }
                 }
-
-                // Границы и автоширина колонок
-                Excel.Range fullTable = sheet.Range[
-                    sheet.Cells[startRow, 1],
-                    sheet.Cells[startRow + dataGridView1.Rows.Count, dataGridView1.Columns.Count]
-                ];
-                fullTable.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
-                fullTable.Columns.AutoFit();
-
-                // Итоговые показатели
-                int totalsRow = startRow + dataGridView1.Rows.Count + 2;
-                decimal totalSum = 0;
-                int countCompleted = 0;
-                int countCreated = 0;
-                int countCanceled = 0;
-
-                foreach (DataGridViewRow row in dataGridView1.Rows)
-                {
-                    string status = row.Cells["Статус"].Value?.ToString()?.ToLower();
-
-                    if (status != null)
-                    {
-                        if (status.Contains("заверш")) countCompleted++;
-                        if (status.Contains("создан")) countCreated++;
-                        if (status.Contains("отмен")) countCanceled++;
-                    }
-
-                    if (status != null && (status.Contains("отмен") || status.Contains("создан")))
-                        continue;
-
-                    if (row.Cells["Сумма"].Value != null)
-                        totalSum += Convert.ToDecimal(row.Cells["Сумма"].Value);
-                }
-
-                // Вывод итогов в Excel
-                sheet.Cells[totalsRow, 1] = "Всего записей:";
-                sheet.Cells[totalsRow, 2] = dataGridView1.Rows.Count;
-                sheet.Cells[totalsRow, 1].Font.Bold = true;
-
-                sheet.Cells[totalsRow + 1, 1] = "Итоговая сумма (завершённые):";
-                sheet.Cells[totalsRow + 1, 2] = totalSum;
-                sheet.Cells[totalsRow + 1, 1].Font.Bold = true;
-
-                sheet.Cells[totalsRow + 3, 1] = "Завершено:";
-                sheet.Cells[totalsRow + 3, 2] = countCompleted;
-
-                sheet.Cells[totalsRow + 4, 1] = "Создано:";
-                sheet.Cells[totalsRow + 4, 2] = countCreated;
-
-                sheet.Cells[totalsRow + 5, 1] = "Отменено:";
-                sheet.Cells[totalsRow + 5, 2] = countCanceled;
-
-                sheet.Range[
-                    sheet.Cells[totalsRow + 3, 1],
-                    sheet.Cells[totalsRow + 5, 2]
-                ].Font.Bold = true;
-
-                // Сохраняем Excel-файл
-                workbook.SaveAs(sfd.FileName);
-                workbook.Close();
-                excel.Quit();
-
-                MessageBox.Show($"Отчёт успешно создан!\nФайл сохранён по адресу:\n{sfd.FileName}", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                workbook.SaveAs(savedFile);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка: " + ex.Message);
+                MessageBox.Show("Ошибка:\n" + ex.Message);
+                return;
+            }
+            finally
+            {
+                try
+                {
+                    if (workbook != null)
+                    {
+                        workbook.Close(false);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook);
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    if (excel != null)
+                    {
+                        excel.Quit();
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(excel);
+                    }
+                }
+                catch { }
+
+                workbook = null;
+                excel = null;
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+
+            DialogResult result = MessageBox.Show(
+                "Отчёт успешно создан!\n\nОткрыть файл?",
+                "Готово",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = savedFile,
+                    UseShellExecute = true
+                });
             }
         }
 
