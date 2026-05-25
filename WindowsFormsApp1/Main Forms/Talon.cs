@@ -130,8 +130,8 @@ namespace WindowsFormsApp1
 
             decimal discount = 0;
 
-            // Применяем скидку 5% если сумма больше 1000
-            if (total > 1000)
+            // Применяем скидку 5% если сумма больше 5000
+            if (total > 5000)
             {
                 discount = total * 0.05m;
             }
@@ -199,7 +199,7 @@ namespace WindowsFormsApp1
             }
 
             decimal discount = 0;
-            if (total > 1000)
+            if (total > 5000)
             {
                 discount = total * 0.05m; // 5% скидка
             }

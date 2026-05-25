@@ -64,7 +64,7 @@ namespace WindowsFormsApp1
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(296, 9);
+            this.label1.Location = new System.Drawing.Point(334, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(112, 20);
             this.label1.TabIndex = 19;
@@ -116,7 +116,7 @@ namespace WindowsFormsApp1
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(795, 5);
+            this.label3.Location = new System.Drawing.Point(795, 11);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(193, 20);
             this.label3.TabIndex = 34;
@@ -127,7 +127,7 @@ namespace WindowsFormsApp1
             this.comboBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(799, 28);
+            this.comboBox2.Location = new System.Drawing.Point(799, 31);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(227, 28);
             this.comboBox2.TabIndex = 33;
@@ -135,7 +135,7 @@ namespace WindowsFormsApp1
             // 
             // dateTimePicker1
             // 
-            this.dateTimePicker1.Location = new System.Drawing.Point(300, 30);
+            this.dateTimePicker1.Location = new System.Drawing.Point(338, 34);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(200, 26);
             this.dateTimePicker1.TabIndex = 35;
@@ -144,7 +144,7 @@ namespace WindowsFormsApp1
             // 
             this.dateTimePicker2.CustomFormat = "HH:mm";
             this.dateTimePicker2.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dateTimePicker2.Location = new System.Drawing.Point(506, 30);
+            this.dateTimePicker2.Location = new System.Drawing.Point(544, 34);
             this.dateTimePicker2.Name = "dateTimePicker2";
             this.dateTimePicker2.ShowUpDown = true;
             this.dateTimePicker2.Size = new System.Drawing.Size(158, 26);
@@ -155,7 +155,7 @@ namespace WindowsFormsApp1
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(502, 7);
+            this.label4.Location = new System.Drawing.Point(540, 11);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(122, 20);
             this.label4.TabIndex = 36;
@@ -164,7 +164,7 @@ namespace WindowsFormsApp1
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 9);
+            this.label5.Location = new System.Drawing.Point(8, 9);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(51, 20);
             this.label5.TabIndex = 38;
@@ -176,7 +176,7 @@ namespace WindowsFormsApp1
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(12, 32);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(282, 28);
+            this.comboBox1.Size = new System.Drawing.Size(320, 28);
             this.comboBox1.TabIndex = 39;
             // 
             // label7
@@ -205,9 +205,9 @@ namespace WindowsFormsApp1
             this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button5.ForeColor = System.Drawing.Color.White;
-            this.button5.Location = new System.Drawing.Point(1032, 22);
+            this.button5.Location = new System.Drawing.Point(1032, 31);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(146, 38);
+            this.button5.Size = new System.Drawing.Size(146, 28);
             this.button5.TabIndex = 65;
             this.button5.Text = "Очистить";
             this.button5.UseVisualStyleBackColor = false;

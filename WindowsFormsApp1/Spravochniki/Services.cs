@@ -20,7 +20,18 @@ namespace WindowsFormsApp1
             openedFromTalon = fromTalon;
 
             // Кнопка выбора услуги видна только если форма открыта из талона
+            if(openedFromTalon)
+            {
+                button1.Visible = false; // Скрываем кнопку "Добавить"
+                button2.Visible = false; // Скрываем кнопку "Редактировать"
+                button3.Visible = false; // Скрываем кнопку "Удалить"
+                textBox1.Enabled = false;
+                textBox2.Enabled = false;
+                comboBox1.Enabled = false;
+            }
+            button4.Location = new System.Drawing.Point(14, 520);
             button4.Visible = openedFromTalon;
+            
         }
 
         // Загрузка формы

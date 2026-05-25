@@ -7,13 +7,13 @@ namespace WindowsFormsApp1
     public partial class Form1 : Form
     {
         private int currentUserId;       // ID текущего пользователя
-        private string currentRole;      // Роль текущего пользователя
+        private int currentRole;      // Роль текущего пользователя
         private Form activeForm = null;  // Ссылка на текущую открытую дочернюю форму
         Color activeColor = Color.FromArgb(91, 122, 196);   // активная
         Color defaultColor = Color.White; // обычная 
 
         // Конструктор формы, принимает ФИО, ID и роль пользователя
-        public Form1(string FIO, int userId, string role)
+        public Form1(string FIO, int userId, int role)
         {
             InitializeComponent();        // Инициализация компонентов формы
             label_fio.Text = FIO;         // Отображаем ФИО пользователя на форме

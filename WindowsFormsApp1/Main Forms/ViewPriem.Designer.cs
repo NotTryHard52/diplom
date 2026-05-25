@@ -285,7 +285,7 @@ namespace WindowsFormsApp1
             this.MinimumSize = new System.Drawing.Size(976, 610);
             this.Name = "ViewPriem";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Просмотр приема";
+            this.Text = "Просмотр талона";
             this.Load += new System.EventHandler(this.ViewPriem_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);

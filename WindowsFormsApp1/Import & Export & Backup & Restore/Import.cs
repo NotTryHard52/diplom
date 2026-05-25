@@ -35,7 +35,7 @@ namespace WindowsFormsApp1
                 DataTable dt2 = new DataTable();
                 da.Fill(dt2);
                 comboBox1.DataSource = dt2;
-                comboBox1.DisplayMember = "Tables_in_vkr";
+                comboBox1.DisplayMember = "Tables_in_dentistryDB";
             }
         }
 

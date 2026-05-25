@@ -7,13 +7,13 @@ namespace WindowsFormsApp1
     public partial class Menu_registrator : Form
     {
         private int currentUserId; // ID текущего пользователя
-        private string currentRole; // роль текущего пользователя
+        private int currentRole; // роль текущего пользователя
         private Form activeForm = null; // текущая открытая дочерняя форма
         Color activeColor = Color.FromArgb(91, 122, 196);   // активная
         Color defaultColor = Color.White; // обычная 
 
         // Конструктор формы Menu_registrator, принимает ФИО, ID пользователя и роль
-        public Menu_registrator(string FIO, int userId, string role)
+        public Menu_registrator(string FIO, int userId, int role)
         {
             InitializeComponent();
             label_fio.Text = FIO; // отображаем ФИО пользователя
@@ -118,9 +118,6 @@ namespace WindowsFormsApp1
         // Кнопки для открытия различных дочерних форм
         private void button1_Click(object sender, EventArgs e)
         {
-            OpenChildForm(new Services(false), button1);
-            label_fio.Visible = false; // скрываем ФИО
-            label_role.Visible = false; // скрываем роль
         }
 
         private void button3_Click(object sender, EventArgs e)

@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using WindowsFormsApp1.Import___Export___Backup;
 
 namespace WindowsFormsApp1
 {
     public partial class Menu : Form
     {
         private int currentUserId; // ID текущего пользователя
-        private string currentRole; // роль текущего пользователя
+        private int currentRole; // роль текущего пользователя
         private Form activeForm = null; // ссылка на текущую открытую дочернюю форму
         Color activeColor = Color.FromArgb(91, 122, 196);   // активная
         Color defaultColor = Color.White; // обычная 
 
         // Конструктор формы Menu, принимает ФИО пользователя, его ID и роль
-        public Menu(string FIO, int userId, string role)
+        public Menu(string FIO, int userId, int role)
         {
             InitializeComponent();
             label_fio.Text = FIO; // отображаем ФИО пользователя
@@ -154,6 +155,18 @@ namespace WindowsFormsApp1
         {
             Export export = new Export();
             export.ShowDialog();
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            var serviceForm = new Service();
+
+            OpenChildForm(serviceForm, button10); // открываем форму справочников
+        }
+
+        private void button5_Click_1(object sender, EventArgs e)
+        {
+            OpenChildForm(new Services(false), button5);
         }
     }
 }

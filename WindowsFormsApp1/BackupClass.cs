@@ -47,5 +47,32 @@ namespace WindowsFormsApp1
 
             return fullPath;
         }
+
+        public static void RestoreBackup(string sqlFilePath)
+        {
+            if (!File.Exists(sqlFilePath))
+            {
+                throw new FileNotFoundException("Файл резервной копии не найден.");
+            }
+
+            Connect connect = new Connect();
+
+            using (MySqlConnection conn = new MySqlConnection(connect.ConnectDB()))
+            {
+                using (MySqlCommand cmd = new MySqlCommand())
+                {
+                    using (MySqlBackup mb = new MySqlBackup(cmd))
+                    {
+                        cmd.Connection = conn;
+
+                        conn.Open();
+
+                        mb.ImportFromFile(sqlFilePath);
+
+                        conn.Close();
+                    }
+                }
+            }
+        }
     }
 }

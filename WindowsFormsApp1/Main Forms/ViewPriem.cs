@@ -336,7 +336,7 @@ namespace WindowsFormsApp1
             }
 
             decimal discount = 0;
-            if (sum > 1000) discount = sum * 0.05m; // Скидка 5% при сумме >1000
+            if (sum > 5000) discount = sum * 0.05m; // Скидка 5% при сумме >5000
             decimal total = sum - discount;
 
             // Обновление меток

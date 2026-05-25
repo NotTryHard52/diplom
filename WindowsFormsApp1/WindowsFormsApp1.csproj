@@ -39,7 +39,7 @@
   <ItemGroup>
     <Reference Include="MySql.Data, Version=9.1.0.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Downloads\PR38\PR28_Chirkov\PR28_Chirkov\bin\Debug\MySql.Data.dll</HintPath>
+      <HintPath>..\..\..\..\..\source\repos\PR07_Chirkov\PR07_Chirkov\bin\Debug\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="MySqlBackup, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MySqlBackup.1.0.1\lib\MySqlBackup.dll</HintPath>
@@ -72,10 +72,10 @@
       <DependentUpon>AddPatient.cs</DependentUpon>
     </Compile>
     <Compile Include="BackupClass.cs" />
-    <Compile Include="Import &amp; Export &amp; Backup\Backup.cs">
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Backup.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Import &amp; Export &amp; Backup\Backup.Designer.cs">
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Backup.Designer.cs">
       <DependentUpon>Backup.cs</DependentUpon>
     </Compile>
     <Compile Include="Connect.cs" />
@@ -97,18 +97,30 @@
     <Compile Include="Add &amp; Edit\EditPatient.Designer.cs">
       <DependentUpon>EditPatient.cs</DependentUpon>
     </Compile>
-    <Compile Include="Import &amp; Export &amp; Backup\Export.cs">
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Export.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Import &amp; Export &amp; Backup\Export.Designer.cs">
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Export.Designer.cs">
       <DependentUpon>Export.cs</DependentUpon>
     </Compile>
     <Compile Include="HoverDataGridView.cs" />
-    <Compile Include="Import &amp; Export &amp; Backup\Import.cs">
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Import.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Import &amp; Export &amp; Backup\Import.Designer.cs">
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Import.Designer.cs">
       <DependentUpon>Import.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Restore.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Restore.Designer.cs">
+      <DependentUpon>Restore.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Service.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Import &amp; Export &amp; Backup &amp; Restore\Service.Designer.cs">
+      <DependentUpon>Service.cs</DependentUpon>
     </Compile>
     <Compile Include="InputLimit.cs" />
     <Compile Include="Menu\Main_menu.cs">
@@ -256,7 +268,7 @@
     <EmbeddedResource Include="Add &amp; Edit\AddPatient.resx">
       <DependentUpon>AddPatient.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Import &amp; Export &amp; Backup\Backup.resx">
+    <EmbeddedResource Include="Import &amp; Export &amp; Backup &amp; Restore\Backup.resx">
       <DependentUpon>Backup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DoctorCard.resx">
@@ -268,11 +280,17 @@
     <EmbeddedResource Include="Add &amp; Edit\EditPatient.resx">
       <DependentUpon>EditPatient.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Import &amp; Export &amp; Backup\Export.resx">
+    <EmbeddedResource Include="Import &amp; Export &amp; Backup &amp; Restore\Export.resx">
       <DependentUpon>Export.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Import &amp; Export &amp; Backup\Import.resx">
+    <EmbeddedResource Include="Import &amp; Export &amp; Backup &amp; Restore\Import.resx">
       <DependentUpon>Import.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Import &amp; Export &amp; Backup &amp; Restore\Restore.resx">
+      <DependentUpon>Restore.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Import &amp; Export &amp; Backup &amp; Restore\Service.resx">
+      <DependentUpon>Service.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Menu\Main_menu.resx">
       <DependentUpon>Main_menu.cs</DependentUpon>

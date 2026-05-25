@@ -99,7 +99,7 @@ namespace WindowsFormsApp1
 
                     int userId = Convert.ToInt32(userRow["idUsers"]);
                     string dbPasswordHash = userRow["Password"].ToString();
-                    string role = userRow["Role"].ToString();
+                    int role = Convert.ToInt32(userRow["Role"].ToString());
                     string FIO = $"{userRow["Surname"]} {userRow["Name"]} {userRow["Lastname"]}";
 
                     // Проверка пароля
@@ -141,15 +141,15 @@ namespace WindowsFormsApp1
                     textBox2.Clear();
                     this.Hide();
                     Form nextForm = null;
-                    if (role == "1") // Администратор
+                    if (role == 1) // Администратор
                     {
                         nextForm = new Menu(FIO, userId, role);
                     }
-                    else if (role == "2") // Регистратор
+                    else if (role == 2) // Регистратор
                     {
                         nextForm = new Menu_registrator(FIO, userId, role);
                     }
-                    else if (role == "3") // Главный врач
+                    else if (role == 3) // Главный врач
                     {
                         nextForm = new Form1(FIO, userId, role);
                     }

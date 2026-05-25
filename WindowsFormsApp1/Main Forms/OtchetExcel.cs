@@ -189,7 +189,7 @@ namespace WindowsFormsApp1
                 Excel.Worksheet dashboardSheet =
                     (Excel.Worksheet)workbook.Worksheets["DASHBOARD"];
 
-                dashboardSheet.Range["B1"].Value2 =
+                dashboardSheet.Range["B2"].Value2 =
                     $"{dateFrom.Value:dd.MM.yyyy} - {dateTo.Value:dd.MM.yyyy}";
 
                 Excel.ListObject table =

@@ -39,7 +39,7 @@ namespace WindowsFormsApp1
             // label_role
             // 
             this.label_role.AutoSize = true;
-            this.label_role.Location = new System.Drawing.Point(4, 211);
+            this.label_role.Location = new System.Drawing.Point(6, 315);
             this.label_role.Name = "label_role";
             this.label_role.Size = new System.Drawing.Size(47, 20);
             this.label_role.TabIndex = 20;
@@ -51,16 +51,16 @@ namespace WindowsFormsApp1
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackgroundImage = global::WindowsFormsApp1.Properties.Resources.меню;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.pictureBox1.Location = new System.Drawing.Point(486, -8);
+            this.pictureBox1.Location = new System.Drawing.Point(661, -8);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(526, 586);
+            this.pictureBox1.Size = new System.Drawing.Size(526, 701);
             this.pictureBox1.TabIndex = 19;
             this.pictureBox1.TabStop = false;
             // 
             // label_fio
             // 
             this.label_fio.AutoSize = true;
-            this.label_fio.Location = new System.Drawing.Point(4, 236);
+            this.label_fio.Location = new System.Drawing.Point(6, 340);
             this.label_fio.Name = "label_fio";
             this.label_fio.Size = new System.Drawing.Size(47, 20);
             this.label_fio.TabIndex = 22;
@@ -70,7 +70,7 @@ namespace WindowsFormsApp1
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label8.Location = new System.Drawing.Point(1, 161);
+            this.label8.Location = new System.Drawing.Point(3, 265);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(350, 39);
             this.label8.TabIndex = 21;
@@ -81,7 +81,7 @@ namespace WindowsFormsApp1
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1013, 571);
+            this.ClientSize = new System.Drawing.Size(1188, 686);
             this.Controls.Add(this.label_role);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label_fio);
