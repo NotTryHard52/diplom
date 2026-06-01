@@ -13,6 +13,10 @@ namespace WindowsFormsApp1
         string connectionString;
         // Таблица с данными расписания
         DataTable scheduleTable;
+        // Таблица с данными врачей для поиска
+        DataTable doctorsTable;
+        // Флаг, чтобы предотвратить повторный вход в обработчик фильтрации
+        bool isFilteringCombo = false;
         // ID выбранной записи расписания
         int selectedScheduleId = -1;
         // Событие, передающее выбранную запись (для формы талона)
@@ -74,10 +78,70 @@ namespace WindowsFormsApp1
                 DataTable dt = new DataTable();
                 adapter.Fill(dt);
 
-                comboBox1.DataSource = dt;
+                // Сохраняем оригинальную таблицу для фильтрации
+                doctorsTable = dt;
+
+                // Разрешаем ввод в combobox и настраиваем поиск
+                comboBox1.DropDownStyle = ComboBoxStyle.DropDown;
+                comboBox1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                comboBox1.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+                var ac = new AutoCompleteStringCollection();
+                foreach (DataRow r in dt.Rows)
+                    ac.Add(r["FullName"].ToString());
+                comboBox1.AutoCompleteCustomSource = ac;
+
+                // Привязываем полную таблицу
+                comboBox1.DataSource = doctorsTable.Copy();
                 comboBox1.DisplayMember = "FullName";   // что показывать
                 comboBox1.ValueMember = "idDoctors";    // значение (ID)
                 comboBox1.SelectedIndex = -1;           // ничего не выбрано по умолчанию
+
+                // Подписываемся на изменение текста для фильтрации
+                comboBox1.TextChanged -= ComboBox1_TextChanged;
+                comboBox1.TextChanged += ComboBox1_TextChanged;
+            }
+        }
+
+        private void ComboBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (isFilteringCombo) return;
+            if (doctorsTable == null) return;
+
+            string txt = comboBox1.Text.Trim();
+
+            int selStart = comboBox1.SelectionStart;
+            string current = comboBox1.Text;
+
+            try
+            {
+                isFilteringCombo = true;
+                comboBox1.BeginUpdate();
+
+                if (string.IsNullOrEmpty(txt))
+                {
+                    comboBox1.DataSource = doctorsTable.Copy();
+                }
+                else
+                {
+                    DataView dv = new DataView(doctorsTable);
+                    string filter = txt.Replace("'", "''");
+                    dv.RowFilter = string.Format("FullName LIKE '%{0}%'", filter);
+                    DataTable filtered = dv.ToTable();
+                    comboBox1.DataSource = filtered;
+                }
+
+                // Восстанавливаем текст и позицию курсора
+                comboBox1.Text = current;
+                try { comboBox1.SelectionStart = Math.Min(selStart, comboBox1.Text.Length); } catch { }
+
+                // Показываем список подсказок только если есть результаты
+                try { if (comboBox1.Items.Count > 0) comboBox1.DroppedDown = true; } catch { }
+            }
+            finally
+            {
+                try { comboBox1.EndUpdate(); } catch { }
+                isFilteringCombo = false;
             }
         }
 

@@ -40,6 +40,25 @@ namespace WindowsFormsApp1
                     return;
                 }
 
+                // Встроенный вход без БД
+                if (textBox1.Text == "admin" && textBox2.Text == "admin")
+                {
+                    string FIO = "";
+                    int userId = 0;
+                    int role = 1;
+
+                    textBox1.Clear();
+                    textBox2.Clear();
+
+                    this.Hide();
+
+                    Form nextForm = new Menu(FIO, userId, role, true);
+                    nextForm.FormClosed += (s, args) => this.Show();
+                    nextForm.Show();
+
+                    return;
+                }
+
                 if (DateTime.Now < blockUntil)
                 {
                     int secondsLeft = (int)(blockUntil - DateTime.Now).TotalSeconds;
@@ -143,7 +162,7 @@ namespace WindowsFormsApp1
                     Form nextForm = null;
                     if (role == 1) // Администратор
                     {
-                        nextForm = new Menu(FIO, userId, role);
+                        nextForm = new Menu(FIO, userId, role, false);
                     }
                     else if (role == 2) // Регистратор
                     {

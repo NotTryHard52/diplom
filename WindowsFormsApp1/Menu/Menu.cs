@@ -12,14 +12,16 @@ namespace WindowsFormsApp1
         private Form activeForm = null; // ссылка на текущую открытую дочернюю форму
         Color activeColor = Color.FromArgb(91, 122, 196);   // активная
         Color defaultColor = Color.White; // обычная 
+        private bool isBuiltInAdmin;
 
         // Конструктор формы Menu, принимает ФИО пользователя, его ID и роль
-        public Menu(string FIO, int userId, int role)
+        public Menu(string FIO, int userId, int role, bool isBuiltInAdmin)
         {
             InitializeComponent();
             label_fio.Text = FIO; // отображаем ФИО пользователя
             currentUserId = userId;
             currentRole = role;
+            this.isBuiltInAdmin = isBuiltInAdmin;
             this.FormClosing += Menu_FormClosing;
         }
 
@@ -122,7 +124,19 @@ namespace WindowsFormsApp1
 
         private void Menu_Load(object sender, EventArgs e)
         {
-            OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7); // При старте открываем главное меню
+            if (isBuiltInAdmin)
+            {
+                button1.Visible = false;
+                button2.Visible = false;
+                button3.Visible = false;
+                button4.Visible = false;
+                button5.Visible = false;
+
+                OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7);
+                return;
+            }
+
+            OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7);
         }
 
         private void button3_Click(object sender, EventArgs e)
