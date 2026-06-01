@@ -66,35 +66,41 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();                              // Открываем соединение
-
-                string checkQuery = "SELECT COUNT(*) FROM Category WHERE Name = @name";
-                // Проверяем, существует ли уже такая категория
-
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@name", categoryName);
-
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar()); // Получаем количество совпадений
-
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show("Такая запись уже существует!", "Дубликат",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    con.Open();                              // Открываем соединение
+
+                    string checkQuery = "SELECT COUNT(*) FROM Category WHERE Name = @name";
+                    // Проверяем, существует ли уже такая категория
+
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@name", categoryName);
+
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar()); // Получаем количество совпадений
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Такая запись уже существует!", "Дубликат",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    string insertQuery = "INSERT INTO Category (Name) VALUES (@name)";
+                    // SQL-запрос добавления
+                    MySqlCommand insertCmd = new MySqlCommand(insertQuery, con);
+                    insertCmd.Parameters.AddWithValue("@name", categoryName);
+                    insertCmd.ExecuteNonQuery();              // Выполняем вставку
+
+                    MessageBox.Show("Запись успешно добавлена!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                string insertQuery = "INSERT INTO Category (Name) VALUES (@name)";
-                // SQL-запрос добавления
-                MySqlCommand insertCmd = new MySqlCommand(insertQuery, con);
-                insertCmd.Parameters.AddWithValue("@name", categoryName);
-                insertCmd.ExecuteNonQuery();              // Выполняем вставку
-
-                MessageBox.Show("Запись успешно добавлена!", "Успех",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
+            catch { 
+            MessageBox.Show("Произошла ошибка при добавлении записи!", "Ошибка",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             textBox1.Clear();                             // Очищаем поле ввода
             LoadCategory();                               // Обновляем таблицу
         }
@@ -137,39 +143,46 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                string checkQuery =
-                    "SELECT COUNT(*) FROM Category WHERE Name = @name AND IdCategory != @id";
-                // Проверка уникальности при редактировании
-
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@name", newName);
-                checkCmd.Parameters.AddWithValue("@id", selectedId);
-
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show("Такая запись уже существует!", "Дубликат",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    con.Open();
+
+                    string checkQuery =
+                        "SELECT COUNT(*) FROM Category WHERE Name = @name AND IdCategory != @id";
+                    // Проверка уникальности при редактировании
+
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@name", newName);
+                    checkCmd.Parameters.AddWithValue("@id", selectedId);
+
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Такая запись уже существует!", "Дубликат",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    string updateQuery =
+                        "UPDATE Category SET Name = @name WHERE IdCategory = @id";
+                    // SQL-запрос обновления категории
+
+                    MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
+                    updateCmd.Parameters.AddWithValue("@name", newName);
+                    updateCmd.Parameters.AddWithValue("@id", selectedId);
+                    updateCmd.ExecuteNonQuery();               // Выполнение UPDATE
+
+                    MessageBox.Show("Запись успешно обновлена!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                string updateQuery =
-                    "UPDATE Category SET Name = @name WHERE IdCategory = @id";
-                // SQL-запрос обновления категории
-
-                MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
-                updateCmd.Parameters.AddWithValue("@name", newName);
-                updateCmd.Parameters.AddWithValue("@id", selectedId);
-                updateCmd.ExecuteNonQuery();               // Выполнение UPDATE
-
-                MessageBox.Show("Запись успешно обновлена!", "Успех",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка при обновлении записи!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             textBox1.Clear();
             selectedId = -1;
             LoadCategory();
@@ -187,46 +200,54 @@ namespace WindowsFormsApp1
             string categoryName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
             // Получаем имя категории
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                string checkQuery =
-                    "SELECT COUNT(*) FROM Services WHERE Category = @categoryId";
-                // Проверяем, используется ли категория в услугах
-
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@categoryId", selectedId);
-
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show(
-                        "Нельзя удалить эту категорию, так как она используется в других записях!",
-                        "Ошибка",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                    return;
+                    con.Open();
+
+                    string checkQuery =
+                        "SELECT COUNT(*) FROM Services WHERE Category = @categoryId";
+                    // Проверяем, используется ли категория в услугах
+
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@categoryId", selectedId);
+
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        MessageBox.Show(
+                            "Нельзя удалить эту категорию, так как она используется в других записях!",
+                            "Ошибка",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    DialogResult result = MessageBox.Show(
+                        $"Вы уверены, что хотите удалить запись: \"{categoryName}\"?",
+                        "Подтверждение удаления",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (result == DialogResult.No)
+                        return;
+
+                    string deleteQuery = "DELETE FROM Category WHERE idCategory = @id";
+                    // SQL-запрос удаления
+
+                    MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
+                    deleteCmd.Parameters.AddWithValue("@id", selectedId);
+                    deleteCmd.ExecuteNonQuery();               // Выполняем DELETE
+
+                    MessageBox.Show("Запись успешно удалена!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                DialogResult result = MessageBox.Show(
-                    $"Вы уверены, что хотите удалить запись: \"{categoryName}\"?",
-                    "Подтверждение удаления",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
-
-                if (result == DialogResult.No)
-                    return;
-
-                string deleteQuery = "DELETE FROM Category WHERE idCategory = @id";
-                // SQL-запрос удаления
-
-                MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
-                deleteCmd.Parameters.AddWithValue("@id", selectedId);
-                deleteCmd.ExecuteNonQuery();               // Выполняем DELETE
-
-                MessageBox.Show("Запись успешно удалена!", "Успех",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Произошла ошибка при удалении записи!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             textBox1.Clear();

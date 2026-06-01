@@ -22,24 +22,26 @@ namespace WindowsFormsApp1
         // Загрузка формы
         private void OtchetExcel_Load(object sender, EventArgs e)
         {
-            // Устанавливаем начальные даты фильтрации
-            dateFrom.Value = DateTime.Now.AddMonths(-1);
-            dateTo.Value = DateTime.Now;
-            dateFrom.MaxDate = DateTime.Now;
-            dateTo.MaxDate = DateTime.Now.AddDays(1);
-
-            // Получаем строку подключения
-            Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
-
-            // Загружаем данные из базы
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-                orderTable = new DataTable();
+                // Устанавливаем начальные даты фильтрации
+                dateFrom.Value = DateTime.Now.AddMonths(-1);
+                dateTo.Value = DateTime.Now;
+                dateFrom.MaxDate = DateTime.Now;
+                dateTo.MaxDate = DateTime.Now.AddDays(1);
 
-                // SQL-запрос для получения информации о заказах
-                string query = @"
+                // Получаем строку подключения
+                Connect connect = new Connect();
+                connectionString = connect.ConnectDB();
+
+                // Загружаем данные из базы
+                using (MySqlConnection con = new MySqlConnection(connectionString))
+                {
+                    con.Open();
+                    orderTable = new DataTable();
+
+                    // SQL-запрос для получения информации о заказах
+                    string query = @"
             SELECT 
                 o.idOrder AS 'Номер',
                 CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS 'Врач',
@@ -59,54 +61,59 @@ namespace WindowsFormsApp1
             JOIN StatusesPriem st ON o.Status = st.idStatusesPriem
         ";
 
-                MySqlCommand cmd = new MySqlCommand(query, con);
-                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                da.Fill(orderTable);
+                    MySqlCommand cmd = new MySqlCommand(query, con);
+                    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                    da.Fill(orderTable);
 
-                // Настройка DataGridView
-                dataGridView1.DataSource = orderTable;
-                dataGridView1.Columns["Сумма"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                dataGridView1.Columns["Итого"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                dataGridView1.Columns["Скидка"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                dataGridView1.Columns["Время"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                dataGridView1.Columns["Статус"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                dataGridView1.Columns["Врач"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dataGridView1.Columns["Пациент"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dataGridView1.Columns["Регистратор"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dataGridView1.Columns["Номер"].Width = 75;
-                dataGridView1.Columns["Сумма"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dataGridView1.Columns["Скидка"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dataGridView1.Columns["Итого"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dataGridView1.Columns["Дата"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dataGridView1.Columns["Время"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dataGridView1.Columns["Статус"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    // Настройка DataGridView
+                    dataGridView1.DataSource = orderTable;
+                    dataGridView1.Columns["Сумма"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    dataGridView1.Columns["Итого"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    dataGridView1.Columns["Скидка"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    dataGridView1.Columns["Время"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    dataGridView1.Columns["Статус"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    dataGridView1.Columns["Врач"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dataGridView1.Columns["Пациент"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dataGridView1.Columns["Регистратор"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dataGridView1.Columns["Номер"].Width = 75;
+                    dataGridView1.Columns["Сумма"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    dataGridView1.Columns["Скидка"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    dataGridView1.Columns["Итого"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    dataGridView1.Columns["Дата"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    dataGridView1.Columns["Время"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    dataGridView1.Columns["Статус"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
 
-                // Настройка ограничений даты по диапазону данных
-                if (orderTable.Rows.Count > 0)
-                {
-                    var dates = orderTable.AsEnumerable()
-                                          .Where(r => r["Дата"] != DBNull.Value)
-                                          .Select(r => Convert.ToDateTime(r["Дата"]))
-                                          .ToList();
-
-                    if (dates.Count > 0)
+                    // Настройка ограничений даты по диапазону данных
+                    if (orderTable.Rows.Count > 0)
                     {
-                        DateTime minDate = dates.Min();
-                        DateTime maxDate = dates.Max();
+                        var dates = orderTable.AsEnumerable()
+                                              .Where(r => r["Дата"] != DBNull.Value)
+                                              .Select(r => Convert.ToDateTime(r["Дата"]))
+                                              .ToList();
 
-                        dateFrom.MinDate = minDate;
-                        dateFrom.MaxDate = maxDate;
-                        dateFrom.Value = minDate;
+                        if (dates.Count > 0)
+                        {
+                            DateTime minDate = dates.Min();
+                            DateTime maxDate = dates.Max();
 
-                        dateTo.MinDate = minDate;
-                        dateTo.MaxDate = maxDate;
-                        dateTo.Value = maxDate;
+                            dateFrom.MinDate = minDate;
+                            dateFrom.MaxDate = maxDate;
+                            dateFrom.Value = minDate;
+
+                            dateTo.MinDate = minDate;
+                            dateTo.MaxDate = maxDate;
+                            dateTo.Value = maxDate;
+                        }
                     }
                 }
-            }
 
-            // Применяем фильтр по дате
-            ApplyFilterAndSort();
+                // Применяем фильтр по дате
+                ApplyFilterAndSort();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке данных:\n" + ex.Message);
+            }
         }
 
         // Кнопка закрытия формы
@@ -238,11 +245,11 @@ namespace WindowsFormsApp1
                     try
                     {
                         foreach (Excel.PivotTable pt in ws.PivotTables())
-                        {
                             pt.RefreshTable();
-                        }
                     }
                     catch { }
+
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(ws);
                 }
                 workbook.SaveAs(savedFile);
             }
@@ -281,7 +288,7 @@ namespace WindowsFormsApp1
             }
 
             DialogResult result = MessageBox.Show(
-                "Отчёт успешно создан!\n\nОткрыть файл?",
+                "Отчёт успешно создан!\nОткрыть файл?",
                 "Готово",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question

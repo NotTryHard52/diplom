@@ -9,6 +9,7 @@ namespace WindowsFormsApp1
         public Backup()
         {
             InitializeComponent();
+            path = null;
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -28,7 +29,7 @@ namespace WindowsFormsApp1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (label2.Text == "*путь не выбран")
+            if (string.IsNullOrEmpty(path))
             {
                 MessageBox.Show("Сначала выберите папку для сохранения", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -38,13 +39,13 @@ namespace WindowsFormsApp1
             {
                 string backupPath = BackupClass.CreateBackupWithDialog(path);
 
-                MessageBox.Show($"Резервная копия успешно создана!\n\nПуть: {backupPath}",
-                              "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Резервная копия успешно создана!\nПуть: {backupPath}", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                path = null;
+                label2.Text = "*путь не выбран";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при создании резервной копии:\n{ex.Message}",
-                              "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ошибка при создании резервной копии:\n{ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

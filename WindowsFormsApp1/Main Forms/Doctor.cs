@@ -46,9 +46,6 @@ namespace WindowsFormsApp1
             comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged; // Обработчик смены фильтра
             textBox5.TextChanged += textBox5_TextChanged;                    // Обработчик ввода поиска
             LoadDoctor();                      // Загрузка списка врачей
-            var hoverEffect = new HoverDataGridView(dataGridView1); // Наведение на строки (эффект подсветки)
-            dataGridView1.Visible = false;
-
         }
 
         private void LoadDoctor()
@@ -91,11 +88,12 @@ namespace WindowsFormsApp1
                 string fio = $"{row["Surname"]} {row["Name"]} {row["Lastname"]}";
                 string phone = row["Phone_number"].ToString();
                 string spec = row["SpecialityName"].ToString();
-                Image photo = row["Фото"] as Image;
+                Image photo = row["PhotoImage"] as Image;
 
                 card.SetData(id, fio, phone, spec, photo);
                 card.EditClicked += Card_EditClicked;
                 card.DeleteClicked += Card_DeleteClicked;
+                card.MouseClick += (s, e) => selectedId = id;
 
                 flowLayoutPanel1.Controls.Add(card);
             }
@@ -110,7 +108,7 @@ namespace WindowsFormsApp1
             if (table == null) return;              // Проверка на null
 
             if (!table.Columns.Contains("Фото"))    // Если нет колонки "Фото"
-                table.Columns.Add("Фото", typeof(Image)); // Создаем колонку с типом Image
+                table.Columns.Add("PhotoImage", typeof(Image));
 
             string photoFolder = Path.Combine(Application.StartupPath, "photo"); // Папка с фото
 
@@ -118,8 +116,8 @@ namespace WindowsFormsApp1
             {
                 string fileName = "not-image.png";  // Фото по умолчанию
 
-                if (row["Photo"] != DBNull.Value && !string.IsNullOrEmpty(row["Photo"].ToString()))
-                    fileName = row["Photo"].ToString(); // Имя файла из БД
+                if (row["Photo"] != DBNull.Value && !string.IsNullOrWhiteSpace(row["Photo"].ToString()))
+                    fileName = row["Photo"].ToString();
 
                 string photoPath = Path.Combine(photoFolder, fileName); // Полный путь
 
@@ -133,13 +131,13 @@ namespace WindowsFormsApp1
                     {
                         using (var tempImg = Image.FromStream(fs))
                         {
-                            row["Фото"] = new Bitmap(tempImg); // Добавляем фото в таблицу
+                            row["PhotoImage"] = new Bitmap(tempImg); // Добавляем фото в таблицу
                         }
                     }
                 }
                 catch
                 {
-                    row["Фото"] = new Bitmap(100, 100); // В случае ошибки — пустая картинка
+                    row["PhotoImage"] = new Bitmap(100, 100); // В случае ошибки — пустая картинка
                 }
             }
         }
@@ -170,29 +168,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (selectedId == -1)     // Если не выбрана строка
-            {
-                MessageBox.Show("Выберите запись для редактирования!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            int doctorId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["idDoctors"].Value); // Получаем ID врача
-
-            Image photo = null;                             // Фото врача
-            if (dataGridView1.SelectedRows[0].Cells["Фото"].Value is Image img)
-            {
-                photo = new Bitmap(img);                    // Делаем копию
-            }
-
-            EditDoctor editForm = new EditDoctor(doctorId, photo); // Создаем форму редактирования
-            editForm.ShowDialog();                                  // Открываем её
-
-            LoadDoctor();                                           // Обновляем таблицу после закрытия
-        }
-
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             ApplyFilterAndSort(); // Сортировка
@@ -205,7 +180,10 @@ namespace WindowsFormsApp1
             string filterExpr = ""; // Строка фильтра
 
             // Фильтр по специальности
-            string selectedSpecialty = comboBox1.SelectedItem?.ToString();
+            string selectedSpecialty =
+                        comboBox1.SelectedIndex > 0
+                        ? comboBox1.SelectedItem.ToString()
+                        : null;
             if (!string.IsNullOrEmpty(selectedSpecialty) && selectedSpecialty != "Все специальности")
             {
                 filterExpr = $"SpecialityName = '{selectedSpecialty.Replace("'", "''")}'";
@@ -230,7 +208,7 @@ namespace WindowsFormsApp1
 
             DataView dv = doctorsTable.DefaultView; // Представление таблицы
             dv.RowFilter = filterExpr;              // Применяем фильтр
-            dv.Sort = sortExpr;                     // Применяем сортировку
+            dv.Sort = string.IsNullOrWhiteSpace(sortExpr) ? null : sortExpr;                     // Применяем сортировку
 
             DisplayCards(dv.ToTable());
 
@@ -318,21 +296,12 @@ namespace WindowsFormsApp1
             LoadDoctor();    // Перезагружаем список
         }
 
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0) // Если нажата строка, а не заголовок
-            {
-                DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-                selectedId = Convert.ToInt32(row.Cells["idDoctors"].Value); // Сохраняем выбранный ID
-            }
-        }
-
         private void Card_EditClicked(object sender, int id)
         {
             Image photo = null;
 
             DataRow[] rows = doctorsTable.Select($"idDoctors = {id}");
-            if (rows.Length > 0 && rows[0]["Фото"] is Image img)
+            if (rows.Length > 0 && rows[0]["PhotoImage"] is Image img)
             {
                 photo = new Bitmap(img);
             }

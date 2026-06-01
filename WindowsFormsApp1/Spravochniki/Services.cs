@@ -224,45 +224,52 @@ namespace WindowsFormsApp1
                 }
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка на дубликат при редактировании
-                string checkQuery = "SELECT COUNT(*) FROM Services WHERE Name = @name AND idServices <> @id";
-                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    checkCmd.Parameters.AddWithValue("@name", name);
-                    checkCmd.Parameters.AddWithValue("@id", selectedId);
-                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-                    if (count > 0)
-                    {
-                        MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                }
+                    con.Open();
 
-                // Обновление записи
-                string updateQuery = @"UPDATE Services 
+                    // Проверка на дубликат при редактировании
+                    string checkQuery = "SELECT COUNT(*) FROM Services WHERE Name = @name AND idServices <> @id";
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                    {
+                        checkCmd.Parameters.AddWithValue("@name", name);
+                        checkCmd.Parameters.AddWithValue("@id", selectedId);
+                        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        if (count > 0)
+                        {
+                            MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+
+                    // Обновление записи
+                    string updateQuery = @"UPDATE Services 
                                        SET Name = @name, Price = @price, Category = @category 
                                        WHERE idServices = @id";
-                using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
-                {
-                    cmd.Parameters.AddWithValue("@name", name);
-                    cmd.Parameters.AddWithValue("@price", price);
-                    cmd.Parameters.AddWithValue("@category", categoryId);
-                    cmd.Parameters.AddWithValue("@id", selectedId);
-                    cmd.ExecuteNonQuery();
+                    using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
+                    {
+                        cmd.Parameters.AddWithValue("@name", name);
+                        cmd.Parameters.AddWithValue("@price", price);
+                        cmd.Parameters.AddWithValue("@category", categoryId);
+                        cmd.Parameters.AddWithValue("@id", selectedId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadServices();
+
+                    // Сброс полей
+                    selectedId = -1;
+                    textBox1.Clear();
+                    textBox2.Clear();
+                    comboBox1.SelectedIndex = -1;
                 }
-
-                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadServices();
-
-                // Сброс полей
-                selectedId = -1;
-                textBox1.Clear();
-                textBox2.Clear();
-                comboBox1.SelectedIndex = -1;
+            }
+            catch
+            {
+                MessageBox.Show("Ошибка при обновлении услуги!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -306,35 +313,42 @@ namespace WindowsFormsApp1
             if (result == DialogResult.No)
                 return;
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка связей с таблицей OrderServices
-                string checkQuery = "SELECT COUNT(*) FROM OrderServices WHERE ServicesId = @id";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@id", selectedId);
-
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show(
-                        "Невозможно удалить запись, так как существуют связанные данные в таблице талонов!",
-                        "Ошибка удаления",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
-                    return;
+                    con.Open();
+
+                    // Проверка связей с таблицей OrderServices
+                    string checkQuery = "SELECT COUNT(*) FROM OrderServices WHERE ServicesId = @id";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@id", selectedId);
+
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        MessageBox.Show(
+                            "Невозможно удалить запись, так как существуют связанные данные в таблице талонов!",
+                            "Ошибка удаления",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
+                        return;
+                    }
+
+                    // Удаление услуги
+                    string deleteQuery = "DELETE FROM Services WHERE idServices = @id";
+                    MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
+                    deleteCmd.Parameters.AddWithValue("@id", selectedId);
+
+                    deleteCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                // Удаление услуги
-                string deleteQuery = "DELETE FROM Services WHERE idServices = @id";
-                MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
-                deleteCmd.Parameters.AddWithValue("@id", selectedId);
-
-                deleteCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при удалении услуги:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             // Сброс полей

@@ -136,31 +136,38 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка на дубликат среди других записей
-                string checkQuery = "SELECT COUNT(*) FROM Statuses WHERE StatusName = @name AND IdStatuses != @id";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@name", newName);
-                checkCmd.Parameters.AddWithValue("@id", selectedId);
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    con.Open();
+
+                    // Проверка на дубликат среди других записей
+                    string checkQuery = "SELECT COUNT(*) FROM Statuses WHERE StatusName = @name AND IdStatuses != @id";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@name", newName);
+                    checkCmd.Parameters.AddWithValue("@id", selectedId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Обновление записи
+                    string updateQuery = "UPDATE Statuses SET StatusName = @name WHERE IdStatuses = @id";
+                    MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
+                    updateCmd.Parameters.AddWithValue("@name", newName);
+                    updateCmd.Parameters.AddWithValue("@id", selectedId);
+                    updateCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                // Обновление записи
-                string updateQuery = "UPDATE Statuses SET StatusName = @name WHERE IdStatuses = @id";
-                MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
-                updateCmd.Parameters.AddWithValue("@name", newName);
-                updateCmd.Parameters.AddWithValue("@id", selectedId);
-                updateCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при обновлении записи: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             textBox1.Clear();
@@ -179,40 +186,47 @@ namespace WindowsFormsApp1
 
             string statusName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка, используется ли этот статус в расписании
-                string checkQuery = "SELECT COUNT(*) FROM Schedule WHERE Status = @statusId";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@statusId", selectedId);
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show("Нельзя удалить этот статус, так как он используется в расписании!",
-                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    con.Open();
+
+                    // Проверка, используется ли этот статус в расписании
+                    string checkQuery = "SELECT COUNT(*) FROM Schedule WHERE Status = @statusId";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@statusId", selectedId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Нельзя удалить этот статус, так как он используется в расписании!",
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Подтверждение удаления
+                    DialogResult result = MessageBox.Show(
+                        $"Вы уверены, что хотите удалить запись: \"{statusName}\"?",
+                        "Подтверждение удаления",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (result == DialogResult.No)
+                        return;
+
+                    // Удаление записи
+                    string deleteQuery = "DELETE FROM Statuses WHERE idStatuses = @id";
+                    MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
+                    deleteCmd.Parameters.AddWithValue("@id", selectedId);
+                    deleteCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                // Подтверждение удаления
-                DialogResult result = MessageBox.Show(
-                    $"Вы уверены, что хотите удалить запись: \"{statusName}\"?",
-                    "Подтверждение удаления",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
-
-                if (result == DialogResult.No)
-                    return;
-
-                // Удаление записи
-                string deleteQuery = "DELETE FROM Statuses WHERE idStatuses = @id";
-                MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
-                deleteCmd.Parameters.AddWithValue("@id", selectedId);
-                deleteCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch
+            {
+                MessageBox.Show("Ошибка при удалении записи! Возможно, она используется в других таблицах.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             textBox1.Clear();

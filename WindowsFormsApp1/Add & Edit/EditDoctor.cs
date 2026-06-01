@@ -49,8 +49,7 @@ namespace WindowsFormsApp1
                 !maskedTextBox1.MaskFull ||
                 comboBox2.SelectedValue == null)
             {
-                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -79,20 +78,7 @@ namespace WindowsFormsApp1
 
             string photoFileToSave = oldPhotoFileName; // Имя фото, которое будет сохранено
 
-            if (photoDeleted) // Если фото удалено
-            {
-                if (!string.IsNullOrEmpty(oldPhotoFileName))
-                {
-                    string fullPath = Path.Combine(photoFolder, oldPhotoFileName);
-                    if (File.Exists(fullPath))
-                    {
-                        try { File.Delete(fullPath); } catch { } // Удаляем старый файл
-                    }
-                }
-                photoFileToSave = null; // Фото не сохраняем
-            }
-            else if (!string.IsNullOrEmpty(selectedPhotoFileName) &&
-                     !string.IsNullOrEmpty(selectedPhotoFullPath)) // Если выбрали новое фото
+            if (!string.IsNullOrEmpty(selectedPhotoFileName) && !string.IsNullOrEmpty(selectedPhotoFullPath)) // Если выбрали новое фото
             {
                 try
                 {
@@ -131,14 +117,28 @@ namespace WindowsFormsApp1
                     MessageBox.Show($"Ошибка при сохранении фото: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+            }           
+            else if (photoDeleted) // Если фото удалено
+            {
+                if (!string.IsNullOrEmpty(oldPhotoFileName))
+                {
+                    string fullPath = Path.Combine(photoFolder, oldPhotoFileName);
+                    if (File.Exists(fullPath))
+                    {
+                        try { File.Delete(fullPath); } catch { } // Удаляем старый файл
+                    }
+                }
+                photoFileToSave = null; // Фото не сохраняем
             }
 
-            // Обновление записи в БД
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
+                // Обновление записи в БД
+                using (MySqlConnection con = new MySqlConnection(connectionString))
+                {
+                    con.Open();
 
-                string checkQuery = @"
+                    string checkQuery = @"
             SELECT COUNT(*) FROM Doctors 
             WHERE Surname = @surname 
               AND Name = @name 
@@ -146,22 +146,22 @@ namespace WindowsFormsApp1
               AND Phone_number = @phone
               AND idDoctors <> @id;";
 
-                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
-                {
-                    checkCmd.Parameters.AddWithValue("@surname", newSurname);
-                    checkCmd.Parameters.AddWithValue("@name", newName);
-                    checkCmd.Parameters.AddWithValue("@lastname", newLastname);
-                    checkCmd.Parameters.AddWithValue("@phone", newPhone);
-                    checkCmd.Parameters.AddWithValue("@id", selectedDoctorId);
-
-                    if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                     {
-                        MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                }
+                        checkCmd.Parameters.AddWithValue("@surname", newSurname);
+                        checkCmd.Parameters.AddWithValue("@name", newName);
+                        checkCmd.Parameters.AddWithValue("@lastname", newLastname);
+                        checkCmd.Parameters.AddWithValue("@phone", newPhone);
+                        checkCmd.Parameters.AddWithValue("@id", selectedDoctorId);
 
-                string query = @"
+                        if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
+                        {
+                            MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+
+                    string query = @"
             UPDATE Doctors
             SET Surname = @surname,
                 Name = @name,
@@ -171,24 +171,62 @@ namespace WindowsFormsApp1
                 Photo = @photo
             WHERE idDoctors = @id;";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, con))
-                {
-                    cmd.Parameters.AddWithValue("@surname", newSurname);
-                    cmd.Parameters.AddWithValue("@name", newName);
-                    cmd.Parameters.AddWithValue("@lastname", newLastname);
-                    cmd.Parameters.AddWithValue("@phone", newPhone);
-                    cmd.Parameters.AddWithValue("@speciality", newSpecialityId);
-                    cmd.Parameters.AddWithValue("@id", selectedDoctorId);
-                    cmd.Parameters.AddWithValue("@photo", string.IsNullOrEmpty(photoFileToSave)
-                        ? (object)DBNull.Value
-                        : photoFileToSave);
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@surname", newSurname);
+                        cmd.Parameters.AddWithValue("@name", newName);
+                        cmd.Parameters.AddWithValue("@lastname", newLastname);
+                        cmd.Parameters.AddWithValue("@phone", newPhone);
+                        cmd.Parameters.AddWithValue("@speciality", newSpecialityId);
+                        cmd.Parameters.AddWithValue("@id", selectedDoctorId);
+                        cmd.Parameters.AddWithValue("@photo", string.IsNullOrEmpty(photoFileToSave)
+                            ? (object)DBNull.Value
+                            : photoFileToSave);
 
-                    cmd.ExecuteNonQuery(); // Выполняем обновление
+                        cmd.ExecuteNonQuery(); // Выполняем обновление
+                                               // Если фото было заменено
+                        if (!string.IsNullOrEmpty(oldPhotoFileName) &&
+                            oldPhotoFileName != photoFileToSave)
+                        {
+                            string checkPhotoQuery =
+                                "SELECT COUNT(*) FROM Doctors WHERE Photo = @photo";
+
+                            using (MySqlCommand photoCheckCmd = new MySqlCommand(checkPhotoQuery, con))
+                            {
+                                photoCheckCmd.Parameters.AddWithValue("@photo", oldPhotoFileName);
+
+                                int photoUsageCount =
+                                    Convert.ToInt32(photoCheckCmd.ExecuteScalar());
+
+                                // После UPDATE текущий врач уже не ссылается на старый файл
+                                if (photoUsageCount == 0)
+                                {
+                                    string oldPhotoPath =
+                                        Path.Combine(photoFolder, oldPhotoFileName);
+
+                                    if (File.Exists(oldPhotoPath))
+                                    {
+                                        try
+                                        {
+                                            File.Delete(oldPhotoPath);
+                                        }
+                                        catch
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-            }
 
-            MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            this.Close(); // Закрываем форму
+                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.Close(); // Закрываем форму
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при обновлении записи: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void EditDoctor_Load(object sender, EventArgs e)
@@ -216,52 +254,66 @@ namespace WindowsFormsApp1
 
         private void LoadSpecialities()
         {
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-                string query = "SELECT idSpeciality, SpecialityName FROM Speciality;";
-                MySqlDataAdapter da = new MySqlDataAdapter(query, con);
-                DataTable t = new DataTable();
-                da.Fill(t);
+                using (MySqlConnection con = new MySqlConnection(connectionString))
+                {
+                    con.Open();
+                    string query = "SELECT idSpeciality, SpecialityName FROM Speciality;";
+                    MySqlDataAdapter da = new MySqlDataAdapter(query, con);
+                    DataTable t = new DataTable();
+                    da.Fill(t);
 
-                comboBox2.DisplayMember = "SpecialityName"; // Отображаемое имя
-                comboBox2.ValueMember = "idSpeciality";     // Значение
-                comboBox2.DataSource = t;
-                comboBox2.SelectedIndex = -1;
+                    comboBox2.DisplayMember = "SpecialityName"; // Отображаемое имя
+                    comboBox2.ValueMember = "idSpeciality";     // Значение
+                    comboBox2.DataSource = t;
+                    comboBox2.SelectedIndex = -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке специальностей: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void LoadDoctorData()
         {
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-                string query = @"
+                using (MySqlConnection con = new MySqlConnection(connectionString))
+                {
+                    con.Open();
+                    string query = @"
                     SELECT d.Surname, d.Name, d.Lastname, d.Phone_number, s.idSpeciality, d.Photo
                     FROM Doctors d
                     JOIN Speciality s ON d.Speciality = s.idSpeciality
                     WHERE d.idDoctors = @id;";
-                MySqlCommand cmd = new MySqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", selectedDoctorId);
+                    MySqlCommand cmd = new MySqlCommand(query, con);
+                    cmd.Parameters.AddWithValue("@id", selectedDoctorId);
 
-                using (MySqlDataReader reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
-                        oldSurname = reader["Surname"].ToString();      // Сохраняем старые значения
-                        oldName = reader["Name"].ToString();
-                        oldLastname = reader["Lastname"].ToString();
-                        oldPhone = reader["Phone_number"].ToString();
-                        oldSpecialityId = Convert.ToInt32(reader["idSpeciality"]);
-                        oldPhotoFileName = reader["Photo"] == DBNull.Value ? "" : reader["Photo"].ToString();
+                        if (reader.Read())
+                        {
+                            oldSurname = reader["Surname"].ToString();      // Сохраняем старые значения
+                            oldName = reader["Name"].ToString();
+                            oldLastname = reader["Lastname"].ToString();
+                            oldPhone = reader["Phone_number"].ToString();
+                            oldSpecialityId = Convert.ToInt32(reader["idSpeciality"]);
+                            oldPhotoFileName = reader["Photo"] == DBNull.Value ? "" : reader["Photo"].ToString();
 
-                        textBox1.Text = oldSurname;     // Заполняем текстбоксы
-                        textBox2.Text = oldName;
-                        textBox3.Text = oldLastname;
-                        maskedTextBox1.Text = oldPhone;
-                        comboBox2.SelectedValue = oldSpecialityId;
+                            textBox1.Text = oldSurname;     // Заполняем текстбоксы
+                            textBox2.Text = oldName;
+                            textBox3.Text = oldLastname;
+                            maskedTextBox1.Text = oldPhone;
+                            comboBox2.SelectedValue = oldSpecialityId;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке данных врача: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -293,11 +345,14 @@ namespace WindowsFormsApp1
                                 return;
                             }
 
+                            Image oldImage = pictureBox1.Image;
                             pictureBox1.Image = new Bitmap(newImage);
+                            oldImage?.Dispose();
                         }
 
                         selectedPhotoFullPath = ofd.FileName;
                         selectedPhotoFileName = Path.GetFileName(ofd.FileName);
+                        photoDeleted = false; // пользователь выбрал новое фото
                         label6.Text = $"Фото: {selectedPhotoFileName}";
                     }
                     catch (Exception ex)
@@ -317,27 +372,22 @@ namespace WindowsFormsApp1
         {
             if (string.IsNullOrEmpty(oldPhotoFileName))
             {
-                MessageBox.Show("У врача нет сохранённого фото.", "Информация",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("У врача нет сохранённого фото.", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            if (MessageBox.Show("Удалить фото?", "Подтверждение",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            if (MessageBox.Show("Удалить фото?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
-            pictureBox1.Image = Image.FromFile(placeholderPath); // Ставим заглушку
+            Image oldImage = pictureBox1.Image;
+            pictureBox1.Image = Image.FromFile(placeholderPath);
+            oldImage?.Dispose();
+            label6.Text = "Фото: нет";
             selectedPhotoFileName = null;
             selectedPhotoFullPath = null;
             photoDeleted = true; // Отмечаем, что фото будет удалено
 
-            MessageBox.Show("Фото будет удалено после сохранения.", "OK",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            UploadPhoto();
+            MessageBox.Show("Фото будет удалено после сохранения.", "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

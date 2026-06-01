@@ -76,31 +76,38 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка на дубликат среди других ролей
-                string checkQuery = "SELECT COUNT(*) FROM Roles WHERE RoleName = @name AND idRoles != @id";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@name", newName);
-                checkCmd.Parameters.AddWithValue("@id", selectedRoleId);
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    con.Open();
+
+                    // Проверка на дубликат среди других ролей
+                    string checkQuery = "SELECT COUNT(*) FROM Roles WHERE RoleName = @name AND idRoles != @id";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@name", newName);
+                    checkCmd.Parameters.AddWithValue("@id", selectedRoleId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Обновление роли
+                    string updateQuery = "UPDATE Roles SET RoleName = @name WHERE idRoles = @id";
+                    MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
+                    updateCmd.Parameters.AddWithValue("@name", newName);
+                    updateCmd.Parameters.AddWithValue("@id", selectedRoleId);
+                    updateCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                // Обновление роли
-                string updateQuery = "UPDATE Roles SET RoleName = @name WHERE idRoles = @id";
-                MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
-                updateCmd.Parameters.AddWithValue("@name", newName);
-                updateCmd.Parameters.AddWithValue("@id", selectedRoleId);
-                updateCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при обновлении записи: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             textBox1.Clear();
@@ -130,35 +137,42 @@ namespace WindowsFormsApp1
 
             string roleName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка, используется ли роль в таблице Users
-                string checkQuery = "SELECT COUNT(*) FROM Users WHERE Role = @roleId";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@roleId", selectedRoleId);
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show("Нельзя удалить эту роль, так как она используется в других записях!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    con.Open();
+
+                    // Проверка, используется ли роль в таблице Users
+                    string checkQuery = "SELECT COUNT(*) FROM Users WHERE Role = @roleId";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@roleId", selectedRoleId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Нельзя удалить эту роль, так как она используется в других записях!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Подтверждение удаления
+                    DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{roleName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.No)
+                        return;
+
+                    // Удаление роли
+                    string deleteQuery = "DELETE FROM Roles WHERE idRoles = @id";
+                    MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
+                    deleteCmd.Parameters.AddWithValue("@id", selectedRoleId);
+                    deleteCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                // Подтверждение удаления
-                DialogResult result = MessageBox.Show($"Вы уверены, что хотите удалить запись: \"{roleName}\"?", "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (result == DialogResult.No)
-                    return;
-
-                // Удаление роли
-                string deleteQuery = "DELETE FROM Roles WHERE idRoles = @id";
-                MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
-                deleteCmd.Parameters.AddWithValue("@id", selectedRoleId);
-                deleteCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch
+            {
+                MessageBox.Show("Ошибка при удалении записи! Возможно, эта роль используется в других записях.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             textBox1.Clear();

@@ -38,10 +38,7 @@ namespace WindowsFormsApp1.Import___Export___Backup___Restore
         {
             if (string.IsNullOrEmpty(selectedBackupFile))
             {
-                MessageBox.Show("Сначала выберите backup файл",
-                                "Внимание",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
+                MessageBox.Show("Сначала выберите backup файл","Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -49,17 +46,11 @@ namespace WindowsFormsApp1.Import___Export___Backup___Restore
             {
                 BackupClass.RestoreBackup(selectedBackupFile);
 
-                MessageBox.Show("База данных успешно восстановлена!",
-                                "Успех",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                MessageBox.Show("База данных успешно восстановлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка восстановления:\n{ex.Message}",
-                                "Ошибка",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                MessageBox.Show($"Ошибка восстановления:\n{ex.Message}","Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

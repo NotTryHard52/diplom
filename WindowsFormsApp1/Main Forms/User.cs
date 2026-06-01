@@ -390,7 +390,6 @@ namespace WindowsFormsApp1
             }
 
             string userLogin = dataGridView1.SelectedRows[0].Cells["Login"].Value.ToString();
-
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
@@ -436,6 +435,7 @@ namespace WindowsFormsApp1
                     }
                 }
             }
+            
 
             // Очистка полей
             selectedId = -1;

@@ -1,6 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -35,7 +37,7 @@ namespace WindowsFormsApp1
                 DataTable dt2 = new DataTable();
                 da.Fill(dt2);
                 comboBox1.DataSource = dt2;
-                comboBox1.DisplayMember = "Tables_in_dentistryDB";
+                comboBox1.DisplayMember = dt2.Columns[0].ColumnName;
             }
         }
 
@@ -50,6 +52,13 @@ namespace WindowsFormsApp1
                 {
                     csvPath = ofd.FileName;
 
+                    if (!File.Exists(csvPath))
+                    {
+                        MessageBox.Show("Файл не найден!", "Ошибка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     label2.Text = "*файл выбран";
                     label3.Text = csvPath;
                 }
@@ -60,13 +69,22 @@ namespace WindowsFormsApp1
         {
             if (comboBox1.SelectedIndex == -1)
             {
-                MessageBox.Show("Выберите таблицу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Выберите таблицу!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (string.IsNullOrEmpty(csvPath))
             {
-                MessageBox.Show("Выберите CSV файл!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Выберите CSV файл!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!File.Exists(csvPath))
+            {
+                MessageBox.Show("Файл не найден!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -74,48 +92,114 @@ namespace WindowsFormsApp1
 
             try
             {
-                var lines = System.IO.File.ReadAllLines(csvPath, Encoding.UTF8);
+                var lines = File.ReadLines(csvPath, Encoding.UTF8).ToArray();
 
                 if (lines.Length < 2)
                 {
-                    MessageBox.Show("CSV файл пустой!", "Ошибка");
+                    MessageBox.Show("CSV файл пустой!", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                // Заголовки (первая строка)
                 string[] headers = lines[0].Split(';');
+
+                List<int> validIndexes = new List<int>();
+                List<string> dbColumns = new List<string>();
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    string col = headers[i].Trim();
+
+                    if (col.StartsWith("id", StringComparison.OrdinalIgnoreCase))
+                        continue; // игнорируем id
+
+                    validIndexes.Add(i);
+                    dbColumns.Add($"`{col}`");
+                }
+
+                string columns = string.Join(",", dbColumns);
+                string parameters = string.Join(",", Enumerable.Range(0, validIndexes.Count).Select(i => $"@p{i}"));
+
+                string query = $"INSERT INTO `{tableName}` ({columns}) VALUES ({parameters})";
 
                 using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
                     con.Open();
 
-                    for (int i = 1; i < lines.Length; i++)
+                    using (MySqlTransaction transaction = con.BeginTransaction())
                     {
-                        if (string.IsNullOrWhiteSpace(lines[i]))
-                            continue;
+                        int success = 0;
+                        int failed = 0;
 
-                        string[] values = lines[i].Split(';');
-
-                        // Формируем запрос
-                        string columns = string.Join(",", headers.Select(h => $"`{h}`"));
-                        string parameters = string.Join(",", headers.Select((h, index) => $"@param{index}"));
-
-                        string query = $"INSERT INTO `{tableName}` ({columns}) VALUES ({parameters})";
-
-                        using (MySqlCommand cmd = new MySqlCommand(query, con))
+                        try
                         {
-                            for (int j = 0; j < headers.Length; j++)
+                            for (int i = 1; i < lines.Length; i++)
                             {
-                                string value = j < values.Length ? values[j] : null;
-                                cmd.Parameters.AddWithValue($"@param{j}", value);
+                                if (string.IsNullOrWhiteSpace(lines[i]))
+                                    continue;
+
+                                string[] values = lines[i].Split(';');
+
+                                try
+                                {
+                                    using (MySqlCommand cmd = new MySqlCommand(query, con, transaction))
+                                    {
+                                        for (int j = 0; j < validIndexes.Count; j++)
+                                        {
+                                            string raw = validIndexes[j] < values.Length
+                                                ? values[validIndexes[j]]
+                                                : null;
+
+                                            if (string.IsNullOrWhiteSpace(raw))
+                                            {
+                                                cmd.Parameters.AddWithValue($"@p{j}", DBNull.Value);
+                                                continue;
+                                            }
+
+                                            raw = raw.Trim().Replace(',', '.'); 
+
+                                            if (int.TryParse(raw, System.Globalization.NumberStyles.Any,
+                                                System.Globalization.CultureInfo.InvariantCulture, out int intVal))
+                                            {
+                                                cmd.Parameters.AddWithValue($"@p{j}", intVal);
+                                            }
+                                            else if (decimal.TryParse(raw, System.Globalization.NumberStyles.Any,
+                                                System.Globalization.CultureInfo.InvariantCulture, out decimal decVal))
+                                            {
+                                                cmd.Parameters.AddWithValue($"@p{j}", decVal);
+                                            }
+                                            else
+                                            {
+                                                cmd.Parameters.AddWithValue($"@p{j}", raw);
+                                            }
+                                        }
+
+                                        cmd.ExecuteNonQuery();
+                                        success++;
+                                    }
+                                }
+                                catch
+                                {
+                                    failed++;
+                                    continue;
+                                }
                             }
 
-                            cmd.ExecuteNonQuery();
+                            transaction.Commit();
+
+                            MessageBox.Show(
+                                $"Импорт завершён!\nУспешно: {success}\nОшибок: {failed}",
+                                "Готово",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
                         }
                     }
                 }
-
-                MessageBox.Show("Импорт успешно завершён!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 comboBox1.SelectedIndex = -1;
                 csvPath = null;
@@ -124,7 +208,8 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка импорта: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ошибка импорта: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

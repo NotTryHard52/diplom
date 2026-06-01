@@ -183,7 +183,7 @@ namespace WindowsFormsApp1
             using (MySqlConnection con = new MySqlConnection(connectionString))
             {
                 con.Open();
-                string query = "SELECT DISTINCT Name FROM StatusesPriem;";
+                string query = "SELECT DISTINCT name FROM StatusesPriem;";
                 MySqlCommand cmd = new MySqlCommand(query, con);
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {

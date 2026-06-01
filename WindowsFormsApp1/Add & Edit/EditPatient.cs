@@ -53,34 +53,41 @@ namespace WindowsFormsApp1
         // Метод для загрузки данных выбранного пациента из базы
         private void LoadPatientData()
         {
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-                string query = "SELECT * FROM Patients WHERE idPatients = @id;";
-                MySqlCommand cmd = new MySqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", selectedPatientId);
-
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    if (reader.Read())
-                    {
-                        // Сохраняем старые значения для последующей проверки изменений
-                        oldSurname = reader["Surname"].ToString();
-                        oldName = reader["Name"].ToString();
-                        oldLastname = reader["Lastname"].ToString();
-                        oldBirthday = Convert.ToDateTime(reader["Date_birth"]);
-                        oldPhone = reader["Phone_number"].ToString();
-                        oldPolicy = reader["Number_policy"].ToString();
+                    con.Open();
+                    string query = "SELECT * FROM Patients WHERE idPatients = @id;";
+                    MySqlCommand cmd = new MySqlCommand(query, con);
+                    cmd.Parameters.AddWithValue("@id", selectedPatientId);
 
-                        // Заполняем поля формы текущими данными пациента
-                        textBox1.Text = oldSurname;
-                        textBox2.Text = oldName;
-                        textBox3.Text = oldLastname;
-                        dateTimePicker1.Value = oldBirthday;
-                        maskedTextBox2.Text = oldPhone;
-                        maskedTextBox1.Text = oldPolicy;
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Сохраняем старые значения для последующей проверки изменений
+                            oldSurname = reader["Surname"].ToString();
+                            oldName = reader["Name"].ToString();
+                            oldLastname = reader["Lastname"].ToString();
+                            oldBirthday = Convert.ToDateTime(reader["Date_birth"]);
+                            oldPhone = reader["Phone_number"].ToString();
+                            oldPolicy = reader["Number_policy"].ToString();
+
+                            // Заполняем поля формы текущими данными пациента
+                            textBox1.Text = oldSurname;
+                            textBox2.Text = oldName;
+                            textBox3.Text = oldLastname;
+                            dateTimePicker1.Value = oldBirthday;
+                            maskedTextBox2.Text = oldPhone;
+                            maskedTextBox1.Text = oldPolicy;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке данных пациента: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -119,63 +126,70 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            // Подключение к базе данных и обновление записи
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка на дубликаты по фамилии, имени, отчеству и номеру полиса
-                string checkQuery = @"
-                    SELECT COUNT(*) FROM Patients 
-                    WHERE Surname = @surname 
-                      AND Name = @name 
-                      AND Lastname = @lastname 
-                      AND Number_policy = @policy 
-                      AND idPatients <> @id;";
-
-                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                // Подключение к базе данных и обновление записи
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    checkCmd.Parameters.AddWithValue("@surname", newSurname);
-                    checkCmd.Parameters.AddWithValue("@name", newName);
-                    checkCmd.Parameters.AddWithValue("@lastname", newLastname);
-                    checkCmd.Parameters.AddWithValue("@policy", newPolicy);
-                    checkCmd.Parameters.AddWithValue("@id", selectedPatientId);
+                    con.Open();
 
-                    int duplicateCount = Convert.ToInt32(checkCmd.ExecuteScalar());
-                    if (duplicateCount > 0)
+                    // Проверка на дубликаты по фамилии, имени, отчеству и номеру полиса
+                    string checkQuery = @"
+                                SELECT COUNT(*) FROM Patients 
+                                WHERE Surname = @surname 
+                                  AND Name = @name 
+                                  AND Lastname = @lastname 
+                                  AND Number_policy = @policy 
+                                  AND idPatients <> @id;";
+
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                     {
-                        MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
+                        checkCmd.Parameters.AddWithValue("@surname", newSurname);
+                        checkCmd.Parameters.AddWithValue("@name", newName);
+                        checkCmd.Parameters.AddWithValue("@lastname", newLastname);
+                        checkCmd.Parameters.AddWithValue("@policy", newPolicy);
+                        checkCmd.Parameters.AddWithValue("@id", selectedPatientId);
+
+                        int duplicateCount = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        if (duplicateCount > 0)
+                        {
+                            MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+
+                    // Запрос на обновление данных пациента
+                    string query = @"
+                                    UPDATE Patients
+                                    SET Surname = @surname,
+                                        Name = @name,
+                                        Lastname = @lastname,
+                                        Date_birth = @birth,
+                                        Phone_number = @phone,
+                                        Number_policy = @policy
+                                    WHERE idPatients = @id;";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@surname", newSurname);
+                        cmd.Parameters.AddWithValue("@name", newName);
+                        cmd.Parameters.AddWithValue("@lastname", newLastname);
+                        cmd.Parameters.AddWithValue("@birth", newBirthday);
+                        cmd.Parameters.AddWithValue("@phone", newPhone);
+                        cmd.Parameters.AddWithValue("@policy", newPolicy);
+                        cmd.Parameters.AddWithValue("@id", selectedPatientId);
+
+                        cmd.ExecuteNonQuery(); // Выполняем обновление
                     }
                 }
 
-                // Запрос на обновление данных пациента
-                string query = @"
-                    UPDATE Patients
-                    SET Surname = @surname,
-                        Name = @name,
-                        Lastname = @lastname,
-                        Date_birth = @birth,
-                        Phone_number = @phone,
-                        Number_policy = @policy
-                    WHERE idPatients = @id;";
-
-                using (MySqlCommand cmd = new MySqlCommand(query, con))
-                {
-                    cmd.Parameters.AddWithValue("@surname", newSurname);
-                    cmd.Parameters.AddWithValue("@name", newName);
-                    cmd.Parameters.AddWithValue("@lastname", newLastname);
-                    cmd.Parameters.AddWithValue("@birth", newBirthday);
-                    cmd.Parameters.AddWithValue("@phone", newPhone);
-                    cmd.Parameters.AddWithValue("@policy", newPolicy);
-                    cmd.Parameters.AddWithValue("@id", selectedPatientId);
-
-                    cmd.ExecuteNonQuery(); // Выполняем обновление
-                }
+                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.Close(); // Закрываем форму после сохранения
             }
-
-            MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            this.Close(); // Закрываем форму после сохранения
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при обновлении данных пациента: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

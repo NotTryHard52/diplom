@@ -38,8 +38,7 @@ namespace WindowsFormsApp1
                 !maskedTextBox1.MaskFull ||                      // Проверка заполнения телефона
                 comboBox2.SelectedValue == null)                 // Проверка выбора специальности
             {
-                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;                                          // Прерываем выполнение
             }
 
@@ -76,8 +75,7 @@ namespace WindowsFormsApp1
                 }
                 catch (Exception ex)                                   // Ловим возможные ошибки
                 {
-                    MessageBox.Show($"Ошибка копирования фото: {ex.Message}", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Ошибка копирования фото: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -86,51 +84,58 @@ namespace WindowsFormsApp1
                 finalPhotoFileName = "";            // Если фото нет — используем заглушку
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();                                      // Открываем соединение
-
-                string checkQuery = "SELECT COUNT(*) FROM Doctors WHERE Phone_number = @phone";
-                // Запрос проверки дубликата телефона
-                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    checkCmd.Parameters.AddWithValue("@phone", phone);  // Передаём параметр
-                    int exists = Convert.ToInt32(checkCmd.ExecuteScalar()); // Получаем количество записей
-                    if (exists > 0)                                     // Если телефон найден
+                    con.Open();                                      // Открываем соединение
+
+                    string checkQuery = "SELECT COUNT(*) FROM Doctors WHERE Phone_number = @phone";
+                    // Запрос проверки дубликата телефона
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                     {
-                        MessageBox.Show("Такой номер уже существует!", "Дубликат",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
+                        checkCmd.Parameters.AddWithValue("@phone", phone);  // Передаём параметр
+                        int exists = Convert.ToInt32(checkCmd.ExecuteScalar()); // Получаем количество записей
+                        if (exists > 0)                                     // Если телефон найден
+                        {
+                            MessageBox.Show("Такой номер уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+
+                    string insertQuery = @"INSERT INTO Doctors (Surname, Name, Lastname, Phone_number, Speciality, Photo)
+                                        VALUES (@surname, @name, @lastname, @phone, @spec, @photo);";
+                    // SQL-запрос добавления врача
+
+                    using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, con))
+                    {
+                        insertCmd.Parameters.AddWithValue("@surname", surname);   // Параметры SQL
+                        insertCmd.Parameters.AddWithValue("@name", name);
+                        insertCmd.Parameters.AddWithValue("@lastname", lastname);
+                        insertCmd.Parameters.AddWithValue("@phone", phone);
+                        insertCmd.Parameters.AddWithValue("@spec", specId);
+                        insertCmd.Parameters.AddWithValue("@photo", finalPhotoFileName);
+
+                        insertCmd.ExecuteNonQuery();                  // Выполнение INSERT
                     }
                 }
 
-                string insertQuery = @"
-            INSERT INTO Doctors (Surname, Name, Lastname, Phone_number, Speciality, Photo)
-            VALUES (@surname, @name, @lastname, @phone, @spec, @photo);";
-                // SQL-запрос добавления врача
-
-                using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, con))
-                {
-                    insertCmd.Parameters.AddWithValue("@surname", surname);   // Параметры SQL
-                    insertCmd.Parameters.AddWithValue("@name", name);
-                    insertCmd.Parameters.AddWithValue("@lastname", lastname);
-                    insertCmd.Parameters.AddWithValue("@phone", phone);
-                    insertCmd.Parameters.AddWithValue("@spec", specId);
-                    insertCmd.Parameters.AddWithValue("@photo", finalPhotoFileName);
-
-                    insertCmd.ExecuteNonQuery();                  // Выполнение INSERT
-                }
+                MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
-            MessageBox.Show("Запись успешно добавлена!", "Успех",   // Сообщение об успехе
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            catch (Exception ex)                                   // Ловим возможные ошибки при работе с базой
+            {
+                MessageBox.Show($"Ошибка при добавлении записи: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             textBox1.Clear();                                      // Очищаем поля
             textBox2.Clear();
             textBox3.Clear();
             maskedTextBox1.Clear();
             comboBox2.SelectedIndex = -1;                          // Сбрасываем выбор
-            pictureBox1.Image = Image.FromFile(placeholderPath);   // Ставим заглушку
+            if (File.Exists(placeholderPath))
+            {
+                pictureBox1.Image = Image.FromFile(placeholderPath);
+            }   // Ставим заглушку
             label6.Text = "Фото: нет";
 
             selectedPhotoFileName = null;                          // Сбрасываем переменные
@@ -139,31 +144,38 @@ namespace WindowsFormsApp1
 
         private void AddDoctor_Load(object sender, EventArgs e)
         {
-            Connect connect = new Connect();                       // Создаём объект для получения строки подключения
-            connectionString = connect.ConnectDB();                // Получаем строку подключения
-            photoFolder = Path.Combine(Application.StartupPath, "photo");
-            // Путь к папке фото
-
-            if (!System.IO.Directory.Exists(photoFolder))          // Если папка не существует —
-                System.IO.Directory.CreateDirectory(photoFolder);  // создаём её
-
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                string specQuery = "SELECT idSpeciality, SpecialityName FROM Speciality;";
-                // SQL для загрузки списка специальностей
-                MySqlCommand specCmd = new MySqlCommand(specQuery, con);
-                MySqlDataAdapter specDa = new MySqlDataAdapter(specCmd);
-                DataTable specTable = new DataTable();            // Таблица для данных
-                specDa.Fill(specTable);                           // Заполняем таблицу из базы
+                Connect connect = new Connect();                       // Создаём объект для получения строки подключения
+                connectionString = connect.ConnectDB();                // Получаем строку подключения
+                photoFolder = Path.Combine(Application.StartupPath, "photo");
+                // Путь к папке фото
 
-                comboBox2.DisplayMember = "SpecialityName";       // Что отображается
-                comboBox2.ValueMember = "idSpeciality";           // Что является значением
-                comboBox2.DataSource = specTable;                 // Привязываем таблицу к ComboBox
-                comboBox2.SelectedIndex = -1;                     // Сбрасываем выбор
+                if (!System.IO.Directory.Exists(photoFolder))          // Если папка не существует —
+                    System.IO.Directory.CreateDirectory(photoFolder);  // создаём её
+
+                using (MySqlConnection con = new MySqlConnection(connectionString))
+                {
+                    string specQuery = "SELECT idSpeciality, SpecialityName FROM Speciality;";
+                    // SQL для загрузки списка специальностей
+                    MySqlCommand specCmd = new MySqlCommand(specQuery, con);
+                    MySqlDataAdapter specDa = new MySqlDataAdapter(specCmd);
+                    DataTable specTable = new DataTable();            // Таблица для данных
+                    specDa.Fill(specTable);                           // Заполняем таблицу из базы
+
+                    comboBox2.DisplayMember = "SpecialityName";       // Что отображается
+                    comboBox2.ValueMember = "idSpeciality";           // Что является значением
+                    comboBox2.DataSource = specTable;                 // Привязываем таблицу к ComboBox
+                    comboBox2.SelectedIndex = -1;                     // Сбрасываем выбор
+                }
+
+                pictureBox1.Image = Image.FromFile(placeholderPath);  // Устанавливаем изображение-заглушку
+                label6.Text = "Фото: нет";                            // Подпись
             }
-
-            pictureBox1.Image = Image.FromFile(placeholderPath);  // Устанавливаем изображение-заглушку
-            label6.Text = "Фото: нет";                            // Подпись
+            catch (Exception ex)                                   // Ловим возможные ошибки при загрузке формы
+            {
+                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         void UploadPhoto()
@@ -194,6 +206,7 @@ namespace WindowsFormsApp1
                                 return;
                             }
 
+                            pictureBox1.Image?.Dispose();
                             pictureBox1.Image = new Bitmap(newImage);
                         }
 
@@ -210,11 +223,6 @@ namespace WindowsFormsApp1
         }
 
         private void button1_Click(object sender, EventArgs e)
-        {
-            UploadPhoto();
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
         {
             UploadPhoto();
         }

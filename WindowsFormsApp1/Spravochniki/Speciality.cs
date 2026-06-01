@@ -73,29 +73,36 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка на дубликат
-                string checkQuery = "SELECT COUNT(*) FROM Speciality WHERE SpecialityName = @name";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@name", specialityName);
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    con.Open();
+
+                    // Проверка на дубликат
+                    string checkQuery = "SELECT COUNT(*) FROM Speciality WHERE SpecialityName = @name";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@name", specialityName);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Вставка новой записи
+                    string insertQuery = "INSERT INTO Speciality (SpecialityName) VALUES (@name)";
+                    MySqlCommand insertCmd = new MySqlCommand(insertQuery, con);
+                    insertCmd.Parameters.AddWithValue("@name", specialityName);
+                    insertCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                // Вставка новой записи
-                string insertQuery = "INSERT INTO Speciality (SpecialityName) VALUES (@name)";
-                MySqlCommand insertCmd = new MySqlCommand(insertQuery, con);
-                insertCmd.Parameters.AddWithValue("@name", specialityName);
-                insertCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при добавлении записи: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             textBox1.Clear();
@@ -136,31 +143,38 @@ namespace WindowsFormsApp1
                 return;
             }
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка на дубликат среди других записей
-                string checkQuery = "SELECT COUNT(*) FROM Speciality WHERE SpecialityName = @name AND IdSpeciality != @id";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@name", newName);
-                checkCmd.Parameters.AddWithValue("@id", selectedId);
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    con.Open();
+
+                    // Проверка на дубликат среди других записей
+                    string checkQuery = "SELECT COUNT(*) FROM Speciality WHERE SpecialityName = @name AND IdSpeciality != @id";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@name", newName);
+                    checkCmd.Parameters.AddWithValue("@id", selectedId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Такая запись уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Обновление записи
+                    string updateQuery = "UPDATE Speciality SET SpecialityName = @name WHERE IdSpeciality = @id";
+                    MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
+                    updateCmd.Parameters.AddWithValue("@name", newName);
+                    updateCmd.Parameters.AddWithValue("@id", selectedId);
+                    updateCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                // Обновление записи
-                string updateQuery = "UPDATE Speciality SET SpecialityName = @name WHERE IdSpeciality = @id";
-                MySqlCommand updateCmd = new MySqlCommand(updateQuery, con);
-                updateCmd.Parameters.AddWithValue("@name", newName);
-                updateCmd.Parameters.AddWithValue("@id", selectedId);
-                updateCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно обновлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при обновлении записи: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             textBox1.Clear();
@@ -179,45 +193,52 @@ namespace WindowsFormsApp1
 
             string SpecName = dataGridView1.SelectedRows[0].Cells[1].Value.ToString();
 
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-
-                // Проверка, используется ли эта специальность у врачей
-                string checkQuery = "SELECT COUNT(*) FROM Doctors WHERE Speciality = @specialityId";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
-                checkCmd.Parameters.AddWithValue("@specialityId", selectedId);
-                int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                if (count > 0)
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    MessageBox.Show(
-                        "Нельзя удалить эту специальность, так как она используется в других записях!",
-                        "Ошибка",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
+                    con.Open();
+
+                    // Проверка, используется ли эта специальность у врачей
+                    string checkQuery = "SELECT COUNT(*) FROM Doctors WHERE Speciality = @specialityId";
+                    MySqlCommand checkCmd = new MySqlCommand(checkQuery, con);
+                    checkCmd.Parameters.AddWithValue("@specialityId", selectedId);
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show(
+                            "Нельзя удалить эту специальность, так как она используется в других записях!",
+                            "Ошибка",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
+                        return;
+                    }
+
+                    // Подтверждение удаления
+                    DialogResult result = MessageBox.Show(
+                        $"Вы уверены, что хотите удалить запись: \"{SpecName}\"?",
+                        "Подтверждение удаления",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question
                     );
-                    return;
+
+                    if (result == DialogResult.No)
+                        return;
+
+                    // Удаление записи
+                    string deleteQuery = "DELETE FROM Speciality WHERE idSpeciality = @id";
+                    MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
+                    deleteCmd.Parameters.AddWithValue("@id", selectedId);
+                    deleteCmd.ExecuteNonQuery();
+
+                    MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-
-                // Подтверждение удаления
-                DialogResult result = MessageBox.Show(
-                    $"Вы уверены, что хотите удалить запись: \"{SpecName}\"?",
-                    "Подтверждение удаления",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question
-                );
-
-                if (result == DialogResult.No)
-                    return;
-
-                // Удаление записи
-                string deleteQuery = "DELETE FROM Speciality WHERE idSpeciality = @id";
-                MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con);
-                deleteCmd.Parameters.AddWithValue("@id", selectedId);
-                deleteCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Запись успешно удалена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch
+            {
+                MessageBox.Show("Ошибка при удалении записи!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             textBox1.Clear();

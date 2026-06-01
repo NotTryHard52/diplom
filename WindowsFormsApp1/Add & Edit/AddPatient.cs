@@ -29,6 +29,8 @@ namespace WindowsFormsApp1
 
         private void AddPatient_Load(object sender, EventArgs e)
         {
+            Connect connect = new Connect();                      // Создание объекта подключения
+            connectionString = connect.ConnectDB();               // Получение строки подключения
             InputLimit.Date(dateTimePicker1);        // Установка ограничений на дату (например, запрет будущей)
         }
 
@@ -39,8 +41,7 @@ namespace WindowsFormsApp1
                 !maskedTextBox2.MaskFull ||                    // Проверка, что номер телефона полностью заполнен
                 !maskedTextBox1.MaskFull)                      // Проверка, что полис полностью введён
             {
-                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);  // Сообщение об ошибке
+                MessageBox.Show("Поля не должны быть пустыми!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);  // Сообщение об ошибке
                 return;                                             // Прерывание выполнения метода
             }
 
@@ -51,47 +52,48 @@ namespace WindowsFormsApp1
             string policy = maskedTextBox1.Text.Trim();           // Номера полиса
             DateTime birthDate = dateTimePicker1.Value.Date;      // Даты рождения
 
-            Connect connect = new Connect();                      // Создание объекта подключения
-            connectionString = connect.ConnectDB();               // Получение строки подключения
-
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();                                      // Открытие соединения с БД
-
-                string checkQuery = "SELECT COUNT(*) FROM Patients WHERE Number_policy = @policy";
-                // SQL-запрос проверки полиса
-                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    checkCmd.Parameters.AddWithValue("@policy", policy); // Передаём параметр полиса
-                    int count = Convert.ToInt32(checkCmd.ExecuteScalar()); // Получаем количество совпадений
+                    con.Open();                                      // Открытие соединения с БД
 
-                    if (count > 0)                                       // Если пациент уже существует
+                    string checkQuery = "SELECT COUNT(*) FROM Patients WHERE Number_policy = @policy";
+                    // SQL-запрос проверки полиса
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                     {
-                        MessageBox.Show("Пациент с таким полисом уже существует!", "Дубликат",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
+                        checkCmd.Parameters.AddWithValue("@policy", policy); // Передаём параметр полиса
+                        int count = Convert.ToInt32(checkCmd.ExecuteScalar()); // Получаем количество совпадений
+
+                        if (count > 0)                                       // Если пациент уже существует
+                        {
+                            MessageBox.Show("Пациент с таким полисом уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
                     }
+
+                    string insertQuery = @" INSERT INTO Patients (Surname, Name, Lastname, Date_birth, Phone_number, Number_policy)
+                                    VALUES (@surname, @name, @lastname, @birthDate, @phone_number, @policy)";
+                    // SQL-запрос вставки записи
+
+                    using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, con))
+                    {
+                        insertCmd.Parameters.AddWithValue("@surname", surname);      // Подготовка параметров
+                        insertCmd.Parameters.AddWithValue("@name", name);
+                        insertCmd.Parameters.AddWithValue("@lastname", lastname);
+                        insertCmd.Parameters.AddWithValue("@birthDate", birthDate.ToString("yyyy-MM-dd"));
+                        insertCmd.Parameters.AddWithValue("@phone_number", phone_number);
+                        insertCmd.Parameters.AddWithValue("@policy", policy);
+
+                        insertCmd.ExecuteNonQuery();                                // Выполнение INSERT
+                    }
+
+                    MessageBox.Show("Запись успешно добавлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);          // Сообщение об успехе
                 }
-
-                string insertQuery = @"
-            INSERT INTO Patients (Surname, Name, Lastname, Date_birth, Phone_number, Number_policy)
-            VALUES (@surname, @name, @lastname, @birthDate, @phone_number, @policy)";
-                // SQL-запрос вставки записи
-
-                using (MySqlCommand insertCmd = new MySqlCommand(insertQuery, con))
-                {
-                    insertCmd.Parameters.AddWithValue("@surname", surname);      // Подготовка параметров
-                    insertCmd.Parameters.AddWithValue("@name", name);
-                    insertCmd.Parameters.AddWithValue("@lastname", lastname);
-                    insertCmd.Parameters.AddWithValue("@birthDate", birthDate.ToString("yyyy-MM-dd"));
-                    insertCmd.Parameters.AddWithValue("@phone_number", phone_number);
-                    insertCmd.Parameters.AddWithValue("@policy", policy);
-
-                    insertCmd.ExecuteNonQuery();                                // Выполнение INSERT
-                }
-
-                MessageBox.Show("Запись успешно добавлена!", "Успех",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);          // Сообщение об успехе
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при добавлении записи: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error); // Сообщение об ошибке
             }
 
             textBox1.Clear();           // Очистка поля фамилии

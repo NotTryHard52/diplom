@@ -55,6 +55,9 @@ namespace WindowsFormsApp1
                 throw new FileNotFoundException("Файл резервной копии не найден.");
             }
 
+            if (new FileInfo(sqlFilePath).Length == 0)
+                throw new Exception("Файл резервной копии пустой.");
+
             Connect connect = new Connect();
 
             using (MySqlConnection conn = new MySqlConnection(connect.ConnectDB()))

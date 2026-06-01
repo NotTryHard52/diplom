@@ -34,7 +34,7 @@ namespace WindowsFormsApp1
                 DataTable dt2 = new DataTable();
                 da.Fill(dt2);
                 comboBox1.DataSource = dt2;
-                comboBox1.DisplayMember = "Tables_in_db71";
+                comboBox1.DisplayMember = dt2.Columns[0].ColumnName;
             }
         }
 
@@ -107,8 +107,7 @@ namespace WindowsFormsApp1
                     }
                 }
 
-                MessageBox.Show("Экспорт успешно завершён!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                DialogResult result = MessageBox.Show("Экспорт успешно завершён!\nОткрыть файл?", "Успех",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show("Экспорт успешно завершён!\nОткрыть файл?", "Успех", MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes)
                 {
@@ -122,8 +121,7 @@ namespace WindowsFormsApp1
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Не удалось открыть файл: {ex.Message}", "Ошибка",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Не удалось открыть файл: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 comboBox1.SelectedIndex = -1;

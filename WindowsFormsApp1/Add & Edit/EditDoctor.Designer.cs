@@ -67,7 +67,7 @@ namespace WindowsFormsApp1
             this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button6.ForeColor = System.Drawing.Color.White;
-            this.button6.Location = new System.Drawing.Point(16, 277);
+            this.button6.Location = new System.Drawing.Point(16, 287);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(357, 37);
             this.button6.TabIndex = 41;
@@ -81,9 +81,9 @@ namespace WindowsFormsApp1
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(379, 247);
+            this.button1.Location = new System.Drawing.Point(379, 244);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(192, 34);
+            this.button1.Size = new System.Drawing.Size(192, 37);
             this.button1.TabIndex = 40;
             this.button1.Text = "Сменить изображение";
             this.button1.UseVisualStyleBackColor = false;
@@ -201,14 +201,14 @@ namespace WindowsFormsApp1
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 39;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // label6
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label6.Location = new System.Drawing.Point(375, 203);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(196, 37);
+            this.label6.Size = new System.Drawing.Size(196, 38);
             this.label6.TabIndex = 43;
             this.label6.Text = "Фото";
             // 
@@ -220,7 +220,7 @@ namespace WindowsFormsApp1
             this.button2.ForeColor = System.Drawing.Color.White;
             this.button2.Location = new System.Drawing.Point(379, 287);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(192, 34);
+            this.button2.Size = new System.Drawing.Size(192, 37);
             this.button2.TabIndex = 44;
             this.button2.Text = "Удалить изображение";
             this.button2.UseVisualStyleBackColor = false;
