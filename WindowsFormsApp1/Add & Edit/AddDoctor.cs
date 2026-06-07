@@ -2,8 +2,10 @@
 using System;                                      
 using System.Data;                               
 using System.Drawing;                           
+using System.Drawing.Imaging;
 using System.IO;                          
-using System.Windows.Forms;                        
+using System.Linq;
+using System.Windows.Forms;
 
 namespace WindowsFormsApp1                      
 {
@@ -29,6 +31,21 @@ namespace WindowsFormsApp1
         private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
         {
             InputLimit.OnlyRussian(sender, e);     // Ограничиваем ввод — только русский язык
+        }
+
+        private Image CompressImage(Image image, long quality = 75L)
+        {
+            ImageCodecInfo jpgEncoder = ImageCodecInfo.GetImageDecoders()
+                .First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+
+            EncoderParameters encoderParameters = new EncoderParameters(1);
+            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                image.Save(ms, jpgEncoder, encoderParameters);
+                return Image.FromStream(new MemoryStream(ms.ToArray()));
+            }
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -191,23 +208,30 @@ namespace WindowsFormsApp1
                     {
                         FileInfo fileInfo = new FileInfo(ofd.FileName);
 
-                        if (fileInfo.Length > 1 * 1024 * 1024)
+                        using (Image originalImage = Image.FromFile(ofd.FileName))
                         {
-                            MessageBox.Show("Размер изображения не должен превышать 1 МБ!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-
-                        using (Image newImage = Image.FromFile(ofd.FileName))
-                        {
-                            // Проверка разрешения 400x400
-                            if (newImage.Width != 400 || newImage.Height != 400)
+                            // Проверка 400x400
+                            if (originalImage.Width != 400 || originalImage.Height != 400)
                             {
-                                MessageBox.Show("Изображение должно быть размером 400x400 пикселей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("Изображение должно быть 400x400 пикселей!",
+                                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
 
+                            Image finalImage;
+
+                            // если больше 1MB — сжимаем
+                            if (fileInfo.Length > 1 * 1024 * 1024)
+                            {
+                                finalImage = CompressImage(originalImage, 60L);
+                            }
+                            else
+                            {
+                                finalImage = new Bitmap(originalImage);
+                            }
+
                             pictureBox1.Image?.Dispose();
-                            pictureBox1.Image = new Bitmap(newImage);
+                            pictureBox1.Image = finalImage;
                         }
 
                         selectedPhotoFullPath = ofd.FileName;
@@ -216,7 +240,8 @@ namespace WindowsFormsApp1
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}",
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }

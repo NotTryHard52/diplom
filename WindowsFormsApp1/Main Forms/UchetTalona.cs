@@ -20,7 +20,7 @@ namespace WindowsFormsApp1
         bool isGlav = false;
         private Timer inactivityTimer;
         private DateTime lastActivityTime;
-        private const int timeoutSeconds = 60;
+        private const int timeoutSeconds = 120;
         public event Action OnSessionExpired;
 
         public UchetTalona(bool isGlav = false)
