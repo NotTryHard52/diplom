@@ -29,7 +29,7 @@ namespace WindowsFormsApp1
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
@@ -156,7 +156,7 @@ namespace WindowsFormsApp1
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(778, 64);
+            this.label5.Location = new System.Drawing.Point(778, 69);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(51, 20);
             this.label5.TabIndex = 30;
@@ -164,7 +164,7 @@ namespace WindowsFormsApp1
             // 
             // textBox5
             // 
-            this.textBox5.Location = new System.Drawing.Point(397, 84);
+            this.textBox5.Location = new System.Drawing.Point(397, 93);
             this.textBox5.MaxLength = 40;
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(379, 26);
@@ -174,7 +174,7 @@ namespace WindowsFormsApp1
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(397, 64);
+            this.label6.Location = new System.Drawing.Point(397, 71);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(71, 20);
             this.label6.TabIndex = 28;
@@ -182,7 +182,7 @@ namespace WindowsFormsApp1
             // 
             // textBox6
             // 
-            this.textBox6.Location = new System.Drawing.Point(12, 84);
+            this.textBox6.Location = new System.Drawing.Point(12, 93);
             this.textBox6.MaxLength = 40;
             this.textBox6.Name = "textBox6";
             this.textBox6.Size = new System.Drawing.Size(379, 26);
@@ -192,7 +192,7 @@ namespace WindowsFormsApp1
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(8, 64);
+            this.label7.Location = new System.Drawing.Point(10, 69);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(59, 20);
             this.label7.TabIndex = 26;
@@ -202,7 +202,7 @@ namespace WindowsFormsApp1
             // 
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(782, 84);
+            this.comboBox1.Location = new System.Drawing.Point(782, 93);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(379, 28);
             this.comboBox1.TabIndex = 31;
@@ -212,7 +212,7 @@ namespace WindowsFormsApp1
             this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button4.ForeColor = System.Drawing.Color.White;
-            this.button4.Location = new System.Drawing.Point(12, 113);
+            this.button4.Location = new System.Drawing.Point(12, 125);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(379, 30);
             this.button4.TabIndex = 32;
@@ -225,7 +225,7 @@ namespace WindowsFormsApp1
             this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button5.ForeColor = System.Drawing.Color.White;
-            this.button5.Location = new System.Drawing.Point(397, 113);
+            this.button5.Location = new System.Drawing.Point(397, 125);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(379, 30);
             this.button5.TabIndex = 33;
@@ -244,20 +244,20 @@ namespace WindowsFormsApp1
             this.dataGridView1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView1.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(91)))), ((int)(((byte)(122)))), ((int)(((byte)(196)))));
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridView1.Location = new System.Drawing.Point(18, 174);
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(39)))), ((int)(((byte)(70)))), ((int)(((byte)(144)))));
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle2;
+            this.dataGridView1.Location = new System.Drawing.Point(18, 186);
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.Size = new System.Drawing.Size(1152, 444);
+            this.dataGridView1.Size = new System.Drawing.Size(1152, 432);
             this.dataGridView1.TabIndex = 38;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             // 
@@ -266,9 +266,9 @@ namespace WindowsFormsApp1
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Location = new System.Drawing.Point(12, 149);
+            this.groupBox1.Location = new System.Drawing.Point(12, 161);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1164, 475);
+            this.groupBox1.Size = new System.Drawing.Size(1164, 463);
             this.groupBox1.TabIndex = 39;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "groupBox1";
@@ -306,7 +306,7 @@ namespace WindowsFormsApp1
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label9.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
-            this.label9.Location = new System.Drawing.Point(64, 60);
+            this.label9.Location = new System.Drawing.Point(66, 67);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(17, 24);
             this.label9.TabIndex = 79;
@@ -319,7 +319,7 @@ namespace WindowsFormsApp1
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
-            this.label10.Location = new System.Drawing.Point(465, 61);
+            this.label10.Location = new System.Drawing.Point(465, 66);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(17, 24);
             this.label10.TabIndex = 80;
@@ -332,7 +332,7 @@ namespace WindowsFormsApp1
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
-            this.label11.Location = new System.Drawing.Point(825, 61);
+            this.label11.Location = new System.Drawing.Point(825, 68);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(17, 24);
             this.label11.TabIndex = 81;

@@ -181,6 +181,7 @@ namespace WindowsFormsApp1
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(320, 28);
             this.comboBox1.TabIndex = 39;
+            this.comboBox1.TextChanged += new System.EventHandler(this.ComboBox1_TextChanged);
             // 
             // label7
             // 

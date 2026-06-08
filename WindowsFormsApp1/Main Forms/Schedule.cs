@@ -32,6 +32,7 @@ namespace WindowsFormsApp1
         int totalRecords = 0;
         int totalPages = 1;
         private Timer resizeTimer = new Timer();
+        private bool loadingSchedule = false;
 
         // Конструктор формы
         public Schedule(bool fromTalon = false)
@@ -105,6 +106,7 @@ namespace WindowsFormsApp1
 
         private void ComboBox1_TextChanged(object sender, EventArgs e)
         {
+
             if (isFilteringCombo) return;
             if (doctorsTable == null) return;
 
@@ -136,7 +138,12 @@ namespace WindowsFormsApp1
                 try { comboBox1.SelectionStart = Math.Min(selStart, comboBox1.Text.Length); } catch { }
 
                 // Показываем список подсказок только если есть результаты
-                try { if (comboBox1.Items.Count > 0) comboBox1.DroppedDown = true; } catch { }
+                try {
+                        if (comboBox1.Focused && comboBox1.Items.Count > 1)
+                        {
+                            comboBox1.DroppedDown = true;
+                        }
+                } catch { }
             }
             finally
             {
@@ -472,31 +479,42 @@ namespace WindowsFormsApp1
         private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
         {
             // Если выбранная дата сегодня, проверяем, чтобы время не было в прошлом
+            if (loadingSchedule)
+                return;
+
             if (dateTimePicker1.Value.Date == DateTime.Now.Date)
             {
-                DateTime selectedDateTime = dateTimePicker1.Value.Date + dateTimePicker2.Value.TimeOfDay;
+                DateTime selectedDateTime =
+                    dateTimePicker1.Value.Date + dateTimePicker2.Value.TimeOfDay;
+
                 if (selectedDateTime < DateTime.Now)
                 {
-                    dateTimePicker2.Value = DateTime.Now; // Подставляем текущее время
+                    dateTimePicker2.Value = DateTime.Now;
                 }
             }
         }
 
         private void SetDoctorByName(string fullName)
         {
+            comboBox1.DataSource = doctorsTable.Copy();
+            comboBox1.DisplayMember = "FullName";
+            comboBox1.ValueMember = "idDoctors";
+
             for (int i = 0; i < comboBox1.Items.Count; i++)
             {
                 DataRowView row = (DataRowView)comboBox1.Items[i];
+
                 if (row["FullName"].ToString() == fullName)
                 {
                     comboBox1.SelectedIndex = i;
-                    break;
+                    return;
                 }
             }
         }
 
         private void Card_Click(ScheduleItem item)
         {
+            loadingSchedule = true;
             // сохраняем выбранную запись
             selectedScheduleId = item.Id;
             status = item.Status;
@@ -506,9 +524,11 @@ namespace WindowsFormsApp1
 
             // заполняем время
             dateTimePicker2.Value = DateTime.Today.Add(TimeSpan.Parse(item.Time));
+            loadingSchedule = false;
 
             // устанавливаем врача
             SetDoctorByName(item.DoctorName);
+
 
             // если открыто из талона → отдельная логика
             if (openedFromTalon)
