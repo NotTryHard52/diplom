@@ -244,57 +244,6 @@ namespace WindowsFormsApp1
             textBox5.Text = "";          // Очистка поиска
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if (selectedId == -1) // Если врач не выбран
-            {
-                MessageBox.Show("Выберите запись для удаления!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            using (MySqlConnection con = new MySqlConnection(connectionString))
-            {
-                con.Open();
-
-                // Проверяем, используется ли врач в расписании
-                string checkQuery = "SELECT COUNT(*) FROM Schedule WHERE idDoctor = @doctorId";
-                using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
-                {
-                    checkCmd.Parameters.AddWithValue("@doctorId", selectedId);
-                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-
-                    if (count > 0)
-                    {
-                        MessageBox.Show("Нельзя удалить этого врача, так как он используется в расписании!",
-                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                }
-
-                DialogResult result = MessageBox.Show(
-                    "Вы уверены, что хотите удалить запись?",
-                    "Подтверждение удаления",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
-
-                if (result == DialogResult.No) return;
-
-                // Удаление врача
-                string deleteQuery = "DELETE FROM Doctors WHERE idDoctors = @id";
-                using (MySqlCommand deleteCmd = new MySqlCommand(deleteQuery, con))
-                {
-                    deleteCmd.Parameters.AddWithValue("@id", selectedId);
-                    deleteCmd.ExecuteNonQuery();
-
-                    MessageBox.Show("Запись успешно удалена!", "Успех",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-
-            selectedId = -1; // Сбрасываем выбор
-            LoadDoctor();    // Перезагружаем список
-        }
 
         private void Card_EditClicked(object sender, int id)
         {
@@ -318,6 +267,7 @@ namespace WindowsFormsApp1
             {
                 con.Open();
 
+                // Проверка использования в расписании
                 string checkQuery = "SELECT COUNT(*) FROM Schedule WHERE idDoctor = @doctorId";
                 using (MySqlCommand checkCmd = new MySqlCommand(checkQuery, con))
                 {
@@ -332,14 +282,50 @@ namespace WindowsFormsApp1
                 }
 
                 if (MessageBox.Show("Удалить врача?", "Подтверждение",
-                    MessageBoxButtons.YesNo) != DialogResult.Yes)
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) != DialogResult.Yes)
                     return;
 
+                // Получаем имя фото
+                string photoFileName = "";
+
+                string photoQuery = "SELECT Photo FROM Doctors WHERE idDoctors = @id";
+                using (MySqlCommand photoCmd = new MySqlCommand(photoQuery, con))
+                {
+                    photoCmd.Parameters.AddWithValue("@id", id);
+
+                    object result = photoCmd.ExecuteScalar();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        photoFileName = result.ToString();
+                    }
+                }
+
+                // Удаляем врача из БД
                 string deleteQuery = "DELETE FROM Doctors WHERE idDoctors = @id";
                 using (MySqlCommand cmd = new MySqlCommand(deleteQuery, con))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
                     cmd.ExecuteNonQuery();
+                }
+
+                // Удаляем фото из папки
+                if (!string.IsNullOrWhiteSpace(photoFileName))
+                {
+                    string photoPath = Path.Combine(Application.StartupPath,"photo",photoFileName);
+
+                    if (File.Exists(photoPath))
+                    {
+                        try
+                        {
+                            File.Delete(photoPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Врач удалён, но не удалось удалить фото:\n{ex.Message}","Предупреждение",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                        }
+                    }
                 }
             }
 

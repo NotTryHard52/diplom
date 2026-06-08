@@ -188,7 +188,7 @@ namespace WindowsFormsApp1
             this.groupBox2.Size = new System.Drawing.Size(973, 56);
             this.groupBox2.TabIndex = 50;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Поиск";
+            this.groupBox2.Text = "Поиск по номеру полиса";
             // 
             // button5
             // 

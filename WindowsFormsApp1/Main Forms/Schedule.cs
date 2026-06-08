@@ -530,7 +530,7 @@ namespace WindowsFormsApp1
             SetDoctorByName(item.DoctorName);
 
 
-            // если открыто из талона → отдельная логика
+            // если открыто из талона
             if (openedFromTalon)
             {
                 if (item.Status != "Свободно")

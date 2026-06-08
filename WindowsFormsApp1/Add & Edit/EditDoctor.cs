@@ -2,7 +2,9 @@
 using System;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -23,6 +25,7 @@ namespace WindowsFormsApp1
         string selectedPhotoFullPath;        // Полный путь выбранного фото
         bool photoDeleted = false;           // Флаг удаления фото
         string placeholderPath = Path.Combine(Application.StartupPath, "photo", "upload.png"); // Фото-заглушка
+        long maxSize = 1 * 1024 * 1024; // 1 МБ
 
         public EditDoctor(int doctorId, Image photo)
         {
@@ -108,8 +111,41 @@ namespace WindowsFormsApp1
                             selectedPhotoFileName = uniqueName;
                         }
 
-                        File.Copy(selectedPhotoFullPath, destPath, true); // Копируем файл
-                        photoFileToSave = selectedPhotoFileName;
+                        using (Image img = Image.FromFile(selectedPhotoFullPath))
+                        {
+                            Image finalImage = img;
+
+                            FileInfo fileInfo = new FileInfo(selectedPhotoFullPath);
+
+                            string fileName =
+                                Path.GetFileNameWithoutExtension(selectedPhotoFileName) + ".jpg";
+
+                            destPath = Path.Combine(photoFolder, fileName);
+
+                            if (fileInfo.Length > maxSize)
+                            {
+                                finalImage = CompressImage(img, 60L);
+                            }
+
+                            if (File.Exists(destPath))
+                            {
+                                string nameOnly =
+                                    Path.GetFileNameWithoutExtension(fileName);
+
+                                string uniqueName =
+                                    $"{nameOnly}_{DateTime.Now:yyyyMMdd_HHmmss}.jpg";
+
+                                fileName = uniqueName;
+                                destPath = Path.Combine(photoFolder, uniqueName);
+                            }
+
+                            finalImage.Save(destPath, ImageFormat.Jpeg);
+
+                            photoFileToSave = fileName;
+
+                            if (finalImage != img)
+                                finalImage.Dispose();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -330,24 +366,57 @@ namespace WindowsFormsApp1
                     {
                         FileInfo fileInfo = new FileInfo(ofd.FileName);
 
-                        if (fileInfo.Length > 1 * 1024 * 1024)
+                        using (Image originalImage = Image.FromFile(ofd.FileName))
                         {
-                            MessageBox.Show("Размер изображения не должен превышать 1 МБ!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-
-                        using (Image newImage = Image.FromFile(ofd.FileName))
-                        {
-                            // Проверка разрешения 400x400
-                            if (newImage.Width != 400 || newImage.Height != 400)
+                            // Проверка 400x400
+                            if (originalImage.Width != 400 || originalImage.Height != 400)
                             {
-                                MessageBox.Show("Изображение должно быть размером 400x400 пикселей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("Изображение должно быть 400x400 пикселей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
 
-                            Image oldImage = pictureBox1.Image;
-                            pictureBox1.Image = new Bitmap(newImage);
-                            oldImage?.Dispose();
+                            Image finalImage;
+
+                            // если больше 1MB — сжимаем
+                            if (fileInfo.Length > maxSize)
+                            {
+                                double sizeMb = fileInfo.Length / 1024.0 / 1024.0;
+
+                                DialogResult result = MessageBox.Show(
+                                    $"Размер изображения составляет {sizeMb:F2} МБ.\n" +
+                                    $"Допустимый размер — не более 1 МБ.\n\n" +
+                                    $"Сжать изображение?",
+                                    "Превышен размер файла",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Question);
+
+                                if (result == DialogResult.No)
+                                    return;
+
+                                finalImage = CompressImage(originalImage, 60L);
+
+                                // определяем размер после сжатия
+                                using (MemoryStream ms = new MemoryStream())
+                                {
+                                    finalImage.Save(ms, ImageFormat.Jpeg);
+
+                                    double compressedSizeMb = ms.Length / 1024.0 / 1024.0;
+
+                                    MessageBox.Show(
+                                        $"Изображение успешно сжато.\n" +
+                                        $"Новый размер: {compressedSizeMb:F2} МБ.",
+                                        "Сжатие выполнено",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Information);
+                                }
+                            }
+                            else
+                            {
+                                finalImage = new Bitmap(originalImage);
+                            }
+
+                            pictureBox1.Image?.Dispose();
+                            pictureBox1.Image = finalImage;
                         }
 
                         selectedPhotoFullPath = ofd.FileName;
@@ -366,6 +435,21 @@ namespace WindowsFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             UploadPhoto();
+        }
+
+        private Image CompressImage(Image image, long quality = 75L)
+        {
+            ImageCodecInfo jpgEncoder = ImageCodecInfo.GetImageDecoders()
+                .First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+
+            EncoderParameters encoderParameters = new EncoderParameters(1);
+            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                image.Save(ms, jpgEncoder, encoderParameters);
+                return Image.FromStream(new MemoryStream(ms.ToArray()));
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)

@@ -15,8 +15,8 @@ namespace WindowsFormsApp1
         string selectedPhotoFileName;              // Имя выбранного файла фото
         string selectedPhotoFullPath;              // Полный путь к фото на диске
         string photoFolder;                        // Папка для хранения фото
-        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "upload.png");
-        // Путь к изображению-заглушке
+        string placeholderPath = Path.Combine(Application.StartupPath, "photo", "upload.png"); // Путь к изображению-заглушке
+        long maxSize = 1 * 1024 * 1024; // 1 МБ
 
         public AddDoctor()                         // Конструктор формы
         {
@@ -71,24 +71,38 @@ namespace WindowsFormsApp1
             {
                 try
                 {
-                    string destPath = Path.Combine(photoFolder, selectedPhotoFileName);
-                    // Путь назначения
-
-                    if (File.Exists(destPath))                   // Проверяем, существует ли файл
+                    using (Image img = Image.FromFile(selectedPhotoFullPath))
                     {
-                        string nameOnly = Path.GetFileNameWithoutExtension(selectedPhotoFileName);
-                        // Имя без расширения
-                        string ext = Path.GetExtension(selectedPhotoFileName);
-                        // Расширение
-                        string uniqueName = $"{nameOnly}_{DateTime.Now:yyyyMMdd_HHmmss}{ext}";
-                        // Создаём уникальное имя
+                        Image finalImage = img;
 
-                        selectedPhotoFileName = uniqueName;
-                        destPath = Path.Combine(photoFolder, uniqueName);
+                        // если нужно сжатие
+                        FileInfo fileInfo = new FileInfo(selectedPhotoFullPath);
+
+                        if (fileInfo.Length > maxSize)
+                        {
+                            finalImage = CompressImage(img, 60L);
+                        }
+
+                        string fileName = Path.GetFileNameWithoutExtension(selectedPhotoFileName) + ".jpg";
+                        string destPath = Path.Combine(photoFolder, fileName);
+                        // если файл существует — делаем уникальное имя
+                        if (File.Exists(destPath))
+                        {
+                            string nameOnly = Path.GetFileNameWithoutExtension(selectedPhotoFileName);
+                            string ext = ".jpg"; // важно: сохраняем как JPG после сжатия
+                            string uniqueName = $"{nameOnly}_{DateTime.Now:yyyyMMdd_HHmmss}{ext}";
+
+                            selectedPhotoFileName = uniqueName;
+                            destPath = Path.Combine(photoFolder, uniqueName);
+                        }
+
+                        // сохраняем именно СЖАТОЕ изображение
+                        finalImage.Save(destPath, ImageFormat.Jpeg);
+
+                        finalPhotoFileName = fileName;
+
+                        finalImage.Dispose();
                     }
-
-                    File.Copy(selectedPhotoFullPath, destPath, true);  // Копируем файл в папку
-                    finalPhotoFileName = selectedPhotoFileName;        // Сохраняем имя для базы
                 }
                 catch (Exception ex)                                   // Ловим возможные ошибки
                 {
@@ -213,17 +227,44 @@ namespace WindowsFormsApp1
                             // Проверка 400x400
                             if (originalImage.Width != 400 || originalImage.Height != 400)
                             {
-                                MessageBox.Show("Изображение должно быть 400x400 пикселей!",
-                                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show("Изображение должно быть 400x400 пикселей!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
 
                             Image finalImage;
 
                             // если больше 1MB — сжимаем
-                            if (fileInfo.Length > 1 * 1024 * 1024)
+                            if (fileInfo.Length > maxSize)
                             {
+                                double sizeMb = fileInfo.Length / 1024.0 / 1024.0;
+
+                                DialogResult result = MessageBox.Show(
+                                    $"Размер изображения составляет {sizeMb:F2} МБ.\n" +
+                                    $"Допустимый размер — не более 1 МБ.\n\n" +
+                                    $"Сжать изображение?",
+                                    "Превышен размер файла",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Question);
+
+                                if (result == DialogResult.No)
+                                    return;
+
                                 finalImage = CompressImage(originalImage, 60L);
+
+                                // определяем размер после сжатия
+                                using (MemoryStream ms = new MemoryStream())
+                                {
+                                    finalImage.Save(ms, ImageFormat.Jpeg);
+
+                                    double compressedSizeMb = ms.Length / 1024.0 / 1024.0;
+
+                                    MessageBox.Show(
+                                        $"Изображение успешно сжато.\n" +
+                                        $"Новый размер: {compressedSizeMb:F2} МБ.",
+                                        "Сжатие выполнено",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Information);
+                                }
                             }
                             else
                             {
@@ -240,8 +281,7 @@ namespace WindowsFormsApp1
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}",
-                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Ошибка при загрузке изображения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }

@@ -170,6 +170,12 @@ namespace WindowsFormsApp1
             string password = textBox5.Text.Trim();
             int roleId = Convert.ToInt32(comboBox1.SelectedValue);
 
+            if(login == "admin" && password == "admin")
+            {
+                MessageBox.Show("Нельзя использовать логин и пароль \"admin\"!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             // Хеширование пароля SHA256
             string hash_password;
             using (var sha = SHA256.Create())
@@ -262,6 +268,12 @@ namespace WindowsFormsApp1
             string login = textBox6.Text.Trim();
             string password = textBox5.Text.Trim();
             int roleId = Convert.ToInt32(comboBox1.SelectedValue);
+
+            if (login == "admin" && password == "admin")
+            {
+                MessageBox.Show("Нельзя использовать логин и пароль \"admin\"!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
             // Проверка на пустые обязательные поля
             if (string.IsNullOrWhiteSpace(surname) || string.IsNullOrWhiteSpace(name) ||

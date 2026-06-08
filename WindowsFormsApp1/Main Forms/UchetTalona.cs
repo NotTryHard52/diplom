@@ -124,7 +124,7 @@ namespace WindowsFormsApp1
             else if (comboBox2.SelectedIndex == 2)
                 return "ORDER BY sc.date DESC";
 
-            return "ORDER BY o.idOrder DESC";
+            return " ";
         }
 
         // Событие загрузки формы
