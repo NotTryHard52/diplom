@@ -104,7 +104,7 @@ namespace WindowsFormsApp1
             string where = "WHERE 1=1";
 
             string status = comboBox1.SelectedItem?.ToString();
-            if (!string.IsNullOrEmpty(status) && status != "Все")
+            if (!string.IsNullOrEmpty(status) && status != "Все статусы")
             {
                 where += $" AND st.name = '{status.Replace("'", "''")}'";
             }
@@ -188,7 +188,7 @@ namespace WindowsFormsApp1
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
                     comboBox1.Items.Clear();
-                    comboBox1.Items.Add("Все"); // Добавляем опцию "Все"
+                    comboBox1.Items.Add("Все статусы"); // Добавляем опцию "Все статусы"
                     while (reader.Read())
                     {
                         string status = reader["name"].ToString();
@@ -233,12 +233,22 @@ namespace WindowsFormsApp1
                 if (!isGlav)
                 {
                     ViewPriem v = new ViewPriem(orderId, false);
-                    var result = v.ShowDialog(); // открываем форму просмотра талона
+                    inactivityTimer.Stop();
+
+                    var result = v.ShowDialog();
+
+                    lastActivityTime = DateTime.Now;
+                    inactivityTimer.Start(); // открываем форму просмотра талона
                 }
                 else
                 {
                     ViewPriem v = new ViewPriem(orderId, true);
-                    var result = v.ShowDialog(); // открываем форму просмотра талона
+                    inactivityTimer.Stop();
+
+                    var result = v.ShowDialog();
+
+                    lastActivityTime = DateTime.Now;
+                    inactivityTimer.Start(); // открываем форму просмотра талона
                 }
                 ReloadOrderTable(); // обновляем таблицу после просмотра
             }
@@ -416,7 +426,13 @@ namespace WindowsFormsApp1
         private void button6_Click(object sender, EventArgs e)
         {
             OtchetExcel v = new OtchetExcel();
+
+            inactivityTimer.Stop();
+
             v.ShowDialog();
+
+            lastActivityTime = DateTime.Now;
+            inactivityTimer.Start();
         }
         protected override void OnFormClosed(FormClosedEventArgs e)
         {

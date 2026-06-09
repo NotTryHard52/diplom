@@ -11,6 +11,7 @@ namespace WindowsFormsApp1
         private Form activeForm = null;  // Ссылка на текущую открытую дочернюю форму
         Color activeColor = Color.FromArgb(91, 122, 196);   // активная
         Color defaultColor = Color.White; // обычная 
+        private bool sessionExpired = false;
 
         // Конструктор формы, принимает ФИО, ID и роль пользователя
         public Form1(string FIO, int userId, int role)
@@ -24,6 +25,9 @@ namespace WindowsFormsApp1
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Проверяем, что пользователь сам закрывает форму
+            if (sessionExpired)
+                return;
+
             if (e.CloseReason == CloseReason.UserClosing)
             {
                 DialogResult result = MessageBox.Show(
@@ -35,7 +39,7 @@ namespace WindowsFormsApp1
 
                 if (result == DialogResult.No)
                 {
-                    e.Cancel = true; // отменяем закрытие
+                    e.Cancel = true;
                 }
             }
         }
@@ -47,19 +51,8 @@ namespace WindowsFormsApp1
 
         private void ShowLoginForm()
         {
-            this.Hide();
-
-            using (Login loginForm = new Login())
-            {
-                if (loginForm.ShowDialog() == DialogResult.OK)
-                {
-                    this.Show();
-                }
-                else
-                {
-                    Application.Exit();
-                }
-            }
+            sessionExpired = true;
+            this.Close();
         }
 
         private void SetActiveButton(Button activeBtn)
@@ -132,6 +125,11 @@ namespace WindowsFormsApp1
         // Кнопка 8 для выхода из системы
         private void button8_Click(object sender, EventArgs e)
         {
+            if (activeForm != null)
+            {
+                activeForm.Close();
+                activeForm = null;
+            }
             this.Close();
         }
     }

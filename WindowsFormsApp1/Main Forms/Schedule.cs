@@ -694,34 +694,6 @@ namespace WindowsFormsApp1
             }
         }
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-            if (selectedScheduleId == -1)
-            {
-                MessageBox.Show("Выберите запись!");
-                return;
-            }
-
-            if (status != "Свободно")
-            {
-                MessageBox.Show("Слот уже занят!");
-                return;
-            }
-
-            string doctorName = comboBox1.Text;
-            string date = dateTimePicker1.Value.ToString("yyyy-MM-dd");
-            string time = dateTimePicker2.Value.ToString("HH:mm");
-
-            ScheduleSelected?.Invoke(
-                selectedScheduleId,
-                doctorName,
-                date,
-                time
-            );
-
-            this.Close();
-        }
-
         private void button7_Click(object sender, EventArgs e)
         {
             if (currentPage > 1)
@@ -769,6 +741,11 @@ namespace WindowsFormsApp1
                 columns = 2;
 
             return Math.Max(1, rows * columns);
+        }
+
+        private void comboBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            InputLimit.RussianComboBox(sender, e);
         }
     }
 }

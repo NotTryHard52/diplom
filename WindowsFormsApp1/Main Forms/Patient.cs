@@ -19,7 +19,7 @@ namespace WindowsFormsApp1
             = new System.Collections.Generic.Dictionary<int, (string, string, string, string)>();
         private Timer inactivityTimer;
         private DateTime lastActivityTime;
-        private const int timeoutSeconds = 120;
+        private const int timeoutSeconds = 2;
         int currentPage = 1;
         int pageSize = 10;
         int totalRecords = 0;
@@ -227,7 +227,12 @@ namespace WindowsFormsApp1
 
             int id = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["idPatients"].Value);
             EditPatient ed = new EditPatient(id);
+            inactivityTimer.Stop();
+
             ed.ShowDialog();
+
+            lastActivityTime = DateTime.Now;
+            inactivityTimer.Start();
 
             LoadPatient(); // Обновляем таблицу после редактирования
         }
@@ -261,7 +266,12 @@ namespace WindowsFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             AddPatient ad = new AddPatient();
+            inactivityTimer.Stop();
+
             ad.ShowDialog();
+
+            lastActivityTime = DateTime.Now;
+            inactivityTimer.Start();
 
             LoadPatient(); // Обновляем таблицу после добавления
         }

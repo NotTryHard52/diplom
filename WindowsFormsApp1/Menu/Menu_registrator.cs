@@ -11,6 +11,7 @@ namespace WindowsFormsApp1
         private Form activeForm = null; // текущая открытая дочерняя форма
         Color activeColor = Color.FromArgb(91, 122, 196);   // активная
         Color defaultColor = Color.White; // обычная 
+        private bool sessionExpired = false;
 
         // Конструктор формы Menu_registrator, принимает ФИО, ID пользователя и роль
         public Menu_registrator(string FIO, int userId, int role)
@@ -25,6 +26,9 @@ namespace WindowsFormsApp1
         private void Menu_registrator_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Проверяем, что пользователь сам закрывает форму
+            if (sessionExpired)
+                return;
+
             if (e.CloseReason == CloseReason.UserClosing)
             {
                 DialogResult result = MessageBox.Show(
@@ -36,7 +40,7 @@ namespace WindowsFormsApp1
 
                 if (result == DialogResult.No)
                 {
-                    e.Cancel = true; // отменяем закрытие
+                    e.Cancel = true;
                 }
             }
         }
@@ -64,19 +68,8 @@ namespace WindowsFormsApp1
 
         private void ShowLoginForm()
         {
-            this.Hide();
-
-            using (Login loginForm = new Login())
-            {
-                if (loginForm.ShowDialog() == DialogResult.OK)
-                {
-                    this.Show();
-                }
-                else
-                {
-                    Application.Exit();
-                }
-            }
+            sessionExpired = true;
+            this.Close();
         }
 
         // Метод для открытия дочерней формы внутри панели panel2
@@ -115,11 +108,6 @@ namespace WindowsFormsApp1
             OpenChildForm(new Main_menu(label_fio.Text, currentRole), button7);
         }
 
-        // Кнопки для открытия различных дочерних форм
-        private void button1_Click(object sender, EventArgs e)
-        {
-        }
-
         private void button3_Click(object sender, EventArgs e)
         {
             var patientForm = new Patient();
@@ -155,6 +143,11 @@ namespace WindowsFormsApp1
         // Кнопка выхода с подтверждением
         private void button8_Click(object sender, EventArgs e)
         {
+            if (activeForm != null)
+            {
+                activeForm.Close();
+                activeForm = null;
+            }
             this.Close();
         }
     }

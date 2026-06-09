@@ -86,13 +86,21 @@ namespace WindowsFormsApp1
         private void button4_Click(object sender, EventArgs e)
         {
             Schedule scheduleForm = new Schedule(true); // передаём true для выбора
+
             scheduleForm.ScheduleSelected += (scheduleId, doctorName, date, time) =>
             {
-                // Получаем данные выбранного расписания
-                selectedScheduleId = scheduleId;
-                label1.Text = "Врач: " + doctorName;
-                label7.Text = "Дата приема: " + DateTime.Parse(date).ToString("dd.MM.yyyy");
-                label8.Text = "Время приема: " + TimeSpan.Parse(time).ToString(@"hh\:mm");
+                try
+                {
+                    selectedScheduleId = scheduleId;
+
+                    label1.Text = "Врач: " + doctorName;
+                    label7.Text = "Дата приема: " + date;
+                    label8.Text = "Время приема: " + time;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
             };
             scheduleForm.ShowDialog(); // показываем форму выбора
         }

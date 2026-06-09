@@ -276,7 +276,7 @@ namespace WindowsFormsApp1
 
                     if (count > 0)
                     {
-                        MessageBox.Show("Нельзя удалить врача, он используется в расписании!");
+                        MessageBox.Show("Нельзя удалить врача, он используется в расписании!", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }

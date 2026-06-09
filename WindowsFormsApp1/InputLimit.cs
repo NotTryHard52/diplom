@@ -168,10 +168,31 @@ namespace WindowsFormsApp1
         {
             if (picker == null) return;
             picker.MinDate = DateTime.Today;
-            picker.MaxDate = DateTime.Today.AddDays(14);
+            picker.MaxDate = DateTime.Today.AddDays(13);
             picker.Format = DateTimePickerFormat.Custom;
             picker.CustomFormat = "dd.MM.yyyy";
             picker.Value = DateTime.Today; // значение по умолчанию
+        }
+
+        // Только русские буквы и пробел для ComboBox
+        public static void RussianComboBox(object sender, KeyPressEventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+            if (comboBox == null) return;
+
+            if (char.IsControl(e.KeyChar))
+                return;
+
+            bool isRussian =
+                (e.KeyChar >= 'А' && e.KeyChar <= 'я') ||
+                e.KeyChar == 'Ё' ||
+                e.KeyChar == 'ё';
+
+            // Разрешаем только русские буквы и пробел
+            if (!isRussian && e.KeyChar != ' ')
+            {
+                e.Handled = true;
+            }
         }
     }
 }
