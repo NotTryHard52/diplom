@@ -69,22 +69,13 @@ namespace WindowsFormsApp1
         {
             if (comboBox1.SelectedIndex == -1)
             {
-                MessageBox.Show("Выберите таблицу!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Выберите таблицу!");
                 return;
             }
 
-            if (string.IsNullOrEmpty(csvPath))
+            if (string.IsNullOrEmpty(csvPath) || !File.Exists(csvPath))
             {
-                MessageBox.Show("Выберите CSV файл!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (!File.Exists(csvPath))
-            {
-                MessageBox.Show("Файл не найден!", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Выберите CSV файл!");
                 return;
             }
 
@@ -92,12 +83,11 @@ namespace WindowsFormsApp1
 
             try
             {
-                var lines = File.ReadLines(csvPath, Encoding.UTF8).ToArray();
+                var lines = File.ReadAllLines(csvPath, Encoding.UTF8);
 
                 if (lines.Length < 2)
                 {
-                    MessageBox.Show("CSV файл пустой!", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("CSV пустой");
                     return;
                 }
 
@@ -110,15 +100,16 @@ namespace WindowsFormsApp1
                 {
                     string col = headers[i].Trim();
 
-                    if (col.StartsWith("id", StringComparison.OrdinalIgnoreCase))
-                        continue; // игнорируем id
+                    if (col.Equals("idSchedule", StringComparison.OrdinalIgnoreCase))
+                        continue;
 
                     validIndexes.Add(i);
                     dbColumns.Add($"`{col}`");
                 }
 
                 string columns = string.Join(",", dbColumns);
-                string parameters = string.Join(",", Enumerable.Range(0, validIndexes.Count).Select(i => $"@p{i}"));
+                string parameters = string.Join(",", Enumerable.Range(0, validIndexes.Count)
+                    .Select(i => $"@p{i}"));
 
                 string query = $"INSERT INTO `{tableName}` ({columns}) VALUES ({parameters})";
 
@@ -126,10 +117,11 @@ namespace WindowsFormsApp1
                 {
                     con.Open();
 
-                    using (MySqlTransaction transaction = con.BeginTransaction())
+                    using (MySqlTransaction tr = con.BeginTransaction())
                     {
                         int success = 0;
-                        int failed = 0;
+
+                        List<string> errors = new List<string>();
 
                         try
                         {
@@ -140,63 +132,55 @@ namespace WindowsFormsApp1
 
                                 string[] values = lines[i].Split(';');
 
-                                try
+                                using (MySqlCommand cmd = new MySqlCommand(query, con, tr))
                                 {
-                                    using (MySqlCommand cmd = new MySqlCommand(query, con, transaction))
+                                    cmd.CommandTimeout = 60;
+
+                                    for (int j = 0; j < validIndexes.Count; j++)
                                     {
-                                        for (int j = 0; j < validIndexes.Count; j++)
+                                        string raw = validIndexes[j] < values.Length
+                                            ? values[validIndexes[j]]
+                                            : null;
+
+                                        if (string.IsNullOrWhiteSpace(raw))
                                         {
-                                            string raw = validIndexes[j] < values.Length
-                                                ? values[validIndexes[j]]
-                                                : null;
-
-                                            if (string.IsNullOrWhiteSpace(raw))
-                                            {
-                                                cmd.Parameters.AddWithValue($"@p{j}", DBNull.Value);
-                                                continue;
-                                            }
-
-                                            raw = raw.Trim().Replace(',', '.'); 
-
-                                            if (int.TryParse(raw, System.Globalization.NumberStyles.Any,
-                                                System.Globalization.CultureInfo.InvariantCulture, out int intVal))
-                                            {
-                                                cmd.Parameters.AddWithValue($"@p{j}", intVal);
-                                            }
-                                            else if (decimal.TryParse(raw, System.Globalization.NumberStyles.Any,
-                                                System.Globalization.CultureInfo.InvariantCulture, out decimal decVal))
-                                            {
-                                                cmd.Parameters.AddWithValue($"@p{j}", decVal);
-                                            }
-                                            else
-                                            {
-                                                cmd.Parameters.AddWithValue($"@p{j}", raw);
-                                            }
+                                            cmd.Parameters.AddWithValue($"@p{j}", DBNull.Value);
+                                            continue;
                                         }
 
+                                        raw = raw.Trim().Replace(',', '.');
+
+                                        cmd.Parameters.AddWithValue($"@p{j}", raw);
+                                    }
+
+                                    try
+                                    {
                                         cmd.ExecuteNonQuery();
                                         success++;
                                     }
-                                }
-                                catch
-                                {
-                                    failed++;
-                                    continue;
+                                    catch (MySqlException ex)
+                                    {
+                                        errors.Add($"Строка {i + 1}: {ex.Message} | {lines[i]}");
+                                        throw; // ❗ важно: ломаем транзакцию
+                                    }
                                 }
                             }
 
-                            transaction.Commit();
+                            tr.Commit();
 
                             MessageBox.Show(
-                                $"Импорт завершён!\nУспешно: {success}\nОшибок: {failed}",
-                                "Готово",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                                $"Импорт успешен!\nЗаписей: {success}");
                         }
                         catch
                         {
-                            transaction.Rollback();
-                            throw;
+                            tr.Rollback();
+
+                            MessageBox.Show(
+                                "Импорт ОТМЕНЁН (rollback)\n\n" +
+                                string.Join("\n", errors.Take(10)),
+                                "Ошибка",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                         }
                     }
                 }
@@ -208,8 +192,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка импорта: {ex.Message}",
-                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ошибка импорта: {ex.Message}");
             }
         }
     }

@@ -535,7 +535,7 @@ namespace WindowsFormsApp1
             {
                 if (item.Status != "Свободно")
                 {
-                    MessageBox.Show("Этот слот уже занят!");
+                    MessageBox.Show("Этот слот уже занят!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -543,7 +543,7 @@ namespace WindowsFormsApp1
 
                 if (dateTime < DateTime.Now)
                 {
-                    MessageBox.Show("Нельзя выбрать прошлое время!");
+                    MessageBox.Show("Нельзя выбрать прошлое время!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 

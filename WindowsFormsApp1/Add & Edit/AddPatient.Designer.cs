@@ -70,7 +70,7 @@ namespace WindowsFormsApp1
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(8, 171);
+            this.label4.Location = new System.Drawing.Point(8, 175);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(132, 20);
             this.label4.TabIndex = 62;
@@ -150,7 +150,7 @@ namespace WindowsFormsApp1
             this.maskedTextBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.maskedTextBox2.Location = new System.Drawing.Point(12, 246);
+            this.maskedTextBox2.Location = new System.Drawing.Point(12, 250);
             this.maskedTextBox2.Mask = "+7 999 999 99 99";
             this.maskedTextBox2.Name = "maskedTextBox2";
             this.maskedTextBox2.Size = new System.Drawing.Size(266, 26);
@@ -161,7 +161,7 @@ namespace WindowsFormsApp1
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(8, 223);
+            this.label6.Location = new System.Drawing.Point(8, 227);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(146, 20);
             this.label6.TabIndex = 69;
@@ -172,7 +172,7 @@ namespace WindowsFormsApp1
             this.dateTimePicker1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dateTimePicker1.Location = new System.Drawing.Point(12, 194);
+            this.dateTimePicker1.Location = new System.Drawing.Point(12, 198);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(266, 26);
             this.dateTimePicker1.TabIndex = 71;
@@ -182,7 +182,7 @@ namespace WindowsFormsApp1
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(8, 275);
+            this.label5.Location = new System.Drawing.Point(8, 279);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(121, 20);
             this.label5.TabIndex = 72;
@@ -193,7 +193,7 @@ namespace WindowsFormsApp1
             this.maskedTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.maskedTextBox1.Location = new System.Drawing.Point(12, 298);
+            this.maskedTextBox1.Location = new System.Drawing.Point(12, 302);
             this.maskedTextBox1.Mask = "0000000000000000";
             this.maskedTextBox1.Name = "maskedTextBox1";
             this.maskedTextBox1.Size = new System.Drawing.Size(266, 26);
@@ -245,7 +245,7 @@ namespace WindowsFormsApp1
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
-            this.label10.Location = new System.Drawing.Point(150, 223);
+            this.label10.Location = new System.Drawing.Point(149, 227);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(17, 24);
             this.label10.TabIndex = 77;
@@ -258,7 +258,7 @@ namespace WindowsFormsApp1
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(53)))), ((int)(((byte)(69)))));
-            this.label11.Location = new System.Drawing.Point(123, 275);
+            this.label11.Location = new System.Drawing.Point(123, 279);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(17, 24);
             this.label11.TabIndex = 78;
