@@ -69,13 +69,13 @@ namespace WindowsFormsApp1
         {
             if (comboBox1.SelectedIndex == -1)
             {
-                MessageBox.Show("Выберите таблицу!");
+                MessageBox.Show("Выберите таблицу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (string.IsNullOrEmpty(csvPath) || !File.Exists(csvPath))
             {
-                MessageBox.Show("Выберите CSV файл!");
+                MessageBox.Show("Выберите CSV файл!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

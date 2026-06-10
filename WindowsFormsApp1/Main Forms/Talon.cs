@@ -293,6 +293,18 @@ namespace WindowsFormsApp1
                                     return;
                                 }
 
+                                // Создаем папку для талонов
+                                string outputDir = Path.Combine(
+                                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                                    "Талоны");
+
+                                System.IO.Directory.CreateDirectory(outputDir);
+
+                                // Имя нового файла
+                                string outputFile = Path.Combine(
+                                    outputDir,
+                                    $"Талон_{orderId}_{DateTime.Now:yyyyMMdd_HHmmss}.docx");
+
                                 // Данные
                                 string number = orderId.ToString();
 
@@ -309,22 +321,22 @@ namespace WindowsFormsApp1
                                     con2.Open();
 
                                     string query = @"
-                                            SELECT 
-                                                CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS patient,
-                                                DATE_FORMAT(p.date_birth, '%d.%m.%Y') AS birthday,
-                                                p.number_policy AS chils,
-                                                CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS doctor,
-                                                sp.SpecialityName AS speciality,
-                                                DATE_FORMAT(sc.Date, '%d.%m.%Y') AS date,
-                                                sc.Time AS time
-                                            FROM `Order` o
-                                            JOIN Patients p ON o.Patients_idPatients = p.idPatients
-                                            JOIN Schedule sc ON o.schedule = sc.idSchedule
-                                            JOIN Doctors d ON sc.idDoctor = d.idDoctors
-                                            JOIN Speciality sp ON d.Speciality = sp.idSpeciality
-                                            WHERE o.idOrder = @orderId";
+                                                SELECT 
+                                                    CONCAT(p.surname, ' ', p.name, ' ', p.lastname) AS patient,
+                                                    DATE_FORMAT(p.date_birth, '%d.%m.%Y') AS birthday,
+                                                    p.number_policy AS chils,
+                                                    CONCAT(d.surname, ' ', d.name, ' ', d.lastname) AS doctor,
+                                                    sp.SpecialityName AS speciality,
+                                                    DATE_FORMAT(sc.Date, '%d.%m.%Y') AS date,
+                                                    sc.Time AS time
+                                                FROM `Order` o
+                                                JOIN Patients p ON o.Patients_idPatients = p.idPatients
+                                                JOIN Schedule sc ON o.schedule = sc.idSchedule
+                                                JOIN Doctors d ON sc.idDoctor = d.idDoctors
+                                                JOIN Speciality sp ON d.Speciality = sp.idSpeciality
+                                                WHERE o.idOrder = @orderId";
 
-                                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                                    using (MySqlCommand cmd = new MySqlCommand(query, con2))
                                     {
                                         cmd.Parameters.AddWithValue("@orderId", orderId);
 
@@ -337,24 +349,37 @@ namespace WindowsFormsApp1
                                                 chils = reader["chils"].ToString();
                                                 fioDoctor = reader["doctor"].ToString();
                                                 speciality = reader["speciality"].ToString();
-
-                                                DateTime dtTime;
                                                 date = reader["date"].ToString();
-                                                time = TimeSpan.Parse(reader["time"].ToString()).ToString(@"hh\:mm");
+
+                                                if (reader["time"] != DBNull.Value)
+                                                {
+                                                    time = TimeSpan.Parse(reader["time"].ToString())
+                                                        .ToString(@"hh\:mm");
+                                                }
                                             }
                                         }
                                     }
                                 }
 
                                 Word.Application wordApp = new Word.Application();
-                                Word.Document doc = wordApp.Documents.Open(templatePath);
+
+                                // Открываем шаблон только для чтения
+                                Word.Document doc = wordApp.Documents.Open(
+                                    templatePath,
+                                    ReadOnly: true);
+
+                                // Сохраняем копию
+                                doc.SaveAs(outputFile);
 
                                 Word.Range range = doc.Content;
                                 object replaceAll = Word.WdReplace.wdReplaceAll;
 
                                 void Replace(string find, string value)
                                 {
-                                    range.Find.Execute(find, ReplaceWith: value, Replace: replaceAll);
+                                    range.Find.Execute(
+                                        FindText: find,
+                                        ReplaceWith: value ?? "",
+                                        Replace: replaceAll);
                                 }
 
                                 Replace("{number}", number);
@@ -368,14 +393,25 @@ namespace WindowsFormsApp1
                                 Replace("{FIO}", fioDoctor);
                                 Replace("{speciality}", speciality);
 
+                                // Сохраняем уже готовый талон
+                                doc.Save();
+
+                                // Показываем пользователю готовый файл
                                 wordApp.Visible = true;
 
-                                MessageBox.Show("Талон успешно сформирован!", "Успех",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                MessageBox.Show(
+                                    $"Талон сформирован.\nФайл сохранён:\n{outputFile}",
+                                    "Успех",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information);
                             }
                             catch (Exception ex)
                             {
-                                MessageBox.Show("Ошибка Word: " + ex.Message);
+                                MessageBox.Show(
+                                    "Ошибка Word: " + ex.Message,
+                                    "Ошибка",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error);
                             }
                         }
 
@@ -431,11 +467,6 @@ namespace WindowsFormsApp1
 
                 UpdateTotal(); // пересчёт суммы
             }
-        }
-
-        private void dataGridView1_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            AddSelectedService();
         }
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)

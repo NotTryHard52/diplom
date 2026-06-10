@@ -239,7 +239,6 @@ namespace WindowsFormsApp1
         // Кнопка "Выход"
         private void button2_Click(object sender, EventArgs e)
         {
-            Application.Exit();
             try
             {
                 BackupClass.CreateBackupWithDialog(AppDomain.CurrentDomain.BaseDirectory);
@@ -249,6 +248,7 @@ namespace WindowsFormsApp1
                 MessageBox.Show("Ошибка дампа");
                 MessageBox.Show(ex.Message);
             }
+            Application.Exit();
         }
 
         // Клик по иконке настроек
