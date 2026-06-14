@@ -197,15 +197,28 @@ namespace WindowsFormsApp1
                         }
                     }
 
+                    string checkQuery2 = "SELECT COUNT(*) FROM Doctors WHERE Phone_number = @phone";
+                    // Запрос проверки дубликата телефона
+                    using (MySqlCommand checkCmd = new MySqlCommand(checkQuery2, con))
+                    {
+                        checkCmd.Parameters.AddWithValue("@phone", newPhone);  // Передаём параметр
+                        int exists = Convert.ToInt32(checkCmd.ExecuteScalar()); // Получаем количество записей
+                        if (exists > 0)                                     // Если телефон найден
+                        {
+                            MessageBox.Show("Такой номер уже существует!", "Дубликат", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+
                     string query = @"
-            UPDATE Doctors
-            SET Surname = @surname,
-                Name = @name,
-                Lastname = @lastname,
-                Phone_number = @phone,
-                Speciality = @speciality,
-                Photo = @photo
-            WHERE idDoctors = @id;";
+                                UPDATE Doctors
+                                SET Surname = @surname,
+                                    Name = @name,
+                                    Lastname = @lastname,
+                                    Phone_number = @phone,
+                                    Speciality = @speciality,
+                                    Photo = @photo
+                                WHERE idDoctors = @id;";
 
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {

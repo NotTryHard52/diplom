@@ -47,6 +47,9 @@ namespace WindowsFormsApp1.Import___Export___Backup___Restore
                 BackupClass.RestoreBackup(selectedBackupFile);
 
                 MessageBox.Show("База данных успешно восстановлена!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                label2.Text = "*файл не выбран";
+                selectedBackupFile = "";
+                label3.Text = selectedBackupFile;
             }
             catch (Exception ex)
             {

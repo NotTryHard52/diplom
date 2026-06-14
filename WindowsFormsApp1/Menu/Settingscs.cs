@@ -16,39 +16,53 @@ namespace WindowsFormsApp1
         // Событие кнопки "Сохранить" настройки подключения
         private void button2_Click(object sender, EventArgs e)
         {
-            Configuration currentConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            try
+            {
+                Configuration currentConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-            // Обновляем значения подключения
-            currentConfig.AppSettings.Settings["host"].Value = textBox1.Text;
-            currentConfig.AppSettings.Settings["uid"].Value = textBox2.Text;
-            currentConfig.AppSettings.Settings["pwd"].Value = textBox4.Text;
+                // Обновляем значения подключения
+                currentConfig.AppSettings.Settings["host"].Value = textBox1.Text;
+                currentConfig.AppSettings.Settings["uid"].Value = textBox2.Text;
+                currentConfig.AppSettings.Settings["pwd"].Value = textBox4.Text;
 
 
-            // Сохраняем конфигурацию
-            currentConfig.Save(ConfigurationSaveMode.Modified);
-            ConfigurationManager.RefreshSection("appSettings");
+                // Сохраняем конфигурацию
+                currentConfig.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
 
-            MessageBox.Show(
-                $"Настройки сохранены.",
-                "Сохранено",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+                MessageBox.Show(
+                    $"Настройки сохранены.",
+                    "Сохранено",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
 
-            this.Close();
-            Application.Restart();
+                this.Close();
+                Application.Restart();
+            }
+            catch ( Exception ex )
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         // Событие загрузки формы
         private void Settingscs_Load(object sender, EventArgs e)
         {
-            // Загружаем текущую конфигурацию приложения
-            Configuration currentConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            try
+            {
+                // Загружаем текущую конфигурацию приложения
+                Configuration currentConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-            // Подставляем текущие значения подключения в текстовые поля
-            textBox1.Text = currentConfig.AppSettings.Settings["host"].Value;
-            textBox2.Text = currentConfig.AppSettings.Settings["uid"].Value;
-            textBox4.Text = currentConfig.AppSettings.Settings["pwd"].Value;
+                // Подставляем текущие значения подключения в текстовые поля
+                textBox1.Text = currentConfig.AppSettings.Settings["host"].Value;
+                textBox2.Text = currentConfig.AppSettings.Settings["uid"].Value;
+                textBox4.Text = currentConfig.AppSettings.Settings["pwd"].Value;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         // Событие кнопки "Проверить подключение"

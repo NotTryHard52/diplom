@@ -60,7 +60,7 @@ namespace WindowsFormsApp1
 
             Connect connect = new Connect();
 
-            using (MySqlConnection conn = new MySqlConnection(connect.ConnectDB()))
+            using (MySqlConnection conn = new MySqlConnection(connect.ConnectNoDB()))
             {
                 using (MySqlCommand cmd = new MySqlCommand())
                 {

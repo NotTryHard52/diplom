@@ -315,5 +315,22 @@ namespace WindowsFormsApp1
         {
             InputLimit.Captcha_Symbol(sender, e, chars);
         }
+
+        private void Login_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                try
+                {
+                    BackupClass.CreateBackupWithDialog(AppDomain.CurrentDomain.BaseDirectory);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка дампа");
+                    MessageBox.Show(ex.Message);
+                }
+                Application.Exit();
+            }
+        }
     }
 }

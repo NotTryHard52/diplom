@@ -27,17 +27,26 @@ namespace WindowsFormsApp1
 
         void LoadTables()
         {
-            Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-                MySqlCommand cmd = new MySqlCommand("SHOW tables;", con);
-                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                DataTable dt2 = new DataTable();
-                da.Fill(dt2);
-                comboBox1.DataSource = dt2;
-                comboBox1.DisplayMember = dt2.Columns[0].ColumnName;
+                Connect connect = new Connect();
+                connectionString = connect.ConnectDB();
+                using (MySqlConnection con = new MySqlConnection(connectionString))
+                {
+                    con.Open();
+                    MySqlCommand cmd = new MySqlCommand("SHOW tables;", con);
+                    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                    DataTable dt2 = new DataTable();
+                    da.Fill(dt2);
+                    comboBox1.DataSource = dt2;
+                    comboBox1.DisplayMember = dt2.Columns[0].ColumnName;
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show($"Ошибка подключения:\n{ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
             }
         }
 
@@ -69,13 +78,15 @@ namespace WindowsFormsApp1
         {
             if (comboBox1.SelectedIndex == -1)
             {
-                MessageBox.Show("Выберите таблицу!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Выберите таблицу!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (string.IsNullOrEmpty(csvPath) || !File.Exists(csvPath))
             {
-                MessageBox.Show("Выберите CSV файл!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Выберите CSV файл!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -83,106 +94,137 @@ namespace WindowsFormsApp1
 
             try
             {
-                var lines = File.ReadAllLines(csvPath, Encoding.UTF8);
+                string[] lines = File.ReadAllLines(csvPath, Encoding.UTF8);
 
                 if (lines.Length < 2)
                 {
-                    MessageBox.Show("CSV пустой");
+                    MessageBox.Show("CSV пустой!");
                     return;
                 }
-
-                string[] headers = lines[0].Split(';');
-
-                List<int> validIndexes = new List<int>();
-                List<string> dbColumns = new List<string>();
-
-                for (int i = 0; i < headers.Length; i++)
-                {
-                    string col = headers[i].Trim();
-
-                    if (col.Equals("idSchedule", StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    validIndexes.Add(i);
-                    dbColumns.Add($"`{col}`");
-                }
-
-                string columns = string.Join(",", dbColumns);
-                string parameters = string.Join(",", Enumerable.Range(0, validIndexes.Count)
-                    .Select(i => $"@p{i}"));
-
-                string query = $"INSERT INTO `{tableName}` ({columns}) VALUES ({parameters})";
 
                 using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
                     con.Open();
 
-                    using (MySqlTransaction tr = con.BeginTransaction())
+                    // Проверяем: есть ли данные в таблице
+                    bool tableIsEmpty = true;
+
+                    using (MySqlCommand checkCmd = new MySqlCommand(
+                        $"SELECT EXISTS(SELECT 1 FROM `{tableName}` LIMIT 1);", con))
                     {
-                        int success = 0;
+                        tableIsEmpty = Convert.ToInt32(checkCmd.ExecuteScalar()) == 0;
+                    }
 
-                        List<string> errors = new List<string>();
+                    // Находим AUTO_INCREMENT колонку
+                    string autoIncrementColumn = null;
 
-                        try
+                    string aiQuery = @"
+                SELECT COLUMN_NAME
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = @table
+                  AND EXTRA LIKE '%auto_increment%'";
+
+                    using (MySqlCommand aiCmd = new MySqlCommand(aiQuery, con))
+                    {
+                        aiCmd.Parameters.AddWithValue("@table", tableName);
+                        object result = aiCmd.ExecuteScalar();
+
+                        if (result != null)
+                            autoIncrementColumn = result.ToString();
+                    }
+
+                    string[] headers = lines[0].Split(';');
+
+                    List<int> validIndexes = new List<int>();
+                    List<string> dbColumns = new List<string>();
+
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        string columnName = headers[i].Trim();
+
+                        if (!tableIsEmpty &&
+                            !string.IsNullOrEmpty(autoIncrementColumn) &&
+                            columnName.Equals(autoIncrementColumn, StringComparison.OrdinalIgnoreCase))
                         {
-                            for (int i = 1; i < lines.Length; i++)
+                            continue;
+                        }
+
+                        validIndexes.Add(i);
+                        dbColumns.Add($"`{columnName}`");
+                    }
+
+                    if (dbColumns.Count == 0)
+                    {
+                        MessageBox.Show("Не найдены колонки для импорта.");
+                        return;
+                    }
+
+                    string columns = string.Join(",", dbColumns);
+
+                    string parameters = string.Join(",",
+                        Enumerable.Range(0, validIndexes.Count)
+                        .Select(i => $"@p{i}"));
+
+                    string insertQuery =
+                        $"INSERT INTO `{tableName}` ({columns}) VALUES ({parameters})";
+
+                    int success = 0;
+                    List<string> errors = new List<string>();
+
+                    for (int row = 1; row < lines.Length; row++)
+                    {
+                        if (string.IsNullOrWhiteSpace(lines[row]))
+                            continue;
+
+                        string[] values = lines[row].Split(';');
+
+                        using (MySqlCommand cmd = new MySqlCommand(insertQuery, con))
+                        {
+                            cmd.CommandTimeout = 60;
+
+                            for (int j = 0; j < validIndexes.Count; j++)
                             {
-                                if (string.IsNullOrWhiteSpace(lines[i]))
-                                    continue;
+                                string value = validIndexes[j] < values.Length
+                                    ? values[validIndexes[j]]
+                                    : null;
 
-                                string[] values = lines[i].Split(';');
-
-                                using (MySqlCommand cmd = new MySqlCommand(query, con, tr))
-                                {
-                                    cmd.CommandTimeout = 60;
-
-                                    for (int j = 0; j < validIndexes.Count; j++)
-                                    {
-                                        string raw = validIndexes[j] < values.Length
-                                            ? values[validIndexes[j]]
-                                            : null;
-
-                                        if (string.IsNullOrWhiteSpace(raw))
-                                        {
-                                            cmd.Parameters.AddWithValue($"@p{j}", DBNull.Value);
-                                            continue;
-                                        }
-
-                                        raw = raw.Trim().Replace(',', '.');
-
-                                        cmd.Parameters.AddWithValue($"@p{j}", raw);
-                                    }
-
-                                    try
-                                    {
-                                        cmd.ExecuteNonQuery();
-                                        success++;
-                                    }
-                                    catch (MySqlException ex)
-                                    {
-                                        errors.Add($"Строка {i + 1}: {ex.Message} | {lines[i]}");
-                                        throw; // ❗ важно: ломаем транзакцию
-                                    }
-                                }
+                                if (string.IsNullOrWhiteSpace(value))
+                                    cmd.Parameters.AddWithValue($"@p{j}", DBNull.Value);
+                                else
+                                    cmd.Parameters.AddWithValue($"@p{j}", value.Trim());
                             }
 
-                            tr.Commit();
-
-                            MessageBox.Show(
-                                $"Импорт успешен!\nЗаписей: {success}");
-                        }
-                        catch
-                        {
-                            tr.Rollback();
-
-                            MessageBox.Show(
-                                "Импорт ОТМЕНЁН (rollback)\n\n" +
-                                string.Join("\n", errors.Take(10)),
-                                "Ошибка",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                            try
+                            {
+                                cmd.ExecuteNonQuery();
+                                success++;
+                            }
+                            catch (Exception ex)
+                            {
+                                errors.Add($"Строка {row + 1}: {ex.Message}");
+                            }
                         }
                     }
+
+                    string message =
+                        $"Импорт завершён.\n\n" +
+                        $"Успешно: {success}\n" +
+                        $"Ошибок: {errors.Count}";
+
+                    if (errors.Count > 0)
+                    {
+                        message += "\n\nПервые ошибки:\n\n" +
+                                   string.Join("\n", errors.Take(10));
+                    }
+
+                    MessageBox.Show(
+                        message,
+                        errors.Count == 0 ? "Успех" : "Завершено с ошибками",
+                        MessageBoxButtons.OK,
+                        errors.Count == 0
+                            ? MessageBoxIcon.Information
+                            : MessageBoxIcon.Warning);
                 }
 
                 comboBox1.SelectedIndex = -1;
@@ -192,7 +234,10 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка импорта: {ex.Message}");
+                MessageBox.Show($"Ошибка импорта:\n{ex.Message}",
+                    "Ошибка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
     }

@@ -24,17 +24,26 @@ namespace WindowsFormsApp1
 
         void LoadTables()
         {
-            Connect connect = new Connect();
-            connectionString = connect.ConnectDB();
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-                con.Open();
-                MySqlCommand cmd = new MySqlCommand("SHOW tables;", con);
-                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                DataTable dt2 = new DataTable();
-                da.Fill(dt2);
-                comboBox1.DataSource = dt2;
-                comboBox1.DisplayMember = dt2.Columns[0].ColumnName;
+                Connect connect = new Connect();
+                connectionString = connect.ConnectDB();
+                using (MySqlConnection con = new MySqlConnection(connectionString))
+                {
+                    con.Open();
+                    MySqlCommand cmd = new MySqlCommand("SHOW tables;", con);
+                    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                    DataTable dt2 = new DataTable();
+                    da.Fill(dt2);
+                    comboBox1.DataSource = dt2;
+                    comboBox1.DisplayMember = dt2.Columns[0].ColumnName;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка подключения:\n{ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
             }
         }
 

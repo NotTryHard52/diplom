@@ -1,41 +1,58 @@
 ﻿using MySql.Data.MySqlClient;
+using System;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
     public partial class Main_menu : Form
     {
-        public Main_menu(string FIO, int role)
+        public Main_menu(string FIO, int role, bool isBuiltInAdmin = false)
         {
             InitializeComponent();
+
             label_fio.Text = FIO;
-            label_role.Text = GetRoleName(role);
+
+            if (isBuiltInAdmin)
+            {
+                label_role.Text = "Администратор";
+            }
+            else
+            {
+                label_role.Text = GetRoleName(role);
+            }
         }
 
         private string GetRoleName(int roleId)
         {
-            string roleName = "";
-            Connect connect = new Connect();
-            string connectionString = connect.ConnectDB();
-            using (MySqlConnection con = new MySqlConnection(connectionString))
+            try
             {
-
-                con.Open();
-
-                string query = "SELECT RoleName FROM Roles WHERE idRoles = @id";
-
-                using (MySqlCommand cmd = new MySqlCommand(query, con))
+                string roleName = "";
+                Connect connect = new Connect();
+                string connectionString = connect.ConnectDB();
+                using (MySqlConnection con = new MySqlConnection(connectionString))
                 {
-                    cmd.Parameters.AddWithValue("@id", roleId);
 
-                    object result = cmd.ExecuteScalar();
+                    con.Open();
 
-                    if (result != null)
-                        roleName = result.ToString();
+                    string query = "SELECT RoleName FROM Roles WHERE idRoles = @id";
+
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@id", roleId);
+
+                        object result = cmd.ExecuteScalar();
+
+                        if (result != null)
+                            roleName = result.ToString();
+                    }
                 }
-            }
 
-            return roleName;
+                return roleName;
+            }
+            catch
+            {
+                return roleId == 1 ? "Администратор" : "Неизвестная роль";
+            }
         }
     }
 }
